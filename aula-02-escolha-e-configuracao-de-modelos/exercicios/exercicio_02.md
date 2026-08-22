@@ -120,6 +120,27 @@ Regras:
 - a descrição é factual: **não pode inventar** informação que não está na mensagem do cliente (nome, endereço, datas que ninguém citou);
 - quando não houver número de pedido, o campo tem que dizer isso, e não sumir nem vir `None`.
 
+#### A ação sugerida é obrigatória
+
+**Todos os 8 chamados têm que sair com uma `Ação sugerida`** — sem exceção, e sem campo vazio.
+
+Isso é fácil nas reclamações e **desconfortável** nas outras duas categorias, que é exatamente o ponto:
+
+| Categoria | A pergunta que o modelo tem que responder |
+| --- | --- |
+| `entrega_atrasada` | rastrear? acionar a transportadora? reenviar? |
+| `endereco_errado` | recoletar? redespachar? confirmar o endereço com o cliente? |
+| `produto_avariado` | trocar? estornar? pedir foto? |
+| **`duvida`** | quem responde, e o que precisa ser respondido? |
+| **`elogio`** | um elogio também gera trabalho — repassar a quem? agradecer? |
+
+Duas exigências sobre o conteúdo:
+
+- **específica da mensagem, não genérica.** "Verificar com a equipe responsável" serve para qualquer chamado e portanto não serve para nenhum. A ação tem que citar o que aquele cliente precisa;
+- **acionável por uma pessoa**: um verbo no início e um destinatário claro. Quem ler o chamado tem que saber o que fazer a seguir sem reler a mensagem do cliente.
+
+> Antes de acusar o modelo de gerar ações vagas, confira se o **seu prompt** disse que a ação é obrigatória, específica e acionável — e se deu um exemplo do que você considera boa. Isso é conteúdo da aula 03, mas o efeito você já vê aqui.
+
 Escolha os parâmetros desta etapa também — **e eles não devem ser os mesmos da etapa 1.**
 
 ### 3. `decisoes.md` — a parte que vale a nota
@@ -160,11 +181,23 @@ Some `usage` das **duas** etapas e informe:
 
 Preços em <https://mistral.ai/pricing>, com a data da consulta anotada.
 
-## Conferindo a etapa 1
+## Conferindo o resultado
 
-Compare a saída com o gabarito e informe quantas das 8 acertaram categoria e pedido.
+**Etapa 1 — contra o gabarito.** Informe quantas das 8 acertaram categoria e pedido.
 
 Se alguma errar, **leia a mensagem e o seu prompt antes de culpar o modelo**: as regras de desempate estão escritas lá? O `enum` está no schema? Erro de categoria e erro de extração de número têm causas diferentes.
+
+**Etapa 2 — contra o formato.** Aqui não há gabarito, mas há verificação automática. Antes de imprimir, confira que o chamado tem **todos** os campos preenchidos:
+
+```python
+CAMPOS = ["Categoria:", "Urgência:", "Pedido:", "Título:", "Descrição:", "Ação sugerida:"]
+
+faltando = [c for c in CAMPOS if c not in chamado]
+if faltando:
+    raise ValueError(f"chamado incompleto, faltam: {faltando}")
+```
+
+E leia as 8 ações sugeridas de uma vez, em sequência. **Se duas forem intercambiáveis entre chamados diferentes, elas são genéricas demais** — o problema está no seu prompt, não no modelo.
 
 ## Desafios opcionais
 
@@ -176,7 +209,7 @@ Se alguma errar, **leia a mensagem e o seu prompt antes de culpar o modelo**: as
 
 - `08-abertura-de-chamados.py`
 - `decisoes.md` com a tabela de parâmetros justificada e a conta de custo
-- Os 8 chamados gerados (cópia do terminal ou arquivo)
+- **Os 8 chamados gerados**, completos — cada um com a sua `Ação sugerida` preenchida
 - Um print de erro tratado: um `429` com backoff, ou um `finish_reason="length"` detectado
 
 ## Dicas
