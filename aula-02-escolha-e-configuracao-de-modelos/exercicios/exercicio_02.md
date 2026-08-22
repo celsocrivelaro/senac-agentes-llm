@@ -23,7 +23,7 @@ Criar um programa `08-abertura-de-chamados.py` que, para cada mensagem de client
 2. **Gera** o texto do chamado a partir desses dados
 3. Imprime o chamado e o custo daquela mensagem
 
-E um `decisoes.md` justificando **cada parâmetro escolhido**, com base na teoria das notas de aula.
+Os parâmetros das duas etapas ficam **no topo do script**, cada um com um comentário dizendo por que aquele valor — com base na teoria das notas de aula. Não há relatório à parte.
 
 ```
  mensagem crua
@@ -143,24 +143,42 @@ Duas exigências sobre o conteúdo:
 
 Escolha os parâmetros desta etapa também — **e eles não devem ser os mesmos da etapa 1.**
 
-### 3. `decisoes.md` — a parte que vale a nota
+### 3. Os parâmetros ficam no código — e explicados lá
 
-Para **cada etapa**, preencha e justifique. Uma linha por parâmetro:
+Não há relatório à parte. **As duas configurações vivem no topo do script**, cada
+uma num bloco, com um comentário curto dizendo **por que** aquele valor. É assim
+que se documenta decisão de configuração em código de verdade: junto do código.
 
-| Parâmetro | Etapa 1 | Por quê | Etapa 2 | Por quê |
-| --- | --- | --- | --- | --- |
-| `temperature` | | | | |
-| `max_tokens` | | | | |
-| `response_format` | | | | |
-| `stop` | | | | |
-| `frequency_penalty` | | | | |
-| `presence_penalty` | | | | |
+```python
+# --- ETAPA 1: ler e processar -------------------------------------------
+# temperature 0     -> extração: variação aqui é DEFEITO (nota 02, §9)
+# max_tokens 120    -> pior caso do schema; medi 48 na mediana, dobrei
+# response_format   -> JSON Schema com enum na categoria: o modelo não
+#                      consegue inventar rótulo fora dos 5 (nota 02, §7.3)
+# penalidades 0     -> penalizariam as chaves repetidas do JSON (nota 03, §5)
+EXTRACAO = {
+    "temperature": 0,
+    "max_tokens": 120,
+    ...
+}
 
-Regras para as justificativas:
+# --- ETAPA 2: redigir o chamado -----------------------------------------
+# temperature ...   -> (você decide, e diz por quê)
+# ...
+REDACAO = {
+    ...
+}
+```
 
-- **cite a seção da nota** que sustenta a escolha (ex.: "nota 03, §2.2 — `max_tokens` é guilhotina, não pedido de brevidade");
-- **"deixei em 0" ou "não usei" também precisa de justificativa** — em várias linhas, essa é a resposta certa, e saber por que é o ponto;
-- para o `max_tokens`, diga **como** chegou ao número. Chute não conta: meça o `usage.completion_tokens` de algumas execuções e dimensione o pior caso.
+Regras:
+
+- **cite a seção da nota** que sustenta a escolha, como nos exemplos acima;
+- **"0" e "não usei" também precisam de justificativa** — em várias linhas essa
+  é a resposta certa, e saber *por que* é o ponto;
+- para o `max_tokens`, diga **como** chegou ao número. Chute não conta: meça o
+  `usage.completion_tokens` de algumas execuções e dimensione o pior caso;
+- se as duas etapas saírem com a mesma configuração, algo está errado — releia
+  a tabela de receitas da nota 02.
 
 ### 4. Robustez
 
@@ -173,13 +191,16 @@ Cerca de 16 chamadas por execução. O programa não pode quebrar no meio:
 
 ### 5. Custo
 
-Some `usage` das **duas** etapas e informe:
+Some `usage` das **duas** etapas e faça o programa **imprimir**, ao final:
 
 - o custo médio **por chamado** (as duas chamadas juntas);
-- qual das duas etapas custa mais, **e por quê** — a resposta tem a ver com qual tarifa domina em cada uma (nota 04, §1);
+- o custo de cada etapa separado — e, num comentário no código, **qual delas
+  custa mais e por quê** (a resposta tem a ver com qual tarifa domina em cada
+  uma: nota 04, §1);
 - a projeção para **800 chamados/dia**.
 
-Preços em <https://mistral.ai/pricing>, com a data da consulta anotada.
+Os preços ficam num dicionário no topo do script, com a data da consulta a
+<https://mistral.ai/pricing> num comentário.
 
 ## Conferindo o resultado
 
@@ -208,7 +229,6 @@ E leia as 8 ações sugeridas de uma vez, em sequência. **Se duas forem interca
 ## Entrega
 
 - `08-abertura-de-chamados.py`
-- `decisoes.md` com a tabela de parâmetros justificada e a conta de custo
 - **Os 8 chamados gerados**, completos — cada um com a sua `Ação sugerida` preenchida
 - Um print de erro tratado: um `429` com backoff, ou um `finish_reason="length"` detectado
 
@@ -218,4 +238,4 @@ E leia as 8 ações sugeridas de uma vez, em sequência. **Se duas forem interca
 - **A etapa 1 é onde o formato importa; a etapa 2 é onde o texto importa.** Se você se pegar usando a mesma configuração nas duas, releia a tabela de receitas da nota 02.
 - O modelo vai querer escrever mais do que você pediu no chamado — despedida, oferta de ajuda, "espero ter ajudado". Isso tem solução direta na nota 03.
 - Se a descrição sair com informação que o cliente nunca deu, o problema **não** se resolve baixando a temperatura. Releia a nota 02, §7.4.
-- Guarde o `decisoes.md`: na aula de agentes, este programa vira uma **ferramenta** que um agente chama — e os parâmetros que você escolheu aqui continuam valendo.
+- Guarde este script: na aula de agentes, ele vira uma **ferramenta** que um agente chama — e os parâmetros que você escolheu (e comentou) aqui continuam valendo.
