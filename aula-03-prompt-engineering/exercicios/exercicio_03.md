@@ -205,4 +205,3 @@ Rode o programa uma vez para cada situação, com estas aberturas:
 - Se o bot perguntar coisas que o cliente já respondeu, o problema é de **contexto**, não de prompt: confira se o histórico está indo inteiro na chamada (nota 02, §1).
 - Se ele abrir chamado sem perguntar, o problema é o **system prompt**: ele não disse que ação de escrita precisa de confirmação.
 - Se o raciocínio sair curto e genérico, confira se você pediu CoT **e** deu espaço para ele — `max_tokens` apertado corta o raciocínio antes da conclusão (nota 01, §7.2).
-- E guarde este programa: na próxima aula ele vira o ponto de partida para o **laço de agente** com estado, memória e mais ferramentas.
