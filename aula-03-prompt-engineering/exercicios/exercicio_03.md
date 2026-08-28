@@ -155,11 +155,36 @@ Parece redundante — você acabou de criar o chamado, por que consultar? Porque
 
 > Esse hábito tem nome em sistemas distribuídos e vale para agentes: **não confie no retorno da sua própria escrita — leia de volta.**
 
-### 6. Os parâmetros ficam no código
+### 6. Prompts em arquivo, e versionados
 
-Como no exercício anterior: cada etapa tem a sua configuração, num bloco no topo do script, com um comentário dizendo **por quê**.
+Este programa tem **três prompts** — coleta, raciocínio e redação final. Eles não vivem em strings no meio do `.py`; vivem em arquivos (nota 03, §4):
 
-E aqui a diferença entre as etapas é maior que na aula 02 — são três naturezas distintas:
+```
+06-atendente.py
+prompts/
+├── coleta-v1.md
+├── raciocinio-v1.md
+└── redacao-v1.md
+```
+
+E a unidade versionada **não é o texto sozinho** — é a combinação `prompt × modelo × parâmetros` (nota 03, §2). Cada etapa declara a sua, no topo do script, com um comentário dizendo **por que** cada valor:
+
+```python
+# --- ETAPA 3: raciocínio ------------------------------------------------
+# temperature 0     -> é DECISÃO sobre dados: variação aqui é defeito
+# max_tokens 600    -> o raciocínio precisa caber inteiro; com teto curto
+#                      ele é cortado antes da conclusão (nota 01, §7.2)
+# CoT no prompt     -> a tarefa tem etapas: comparar datas, confrontar o
+#                      que o cliente diz com o que o sistema diz, concluir
+RACIOCINIO = {
+    "versao": 1,
+    "prompt": "raciocinio-v1",
+    "modelo": os.environ.get("LLM_MODELO", "mistral-small-latest"),
+    "parametros": {"temperature": 0, "max_tokens": 600},
+}
+```
+
+E as três etapas **não podem sair com a mesma configuração** — são naturezas distintas:
 
 | Etapa | O que ela é | Variação na saída |
 | --- | --- | --- |
@@ -167,7 +192,31 @@ E aqui a diferença entre as etapas é maior que na aula 02 — são três natur
 | **Raciocínio** | decisão sobre dados | **defeito** |
 | **Redação final** | texto para humano | aceitável |
 
-Se as três saírem com a mesma configuração, algo está errado.
+#### 6.1 O carimbo
+
+No começo de cada atendimento, o programa **imprime qual combinação está rodando** — as três, uma por etapa:
+
+```
+=== ATENDIMENTO 1 ===
+  coleta      v1  prompt=coleta-v1      modelo=mistral-small-latest  temp=0.6
+  raciocinio  v1  prompt=raciocinio-v1  modelo=mistral-small-latest  temp=0
+  redacao     v1  prompt=redacao-v1     modelo=mistral-small-latest  temp=0.5
+```
+
+Isso não é enfeite, e é o motivo pelo qual a entrega pede os quatro atendimentos: **um log sem o carimbo não é evidência de nada.** Se daqui a duas semanas você olhar aquele transcrito e o resultado parecer errado, sem essas linhas você não sabe qual prompt, qual modelo e quais parâmetros o produziram — e o `git log` te diz como o arquivo mudou, não qual versão estava rodando naquela execução (nota 03, §2.1).
+
+#### 6.2 Quando incrementar
+
+Se, depois de rodar os quatro atendimentos, você mexer num prompt para melhorar algum deles:
+
+1. **crie o arquivo novo** (`raciocinio-v2.md`), não edite o v1 por cima;
+2. **incremente o `versao`** na configuração daquela etapa;
+3. **rode os quatro atendimentos de novo** — porque mudança de prompt tem raio de alcance não-local: você mexeu para consertar o caso do `77310` e pode ter quebrado o do `90455`, que a frase nem menciona (nota 03, §3);
+4. **entregue os dois conjuntos** de transcritos, e diga em um comentário no código o que mudou e por quê.
+
+> A regra: **incrementa quando o comportamento muda.** Corrigir uma vírgula não muda; reescrever a instrução do raciocínio muda. Na dúvida, o teste é rodar e comparar.
+
+O script [`05-versao-de-prompt.py`](https://github.com/celsocrivelaro/senac-llm-code/blob/main/aula03-prompt/05-versao-de-prompt.py) do laboratório é o modelo dessa estrutura — inclusive do dicionário de configuração.
 
 ### 7. Robustez
 
@@ -194,8 +243,9 @@ Rode o programa uma vez para cada situação, com estas aberturas:
 
 ## Entrega
 
-- `06-atendente.py`
-- **Os quatro atendimentos**, com a conversa completa, o bloco `--- raciocínio ---` de cada um e o log das chamadas de ferramenta
+- `06-atendente.py` **e a pasta `prompts/`** com os três prompts versionados
+- **Os quatro atendimentos**, cada um com: o **carimbo** das três etapas, a conversa completa, o bloco `--- raciocínio ---` e o log das chamadas de ferramenta
+- Se você chegou a uma segunda versão de algum prompt: **os dois conjuntos** de atendimentos, e o que mudou entre eles
 - Um print de erro tratado: pedido inexistente, `429` com backoff, ou `finish_reason="length"` detectado
 
 ## Dicas
@@ -205,3 +255,4 @@ Rode o programa uma vez para cada situação, com estas aberturas:
 - Se o bot perguntar coisas que o cliente já respondeu, o problema é de **contexto**, não de prompt: confira se o histórico está indo inteiro na chamada (nota 02, §1).
 - Se ele abrir chamado sem perguntar, o problema é o **system prompt**: ele não disse que ação de escrita precisa de confirmação.
 - Se o raciocínio sair curto e genérico, confira se você pediu CoT **e** deu espaço para ele — `max_tokens` apertado corta o raciocínio antes da conclusão (nota 01, §7.2).
+- **Não edite um prompt por cima depois de rodar os atendimentos.** Crie o `-v2`, incremente a versão e rode tudo de novo. Sem isso, os transcritos que você entregou passam a descrever um programa que não existe mais.
