@@ -499,3 +499,4 @@ Compare com a versão ruim: `return {"erro": "KeyError: '99999'"}`. Tecnicamente
 - [Nota 01 desta aula](01-anatomia-e-tecnicas.md) — a descrição da ferramenta é prompt, e vale tudo o que está lá.
 - [Nota 02 desta aula](02-context-engineering.md) — a saída de ferramenta como fonte de contexto.
 - [Nota 03 desta aula](03-prompt-como-codigo.md) — a descrição da ferramenta é prompt: entra no mesmo versionamento e na mesma suíte de regressão.
+- [Exercício da aula](../exercicios/exercicio_03.md) — um atendimento completo: o programa pergunta ao cliente, consulta o pedido, raciocina sobre os dados, abre o chamado com confirmação e lê de volta o que gravou.
