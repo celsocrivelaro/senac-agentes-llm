@@ -91,24 +91,6 @@ Duas regras que separam uma venda boa de uma ruim:
 
 ---
 
-## Como será validado
-
-Cada grupo apresenta o case em **3 minutos**, em sala, e eu faço a validação na hora. As perguntas são sempre as mesmas:
-
-| Pergunta | O que ela reprova |
-|---|---|
-| **Qual é o seu verificador?** | como vocês vão saber que a saída está certa — se a resposta for "dá para ver", o tema não passa |
-| **Quem pode aprovar a ação irreversível?** | sistema com escrita e sem responsável |
-| **Onde está a decisão que exige um agente?** | se todo passo é `if`, é workflow — e não exercita a disciplina |
-| **De onde vem a linha de base?** | se foi estimada em vez de medida |
-| **Vocês têm os dados, ou vão pedir acesso?** | "vou pedir acesso" é o tema que morre na semana 12 |
-
-**A aprovação pode vir com ajuste** — quase sempre vem, e quase sempre é redução de escopo. Um tema aprovado com corte é melhor que um tema grande aprovado por educação.
-
-**O tema pode ser refinado até a entrega da Parte 2. Trocado, não.**
-
----
-
 ## Os quatro anti-padrões
 
 Antes de entregar, leiam a lista da [visão geral do trabalho](../../trabalho/00-visao-geral.md) **procurando o seu tema nela** — e não procurando motivo para ele não estar:
@@ -134,6 +116,8 @@ docs/
 ```
 
 Markdown, versionado. Nada de `.docx` nem `.pdf` — a pesquisa do case vive em `docs/` e precisa de `git diff`, como o enunciado do trabalho exige.
+
+E a regra que vale a partir daqui: **o tema pode ser refinado até a entrega da Parte 2. Trocado, não.** Refinar é mudar escopo, ferramenta, nível de autonomia ou fonte de dados — e é esperado. Começar de novo depois disso não dá tempo.
 
 ---
 
