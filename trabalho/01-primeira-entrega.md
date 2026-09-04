@@ -20,7 +20,7 @@ Quatro coisas:
 
 0. **O grupo** — até 4 alunos
 1. **O tema** escolhido
-2. **O detalhamento do tema**: o contexto de onde o agente vai ser usado, e **a justificativa de negócio** — por que agente, e que ganho se espera
+2. **O detalhamento do tema**: o contexto, **os usuários e a interação**, **o workflow** do agente e **a justificativa de negócio** — por que agente, e que ganho se espera
 3. **A análise de modelos** que justifica a escolha do modelo
 4. **Um agente simples rodando**, com prompt engineering e arquitetura básica — em **Python**, com a biblioteca **`openai`**, com **instruções de uso** e com a pesquisa em **`docs/`**
 
@@ -56,17 +56,73 @@ Entreguem um documento chamado `docs/case.md` respondendo aos campos abaixo. Ele
 
 O último item é o mais valioso. **Os casos difíceis do domínio são o que vai definir o seu sistema** — e são o que vocês vão usar para testá-lo.
 
-### 2.2 A interação com o usuário
+### 2.2 Os usuários, e como o agente conversa com eles
 
-A disciplina recomenda um caso com **complexidade real de interação**. Descrevam:
+Um sistema tem mais de um usuário, e eles querem coisas diferentes. Definir isso agora evita a maior causa de retrabalho no meio do semestre: descobrir na Parte 2 que o sistema foi desenhado para a pessoa errada.
+
+#### Quem são
+
+Listem **todos** os perfis que tocam o sistema — normalmente entre dois e quatro. Para cada um:
+
+| Perfil | O que ele quer | O que ele sabe | O que ele **pode** fazer |
+|---|---|---|---|
+| *ex: analista de plantão* | achar os urgentes em 200 chamados | conhece o domínio, não conhece o sistema | aprova, reprova, devolve |
+| *ex: solicitante* | resolver o problema dele | não conhece o processo | descreve, responde pergunta |
+| *ex: gestor* | saber o que o sistema decidiu | nenhum dos dois | lê relatório |
+
+A última coluna é a que mais importa, e a que os grupos esquecem: **quem pode aprovar uma ação irreversível?** Se ninguém puder, o sistema não deveria ter ação irreversível.
+
+E identifiquem o **usuário principal** — aquele para quem o sistema é desenhado quando os interesses conflitam.
+
+#### Como é a interação
+
+Para o usuário principal, descrevam concretamente:
+
+- **por onde** — chat, formulário, terminal, e-mail, planilha, API. E por que esse canal;
+- **quem começa** — o usuário procura o sistema, ou o sistema procura o usuário? (Se for o segundo, é um agente **proativo**, e alguém precisa decidir *quando* ele acorda);
+- **quantas trocas**, em média, até resolver — e o que acontece na primeira;
+- **o que o sistema devolve** — texto? decisão? documento? um número? E em que formato;
+- **como termina** — o que o usuário vê quando dá certo, e quando o sistema não consegue resolver.
+
+O jeito mais rápido de fazer isso é **escrever um diálogo de exemplo**, com as falas reais dos dois lados, do início ao fim. Vale mais que três parágrafos de descrição, e vocês vão reaproveitá-lo como caso de teste.
+
+#### E a complexidade que a disciplina pede
+
+A disciplina recomenda um caso com **complexidade real de interação**. Respondam:
 
 - o que o usuário **não** informa de primeira, e que o sistema precisa descobrir;
 - o que acontece quando o que o usuário diz **contradiz** o que o sistema encontra;
-- como o sistema decide que já sabe o suficiente para agir.
+- como o sistema decide que já sabe o suficiente para agir;
+- **quando o sistema para e chama um humano** — e qual dos perfis acima ele chama.
 
 Se as respostas forem "o usuário informa tudo no formulário", reconsiderem o tema.
 
-### 2.3 O sistema
+### 2.3 O workflow do agente
+
+Antes de qualquer código, desenhem o **fluxo simples** do sistema: a sequência de passos do pedido até o resultado.
+
+Não é a arquitetura ainda — é o **processo**. Cinco a oito passos, em texto ou em diagrama ASCII, respondendo em cada um: *o que acontece aqui, e quem decide?*
+
+```
+1. ENTRADA      o solicitante descreve o problema no chat
+2. COLETA       o sistema pergunta o que falta       [decide: MODELO]
+3. CONSULTA     busca o registro no sistema interno  [decide: CÓDIGO]
+4. TRIAGEM      caso simples -> regra                [decide: CÓDIGO]
+                caso ambíguo -> segue para 5
+5. ANÁLISE      compara o relato com o registro      [decide: MODELO]
+6. AÇÃO         registra o parecer                   [ESCRITA - confirma]
+7. RETORNO      informa o solicitante e o analista
+```
+
+Duas regras para esse desenho, e as duas valem ponto:
+
+**Marquem quem decide em cada passo** — o seu código ou o modelo. Essa marcação é o que revela o nível de autonomia real do sistema, e ela normalmente surpreende: a maioria dos passos é código.
+
+**Marquem os passos de escrita**, e se são reversíveis. Todo passo marcado como escrita irreversível precisa de confirmação humana, e o perfil que confirma vem da §2.2.
+
+> **O que este desenho vai provar ou reprovar:** se vocês conseguirem escrever os oito passos sem nenhum `[decide: MODELO]`, o sistema é um **workflow** — e o §2.5 vai perguntar por que ele precisava de um agente. Melhor descobrir isso agora, num desenho de dez minutos, do que na semana 12.
+
+### 2.4 O sistema
 
 **O que o sistema faz**, em 3 a 5 linhas.
 
@@ -79,7 +135,7 @@ Se as respostas forem "o usuário informa tudo no formulário", reconsiderem o t
 
 A última coluna é requisito desta parte — ver o item 4.2.
 
-### 2.4 A justificativa de negócio — a venda
+### 2.5 A justificativa de negócio — a venda
 
 Este é o campo novo, e é o que mais aproxima o trabalho da vida real. Vocês vão ter que **vender o sistema**.
 
@@ -145,7 +201,7 @@ Uma venda honesta declara o custo. Em três linhas: **quanto custa rodar** (a co
 
 > **O arco do trabalho:** o que vocês prometerem aqui será **conferido na Parte 3**, quando o sistema estiver rodando e a gestão de custos entrar. Prometer 80% e entregar 30% com a conta à vista é um resultado aceitável e honesto. Prometer "mais eficiência" e não ter como conferir, não.
 
-### 2.5 O verificador
+### 2.6 O verificador
 
 > **Como vocês vão saber que a saída está certa?**
 
@@ -160,13 +216,13 @@ Resposta que não vale: *"dá para ver que está certo"*.
 
 Verificador **construído** conta. O que não conta é não ter nenhum.
 
-### 2.6 O critério de sucesso
+### 2.7 O critério de sucesso
 
 **Um número, com denominador.** "Acerta em 80%" não diz nada; "acerta a categoria em 32 de 40 casos rotulados" diz.
 
 Se o custo do erro for **assimétrico** — se errar para um lado for muito pior que para o outro —, digam isso e usem duas métricas. Exemplo: *"acerta a categoria em ≥32/40 **e** não deixa passar nenhum caso urgente"*.
 
-### 2.7 Dados
+### 2.8 Dados
 
 **De onde vêm:** reais, públicos ou simulados.
 
@@ -178,13 +234,13 @@ Se simulados — e é o caso mais comum, e é legítimo —, expliquem **como vo
 
 Os dados dos laboratórios da disciplina foram montados exatamente assim. Façam igual.
 
-### 2.8 Dado sensível
+### 2.9 Dado sensível
 
 Que dado sensível este tema toca — pessoal, financeiro, de saúde, sigiloso? Se não toca nenhum, digam isso; é uma vantagem do tema, não uma omissão.
 
 Se toca, a regra é: **dado sensível não entra no repositório nem no contexto do modelo.** Ele é simulado.
 
-### 2.9 Espaço para o que ainda vem
+### 2.10 Espaço para o que ainda vem
 
 Marquem e **escrevam o quê**:
 
@@ -195,7 +251,7 @@ Marquem e **escrevam o quê**:
 
 Um `[x]` sem texto não conta. "RAG: o regulamento interno, 40 páginas em PDF" conta.
 
-### 2.10 O maior risco
+### 2.11 O maior risco
 
 O risco de verdade, não o de fachada. *"Pode ser que o modelo erre"* não é risco — é a premissa. *"A nossa única fonte é um PDF escaneado e o OCR pode não funcionar"* é risco, e vem com plano B.
 
@@ -347,6 +403,8 @@ Em ordem de peso:
 | O que se avalia | O que se espera |
 |---|---|
 | **A qualidade da escolha do tema** | problema em uma frase · usuário concreto · **verificador que existe** · critério de sucesso com denominador · espaço declarado para o que vem |
+| **Usuários e interação** | os perfis estão listados com o que **podem** fazer · há um usuário principal · a interação tem canal, iniciativa e formato · **há um diálogo de exemplo** · está dito quando o sistema chama um humano |
+| **O workflow** | 5 a 8 passos · cada passo diz **quem decide** (código ou modelo) · os passos de escrita estão marcados, com reversibilidade |
 | **A justificativa de negócio** | responde **por que agente e não software comum** · a linha de base foi **medida**, não estimada · a conta está à vista, com denominador e volume · o ganho do usuário está separado do ganho do negócio · o custo de rodar e o que se perde estão declarados |
 | **A honestidade da análise de modelos** | três candidatos comparados nos eixos **do caso** · a conta de custo feita · os cinco casos rodados de verdade · a condição de mudar de ideia |
 | **O agente rodando** | Python + `openai` · atende os requisitos de 4.1 · a integração de 4.2 é real · os 4 casos executados, com log |
@@ -386,7 +444,7 @@ Nada de `.docx` nem `.pdf`: Markdown, para que o `git diff` funcione.
 
 ## Dicas
 
-- **Meçam a linha de base antes de escrever qualquer prompt.** Cronometrem dez casos, contem uma fila real. Sem esse número, a venda da §2.4 é opinião — e é o item que mais some das entregas.
+- **Meçam a linha de base antes de escrever qualquer prompt.** Cronometrem dez casos, contem uma fila real. Sem esse número, a venda da §2.5 é opinião — e é o item que mais some das entregas.
 - **Comecem pelo verificador.** Se vocês souberem como medir que a saída está certa, o resto do tema se organiza sozinho. Se não souberem, nenhum outro campo salva o trabalho.
 - **Escrevam os dados difíceis antes do agente.** Os quatro casos de 4.5 são o seu conjunto de teste, e escrevê-los primeiro força vocês a entender o domínio antes de escrever prompt.
 - **Não escolham o tema mais impressionante. Escolham o que vocês conseguem medir.** O impressionante que ninguém consegue avaliar vira, na apresentação final, uma demonstração que funciona uma vez.
