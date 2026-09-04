@@ -32,7 +32,7 @@ Ao final desta nota você deve ser capaz de:
 - **Nomear os eixos de ganho** de um agente — produtividade, personalização, decisão, velocidade de processo, erro — e dizer **como cada um se mede**.
 - **Citar** casos reais em produção nos seis tipos, com o número divulgado e a fonte.
 - **Inferir** a arquitetura provável de um caso a partir da descrição pública dele.
-- **Explicar** por que *code agents* é o tipo mais maduro, usando a ideia de **feedback verificável**.
+- **Explicar** por que *code agents* é o tipo mais maduro, usando a ideia de **feedback verificável** — e citar as ferramentas do tipo e as três embalagens em que o mesmo agente é entregue.
 - **Reconhecer** o **assistente pessoal local** como categoria fora da taxonomia corporativa, e dizer o que ela mostra de único — proatividade, memória de longo prazo — e que risco ela cria.
 - **Enumerar** as seis características comuns aos casos que funcionam, e reconhecer a ausência delas num caso novo — inclusive no seu.
 
@@ -220,6 +220,44 @@ Guarde esta ideia com o nome, porque a próxima aula a promove a **condição de
 > **A lição para o seu case, e é a mais importante desta nota:** procure o verificador **antes** de procurar o problema. Se o domínio que você escolheu tem um "teste que passa ou falha", você escolheu um domínio onde agentes funcionam hoje. Se não tem, você vai passar o semestre sem saber se o seu sistema está certo — e o professor também não vai saber.
 
 *Arquitetura provável:* **agente de verdade**, com laço longo. É um dos poucos tipos onde a autonomia se justifica, e não por acaso é o tipo em que ela funciona.
+
+#### 5.1 As ferramentas, e as três embalagens do mesmo agente
+
+Vale conhecer as ferramentas pelo nome, porque vocês usam ou vão usar todas — e porque a diferença entre elas é de **embalagem**, não de mecanismo. As três formas em que o mesmo agente é entregue:
+
+**No terminal.** **Claude Code** é a mais orientada a terminal: roda no seu *shell*, lê o repositório e executa comandos git. A janela de 1 milhão de tokens permite varrer repositório grande **sem índice prévio** — e essa é uma decisão de arquitetura, não um detalhe: em vez de indexar o código e recuperar trechos, joga-se o contexto bruto. A aula de RAG volta a esse trade-off. **Codex CLI** e **Copilot CLI** (este disponível em geral desde abril de 2026) ocupam o mesmo espaço; o Copilot CLI planeja tarefas de vários passos, edita arquivos, roda testes, integra com *pull request* e deixa **trocar de modelo por tarefa** — Anthropic, OpenAI ou Google.
+
+**Dentro do editor.** **GitHub Copilot** e **Cursor** entraram por aqui, e o formato mudou de completar linha para conduzir tarefa. A partir do VS Code 1.109 (janeiro de 2026) existe uma barra de **Agent Sessions** em que Codex, Claude e Copilot rodam **como pares**, no mesmo painel.
+
+**Assíncrono, na nuvem.** A terceira embalagem é delegar: em vez de acompanhar o agente, você manda a tarefa longa para um agente que roda remoto e devolve um *pull request*. Desde fevereiro de 2026 Claude e Codex rodam dentro do GitHub — em `github.com`, no GitHub Mobile e no VS Code —, na mesma plataforma do Copilot, com governança, contexto e memória compartilhados.
+
+> **A escolha entre as três não é sobre capacidade.** É sobre **onde o laço roda** e **quem vê o resultado**: no seu terminal, com você olhando cada passo; no editor, no meio do seu fluxo; ou remoto, com o resultado chegando como PR para revisão. Três níveis de acompanhamento humano — e é a mesma decisão de *humano no laço* que vocês vão tomar no próprio trabalho.
+
+#### 5.2 O que dá para aprender olhando por dentro
+
+Este é o ponto que faz a seção valer mais que uma lista de produtos: **é o agente mais bem documentado a que vocês têm acesso, e vocês o usam todo dia.**
+
+Três coisas para observar na ferramenta que vocês já abriram hoje:
+
+**As ferramentas dele são as suas.** Ler arquivo, escrever arquivo, rodar comando, buscar no repositório, consultar a web. É a mesma lista que vocês vão declarar no trabalho — e o **teste** é o verificador, exatamente como o §5 argumentou.
+
+**Sub-agentes com contexto isolado.** Claude Code e Codex disparam sub-agentes para tarefas paralelas, e o resultado volta **sem poluir o orçamento de tokens da conversa principal**. Guardem isso: é precisamente a tática que a próxima aula vai chamar de **isolamento de contexto por sub-agentes**, e vocês vão encontrá-la implementada na ferramenta antes de vê-la na nota.
+
+**O laço é inspecionável.** O Claude Code é distribuído também como biblioteca — o *Claude Agent SDK* —, com o laço do agente, as ferramentas embutidas, gerenciamento de contexto, *hooks*, sub-agentes, permissões e sessões. Ou seja: **dá para ler o código do que vocês vão construir na próxima aula**, num sistema que roda em produção para milhões de pessoas.
+
+#### 5.3 E o aviso, que é o mais importante da seção
+
+Adoção altíssima **não** é qualidade garantida, e há duas ressalvas que a estatística de uso esconde.
+
+A primeira é sobre o verificador. O teste é um verificador excelente **para o que o teste cobre** — e nada mais. Código que passa em todos os testes e resolve o problema errado passa em todos os testes. A revisão continua sendo humana, e o feedback verificável do §5 é uma condição para o agente **se corrigir**, não uma garantia de que ele acertou.
+
+A segunda é mais direta, e fecha o arco desta aula com a próxima nota:
+
+> **O caso Replit era um agente de codificação.**
+
+O tipo mais maduro da indústria, o de melhor feedback verificável, o com 90% de uso semanal — é também o protagonista do fracasso mais espetacular do material deste curso: um agente que apagou um banco de produção durante um congelamento de código, contra instrução explícita. Ter o melhor verificador do mundo não substitui **confirmação humana em ação irreversível**.
+
+É o assunto da [nota 02](02-os-casos-que-falharam.md).
 
 ---
 
@@ -435,7 +473,9 @@ O verificador não vem de graça do ambiente, como no caso do teste unitário. E
 - **Parte do benefício é obtida sem LLM nenhum** — vem de ter sido obrigado a escrever a regra que nunca esteve escrita.
 - Número de benefício publicado é quase sempre **auto-relatado e sem linha de base**: serve para ordem de grandeza, não como promessa.
 - A adoção se concentra em TI, conhecimento e engenharia de software; bancos e seguros à frente, saúde e governo atrás; empresas pequenas praticamente paradas. E a governança não acompanhou.
-- **Code agents** é o tipo mais maduro (90% de uso semanal entre devs) porque o ambiente devolve **feedback verificável**.
+- **Code agents** é o tipo mais maduro (90% de uso semanal entre devs) porque o ambiente devolve **feedback verificável**. As ferramentas — Claude Code, Codex, Copilot, Cursor — são o **mesmo agente em três embalagens**: terminal, editor e assíncrono na nuvem, o que é uma decisão sobre **quanto humano fica no laço**.
+- O agente mais bem documentado a que vocês têm acesso é o que vocês usam todo dia: as ferramentas dele são as suas, ele já usa **sub-agentes com contexto isolado**, e o laço é **inspecionável** (o Claude Code é distribuído como biblioteca).
+- E o aviso: o teste verifica **o que o teste cobre**. O caso Replit era um agente de codificação.
 - **Customer agents** operam em volume alto com autonomia baixa: são **roteador + workflow**, e a fatia resolvida "sem humano" tem definição da própria empresa.
 - **Employee agents** funcionam por manter o humano como verificador com autoridade — a arquitetura mais tolerante a falha.
 - **Data agents** são o território do **orquestrador-trabalhador**, e o que mais precisa de teto.
@@ -454,6 +494,7 @@ O verificador não vem de graça do ambiente, como no caso do teste unitário. E
 - **Google Cloud — *The ROI of AI: agents are delivering for business now*** ([cloud.google.com/transform/roi-of-ai-how-agents-help-business](https://cloud.google.com/transform/roi-of-ai-how-agents-help-business)) — os números de ganho do §4, do *2025 ROI of AI Report*. Fornecedor sobre o próprio mercado, e **sem metodologia publicada**: leia como ordem de grandeza.
 - **Google Cloud — *What are AI agents?*** ([cloud.google.com/discover/what-are-ai-agents](https://cloud.google.com/discover/what-are-ai-agents)) — a distinção entre bot, assistente e agente e as características do §1.
 - **Google Cloud — catálogo de casos reais** ([1.302 casos, 11 setores × 6 tipos](https://cloud.google.com/transform/101-real-world-generative-ai-use-cases-from-industry-leaders)) — a taxonomia do §2, a origem dos casos nomeados e o material que você vai navegar para escolher o seu tema.
+- **As ferramentas do §5** — [Claude e Codex no GitHub](https://github.blog/changelog/2026-02-04-claude-and-codex-are-now-available-in-public-preview-on-github/) (fev/2026), o [painel multiagente do VS Code](https://code.visualstudio.com/blogs/2026/02/05/multi-agent-development) (Agent Sessions) e um [comparativo de agentes de terminal](https://devtoollab.com/blog/top-cli-ai-coding-agents). Para o laço por dentro, a documentação do **Claude Agent SDK**.
 - **JetBrains — Developer Ecosystem Survey 2026** ([adoção de agentes de codificação](https://blog.jetbrains.com/research/2026/08/ai-coding-agent-adoption-2026/)) — >15.000 desenvolvedores; a melhor amostra desta aula.
 - **IBM — estudo de caso do AskHR** ([ibm.com/case-studies/ibm-askhr](https://www.ibm.com/case-studies/ibm-askhr)) — os números do §7.
 - **McKinsey — The State of AI** ([2026](https://www.mckinsey.com/capabilities/tech-and-ai/our-insights/tech-forward/state-of-ai-trust-in-2026-shifting-to-the-agentic-era)) — onde a adoção se concentra, por função e por porte.
