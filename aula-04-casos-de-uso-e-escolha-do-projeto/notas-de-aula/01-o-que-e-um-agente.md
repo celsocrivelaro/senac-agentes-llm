@@ -4,13 +4,14 @@
 
 Você já construiu um laço de agente. Declarou ferramentas, leu a chamada devolvida pelo modelo, executou e devolveu o resultado. Sabe fazer a coisa funcionar.
 
-O que você não tem é **repertório** — e é o que esta nota entrega. Ela responde a três perguntas, nesta ordem:
+O que você não tem é **repertório** — e é o que esta nota entrega. Ela responde a quatro perguntas, nesta ordem:
 
 1. **O que é um agente**, afinal — e o que ele *não* é. Porque "bot", "assistente de IA" e "agente de IA" aparecem trocados entre si em quase todo material comercial, e a diferença entre eles é o que decide se um caso interessa a esta disciplina.
 2. **Que tipos existem**, na classificação que o mercado usa — e que nomes de arquitetura você vai encontrar ao ler sobre eles.
-3. **Onde eles estão de verdade**, e quais funcionam — com empresa nomeada, número divulgado e a arquitetura provável por trás de cada caso.
+3. **Para que serve** — quais são os eixos de ganho, e como cada um se mede. É o que você vai precisar para justificar o seu tema.
+4. **Onde eles estão de verdade**, e quais funcionam — com empresa nomeada, número divulgado e a arquitetura provável por trás de cada caso.
 
-A terceira parte é a maior, e vem com uma advertência de leitura. Empresa nenhuma publica o diagrama de arquitetura junto com o *case study*; o que se publica é o destinatário e o resultado. A leitura de arquitetura é **inferência**, e às vezes vai estar errada. Fazê-la mesmo assim é o exercício — usar o vocabulário que você tem sobre descrição de marketing é exatamente a habilidade de que vai precisar quando alguém te trouxer um requisito começando com *"queria um agente que…"*.
+A última parte é a maior, e vem com uma advertência de leitura. Empresa nenhuma publica o diagrama de arquitetura junto com o *case study*; o que se publica é o destinatário e o resultado. A leitura de arquitetura é **inferência**, e às vezes vai estar errada. Fazê-la mesmo assim é o exercício — usar o vocabulário que você tem sobre descrição de marketing é exatamente a habilidade de que vai precisar quando alguém te trouxer um requisito começando com *"queria um agente que…"*.
 
 E há um padrão que aparece cedo e se repete até o fim:
 
@@ -28,6 +29,7 @@ Ao final desta nota você deve ser capaz de:
 - **Reconhecer** que a lista de características de um agente é de **capacidades**, não de requisitos.
 - **Usar** a taxonomia dos seis tipos de agente para navegar o mercado, e nomear os padrões de arquitetura que vai encontrar.
 - **Dizer** onde a adoção de agentes está concentrada, e por quê.
+- **Nomear os eixos de ganho** de um agente — produtividade, personalização, decisão, velocidade de processo, erro — e dizer **como cada um se mede**.
 - **Citar** casos reais em produção nos seis tipos, com o número divulgado e a fonte.
 - **Inferir** a arquitetura provável de um caso a partir da descrição pública dele.
 - **Explicar** por que *code agents* é o tipo mais maduro, usando a ideia de **feedback verificável**.
@@ -121,7 +123,7 @@ E a distinção que mais vale guardar, porque separa dois padrões que parecem i
 > **Paralelização (*sectioning*)**: as partes estão no **seu código**.
 > **Orquestrador-trabalhador**: as partes são decididas pelo **modelo**, em execução.
 
-Com o espectro da Aula 01 mais estes três nomes, você tem o suficiente para os §4 a §8 — onde cada caso real é lido pela arquitetura provável dele.
+Com o espectro da Aula 01 mais estes três nomes, você tem o suficiente para os §5 a §9 — onde cada caso real é lido pela arquitetura provável dele.
 
 ---
 
@@ -143,7 +145,57 @@ Somando as fontes, o mapa é razoavelmente consistente:
 
 ---
 
-### 4. Code agents — o caso mais maduro, e o porquê importa mais que o quanto
+### 4. Para que serve: os benefícios, e como eles aparecem
+
+Antes de percorrer os casos, vale nomear **o que se espera ganhar**. Porque "agentes são o futuro" não é um benefício, e a pergunta que qualquer chefe vai fazer — *o que isso me dá?* — tem respostas concretas, em eixos distintos.
+
+A classificação mais usada é a do Google Cloud, e ela tem três eixos:
+
+**Produtividade.** É o eixo mais citado e o mais fácil de medir. Agentes de funcionário tiram do caminho a tarefa repetitiva: respondem à pergunta interna, preenchem o formulário, traduzem e revisam o comunicado. No *2025 ROI of AI Report* da própria Google Cloud, **74%** dos executivos relatam ROI no primeiro ano e — o número mais chamativo — entre os que relatam ganho de produtividade, **39% viram a produtividade pelo menos dobrar**.
+
+**Personalização.** Agentes de cliente entendem a necessidade, respondem, resolvem e recomendam, no canal que o cliente escolheu. O ganho aparece como satisfação e conversão, não como hora economizada.
+
+**Decisão.** Agentes que decidem em vez de sugerir, onde a decisão autônoma cria valor imediato: resolução de atendimento, otimização de estoque, priorização de fila.
+
+E há dois eixos que a lista de fornecedor costuma diluir, mas que na prática vendem melhor:
+
+**Velocidade de processo.** Não é fazer mais no mesmo tempo — é o mesmo trabalho terminando antes. A mesma fonte cita marketing **32% mais rápido** na edição e **46%** na criação de conteúdo, e operações de segurança com o tempo médio de resposta a ameaça caindo **pela metade**.
+
+**Redução de erro e de retrabalho.** O menos anunciado e o mais valioso em processo regulado, onde o custo do erro não é o tempo de refazer — é a multa, a devolução ou o cliente perdido.
+
+#### 4.1 O benefício que ninguém anuncia
+
+Para construir um agente, você é obrigado a **escrever a regra**. Qual é o teto de reembolso, o que caracteriza atraso, quando se escala para o humano, o que é caso duvidoso.
+
+Em boa parte dos casos, esse exercício descobre que a regra nunca esteve escrita em lugar nenhum — vivia na cabeça de três pessoas experientes, cada uma com uma versão. **Uma fração relevante do ganho vem de ter finalmente documentado o processo**, e não do modelo.
+
+Isso tem uma consequência prática que você vai reencontrar no seu trabalho: **parte do benefício é obtida sem LLM nenhum.** A rota de regra de um roteador — o `if` que resolve o caso claro — costuma responder pela maioria do volume, e ela só existiu porque alguém precisou escrever a regra para o agente.
+
+#### 4.2 Como cada eixo se mede
+
+Esta tabela é o que você vai usar para justificar o seu tema, na Parte 1 do trabalho:
+
+| Eixo de ganho | Como se mede | Exemplo com número, desta nota |
+|---|---|---|
+| **Produtividade** | itens tratados por pessoa por dia; horas devolvidas por semana | United Wholesale Mortgage: produtividade de analistas **mais que dobrada** em 9 meses |
+| **Cobertura / contenção** | % dos casos resolvidos sem humano | Commerzbank: **70%** de ~2 milhões de conversas |
+| **Redução de carga** | fila que deixou de chegar à pessoa | IBM AskHR: **−75%** de tickets desde 2016 · LUXGEN: **−30%** de carga nos atendentes |
+| **Velocidade de processo** | tempo do início ao fim de um caso | AdVon: catálogo de 93.673 produtos em menos de um mês |
+| **Eficiência de operação** | custo ou esforço por transação | Moglix: **4×** em eficiência de *sourcing* |
+| **Receita** | conversão, ticket, posição de busca | AdVon: **+67%** em vendas médias diárias para um cliente |
+| **Erro e retrabalho** | taxa de erro antes × depois; horas de correção | o eixo mais escasso em número público — e o mais convincente quando você tem |
+
+Repare na última linha. **Quase nenhum caso publica redução de erro**, e não é porque não acontece: é porque medir exige ter medido *antes*, e quase ninguém mediu. Se o seu tema permitir esse número, você tem o argumento mais forte da mesa.
+
+#### 4.3 A ressalva, em uma frase
+
+Todos os números desta seção — e da tabela — são **auto-relatados** por quem vendeu ou comprou o sistema, quase sempre sem linha de base publicada. "4× de eficiência" em relação a quê? Medido como?
+
+Eles servem para você saber **quais eixos de ganho existem**, e para calibrar ordem de grandeza. Não servem como promessa, e principalmente não servem como a *sua* estimativa: essa você vai ter que construir com o número da sua própria operação.
+
+---
+
+### 5. Code agents — o caso mais maduro, e o porquê importa mais que o quanto
 
 Comece pelo número, que é o mais sólido desta aula porque vem da maior amostra: a *Developer Ecosystem Survey* da JetBrains, com mais de **15.000 desenvolvedores profissionais** (coleta entre maio e julho de 2026, oito idiomas, cotas regionais):
 
@@ -170,7 +222,7 @@ Guarde esta ideia com o nome, porque a próxima aula a promove a **condição de
 
 ---
 
-### 5. Customer agents — volume alto, autonomia baixa
+### 6. Customer agents — volume alto, autonomia baixa
 
 O tipo mais visível, e o mais mal compreendido.
 
@@ -188,7 +240,7 @@ E aqui vale antecipar a conta que a próxima aula vai medir com script: a rota m
 
 ---
 
-### 6. Employee agents — assistência, não substituição
+### 7. Employee agents — assistência, não substituição
 
 **IBM**, com o **AskHR**, é o caso mais bem documentado deste tipo: cerca de 90 automações de RH — cartas, férias, folha, alterações de remuneração — atendendo **mais de 11,5 milhões de interações em 2024** (e mais de 16 milhões de mensagens em 2025), com **94% de contenção**, mais de um milhão de transações concluídas, **75% menos tickets de suporte** desde 2016 e adoção de 99% entre gestores.
 **United Wholesale Mortgage** relata ter **mais que dobrado** a produtividade de analistas de crédito em nove meses.
@@ -207,7 +259,7 @@ Se o seu case couber aqui, ele é mais fácil de defender e mais fácil de termi
 
 ---
 
-### 7. Data agents — o território do orquestrador
+### 8. Data agents — o território do orquestrador
 
 **Geotab** analisa dados de **4,7 milhões de veículos**, com bilhões de pontos por dia.
 **Moglix** relata **4×** de melhoria em eficiência de *sourcing*.
@@ -222,7 +274,7 @@ E é também o tipo que mais precisa de **teto**: um orquestrador solto sobre um
 
 ---
 
-### 8. Creative e security — os dois extremos da tolerância a erro
+### 9. Creative e security — os dois extremos da tolerância a erro
 
 Vale colocá-los lado a lado, porque juntos delimitam o espectro.
 
@@ -235,14 +287,14 @@ Aqui, errar é barato: um texto de produto ruim é corrigido, e ninguém é prej
 
 ---
 
-### 9. O que os casos que funcionam têm em comum
+### 10. O que os casos que funcionam têm em comum
 
 Olhando os seis tipos de uma vez, o padrão é consistente. Esta tabela é o que você leva desta nota para a escolha do tema do trabalho, onde ela vira critério:
 
 | Característica | Por que é necessária | Onde aparece |
 |---|---|---|
 | **Tarefa repetitiva, volume alto** | é onde a economia existe; tarefa rara não paga a engenharia | 11,5 milhões de interações, 2 milhões de conversas, 93 mil produtos |
-| **Feedback verificável** | sem ele o agente não se corrige (§4 desta nota) | o teste que passa ou falha, nos *code agents* |
+| **Feedback verificável** | sem ele o agente não se corrige (§5 desta nota) | o teste que passa ou falha, nos *code agents* |
 | **Tolerância a erro pequeno** | erro vai acontecer numa fração relevante | texto de produto sim; contenção de incidente não |
 | **Ação reversível — ou confirmação humana** | Aula 01, nota 03 §3 — a fronteira leitura/escrita | o analista que confere antes de aprovar |
 | **Dado acessível por API** | *"o difícil não é a inteligência, é o acesso confiável aos sistemas de produção"* | todos, sem exceção |
@@ -252,7 +304,7 @@ E o que **não** aparece na lista, apesar de dominar a conversa pública: qual m
 
 ---
 
-### 10. A frase que resume a nota
+### 11. A frase que resume a nota
 
 Levantamentos de mercado convergem para a mesma formulação, e ela vale ser guardada:
 
@@ -334,6 +386,9 @@ O verificador não vem de graça do ambiente, como no caso do teste unitário. E
 
 - **Bot × assistente × agente** se separam por **autonomia** (e, em segundo lugar, por complexidade, aprendizado e iniciativa). A lista de características de um agente é de **capacidades**, não de requisitos.
 - A taxonomia de mercado (6 tipos) classifica **por destinatário**, não por arquitetura — ler a arquitetura é trabalho seu, com o espectro da Aula 01 mais os três nomes do §2.1.
+- Os ganhos se organizam em eixos, e cada um tem uma **unidade de medida** própria: itens por pessoa, % de contenção, tempo de ciclo, custo por transação, taxa de erro. Escolher o eixo é escolher o número que você vai prometer.
+- **Parte do benefício é obtida sem LLM nenhum** — vem de ter sido obrigado a escrever a regra que nunca esteve escrita.
+- Número de benefício publicado é quase sempre **auto-relatado e sem linha de base**: serve para ordem de grandeza, não como promessa.
 - A adoção se concentra em TI, conhecimento e engenharia de software; bancos e seguros à frente, saúde e governo atrás; empresas pequenas praticamente paradas. E a governança não acompanhou.
 - **Code agents** é o tipo mais maduro (90% de uso semanal entre devs) porque o ambiente devolve **feedback verificável**.
 - **Customer agents** operam em volume alto com autonomia baixa: são **roteador + workflow**, e a fatia resolvida "sem humano" tem definição da própria empresa.
@@ -348,11 +403,12 @@ O verificador não vem de graça do ambiente, como no caso do teste unitário. E
 
 ## Fontes e leituras
 
+- **Google Cloud — *The ROI of AI: agents are delivering for business now*** ([cloud.google.com/transform/roi-of-ai-how-agents-help-business](https://cloud.google.com/transform/roi-of-ai-how-agents-help-business)) — os números de ganho do §4, do *2025 ROI of AI Report*. Fornecedor sobre o próprio mercado, e **sem metodologia publicada**: leia como ordem de grandeza.
 - **Google Cloud — *What are AI agents?*** ([cloud.google.com/discover/what-are-ai-agents](https://cloud.google.com/discover/what-are-ai-agents)) — a distinção entre bot, assistente e agente e as características do §1.
 - **Google Cloud — catálogo de casos reais** ([1.302 casos, 11 setores × 6 tipos](https://cloud.google.com/transform/101-real-world-generative-ai-use-cases-from-industry-leaders)) — a taxonomia do §2, a origem dos casos nomeados e o material que você vai navegar para escolher o seu tema.
 - **JetBrains — Developer Ecosystem Survey 2026** ([adoção de agentes de codificação](https://blog.jetbrains.com/research/2026/08/ai-coding-agent-adoption-2026/)) — >15.000 desenvolvedores; a melhor amostra desta aula.
-- **IBM — estudo de caso do AskHR** ([ibm.com/case-studies/ibm-askhr](https://www.ibm.com/case-studies/ibm-askhr)) — os números do §6.
+- **IBM — estudo de caso do AskHR** ([ibm.com/case-studies/ibm-askhr](https://www.ibm.com/case-studies/ibm-askhr)) — os números do §7.
 - **McKinsey — The State of AI** ([2026](https://www.mckinsey.com/capabilities/tech-and-ai/our-insights/tech-forward/state-of-ai-trust-in-2026-shifting-to-the-agentic-era)) — onde a adoção se concentra, por função e por porte.
 - Aula 01, [nota 03 §1 e §3](../../aula-01-llms-e-agentes/notas-de-aula/03-agentes-de-ia.md) — o espectro de autonomia com que cada caso é lido, e a fronteira leitura/escrita.
 - [nota 02](02-os-casos-que-falharam.md) desta aula — a outra metade da história, e a mais instrutiva.
-- **A próxima aula** ([Aula 05 — Arquitetura de agentes](../../aula-05-arquitetura-de-agentes/notas-de-aula/01-padroes-de-arquitetura.md)) abre em código cada padrão que esta nota usou para ler os casos, e transforma o *feedback verificável* do §4 em condição de projeto.
+- **A próxima aula** ([Aula 05 — Arquitetura de agentes](../../aula-05-arquitetura-de-agentes/notas-de-aula/01-padroes-de-arquitetura.md)) abre em código cada padrão que esta nota usou para ler os casos, e transforma o *feedback verificável* do §5 em condição de projeto.

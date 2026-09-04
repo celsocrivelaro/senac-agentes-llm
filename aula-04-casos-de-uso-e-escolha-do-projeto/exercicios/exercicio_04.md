@@ -54,13 +54,13 @@ Com a tabela de modos de falha da Aula 01 (nota 03 §4) na mão: que ações sã
 
 ### Formato
 
-Markdown, no repositório do grupo, em `aula04-autopsia.md`. Cite todas as fontes com link. Duas páginas — análise curta e afiada vale mais que resumo longo.
+Markdown, no repositório do grupo, em **`docs/autopsia.md`** — toda a pesquisa sobre o case vive em `docs/`, como o enunciado do trabalho exige. Cite todas as fontes com link. Duas páginas — análise curta e afiada vale mais que resumo longo.
 
 ---
 
 ## Parte 2 — A ficha de case, versionada
 
-A ficha preenchida à mão em sala, agora digital, em `case/ficha.md` no repositório do grupo.
+A ficha preenchida à mão em sala, agora digital, em `docs/case.md` no repositório do grupo.
 
 ### O modelo
 
@@ -83,6 +83,24 @@ A ficha preenchida à mão em sala, agora digital, em `case/ficha.md` no reposit
 ## Nível de autonomia pretendido
 [workflow · roteador · agente]
 **E por que este e não o de baixo:** [a justificativa é o que vale]
+
+## Por que um agente, e não software comum
+[duas frases: o que na tarefa exige decisão em tempo de execução]
+
+## O ganho esperado — a venda
+| Eixo | Linha de base (MEDIDA) | Alvo | Ganho | Volume |
+|---|---|---|---|---|
+| | | | | |
+
+**A conta:** [de X para Y = Z%, sobre N casos por dia]
+**É uma estimativa** — e será conferida na Parte 3.
+
+## O ganho para o usuário
+[não é o mesmo do negócio; se houver tensão entre os dois, diga]
+
+## O outro lado da conta
+[quanto custa rodar · quanto custa construir · o que o sistema vai
+ errar, e quem paga por isso]
 
 ## As ferramentas (3 a 6)
 | Ferramenta | Leitura ou escrita? | Reversível? |
@@ -147,6 +165,7 @@ serve de linha de base
 | Critério | O que se espera |
 |---|---|
 | O problema cabe em uma frase | e a frase é específica |
+| **A venda tem número e linha de base** | a base foi **medida**, e a conta tem denominador e volume |
 | O usuário é uma pessoa | com cargo |
 | **O verificador existe e é executável** | **reprova mais que todos os outros juntos** |
 | O critério de sucesso é um número | com denominador |
@@ -161,9 +180,9 @@ serve de linha de base
 
 No repositório do grupo, até a próxima aula:
 
-- `aula04-autopsia.md` — a Parte 1;
-- `case/ficha.md` — a Parte 2, em `v1`;
-- `case/README.md` — meia página.
+- `docs/autopsia.md` — a Parte 1;
+- `docs/case.md` — a Parte 2, em `v1`;
+- `README.md` — meia página, com o problema e como rodar.
 
 ---
 

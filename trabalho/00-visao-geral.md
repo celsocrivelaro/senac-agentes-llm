@@ -29,7 +29,7 @@ Ao fim das três partes, o grupo tem:
 
 | Parte | Tema central | O que entra |
 |---|---|---|
-| **1** | **Escolher e provar o terreno** | tema e contexto · análise de modelos · **um agente simples** com prompt engineering e arquitetura básica · integração simples com software tradicional (pode ser mock) |
+| **1** | **Escolher e provar o terreno** | tema e contexto · **a justificativa de negócio** (por que agente, e que ganho) · análise de modelos · **um agente simples** com prompt engineering e arquitetura básica · integração simples com software tradicional (pode ser mock) |
 | **2** | **O agente de verdade** | plano de prompt engineering · arquitetura do agente documentada · **RAG** como memória consultável · **MCP** no lugar da integração manual · **workflow com LangChain** |
 | **3** | **O sistema** | **multiagente** com arquitetura de coordenação · **segurança** · **MLOps** e observabilidade · **gestão de custos** · **apresentação em aula** |
 
@@ -41,7 +41,9 @@ Cada parte é avaliada **na entrega dela**. Uma Parte 1 fraca não é compensada
 
 O enunciado completo está em **[01-primeira-entrega.md](01-primeira-entrega.md)**.
 
-Em resumo: grupo formado, tema escolhido e detalhado, uma análise de modelos que justifique a escolha, e **um agente simples rodando** — com poucas ferramentas, prompt versionado e uma arquitetura que vocês saibam defender.
+Em resumo: grupo formado, tema escolhido e detalhado, **a justificativa de negócio do sistema**, uma análise de modelos que justifique a escolha, e **um agente simples rodando** — com poucas ferramentas, prompt versionado e uma arquitetura que vocês saibam defender.
+
+A justificativa de negócio é o campo novo, e é o que mais aproxima o trabalho da vida real: vocês vão ter que **vender o sistema** a quem não vai ler o código de vocês. Por que agente e não software comum, que ganho se espera — com linha de base medida, conta à vista e denominador —, o que muda para o usuário e o que a coisa custa para rodar.
 
 O objetivo desta parte não é impressionar. É **descobrir cedo** se o tema escolhido é viável, enquanto ainda dá tempo de ajustar.
 
@@ -71,7 +73,9 @@ Aqui o agente simples da Parte 1 se transforma em um agente completo. Cinco fren
 
 **3. MLOps e observabilidade.** O trace de cada execução, as métricas que vocês acompanham, o conjunto de avaliação, e como vocês sabem que uma mudança melhorou em vez de piorar.
 
-**4. Gestão de custos.** Quanto custa uma execução, onde o custo mora, e as alavancas que vocês usaram para reduzi-lo. Com números medidos, não estimados.
+**4. Gestão de custos — e a conferência da promessa.** Quanto custa uma execução, onde o custo mora, e as alavancas que vocês usaram para reduzi-lo. Com números medidos, não estimados.
+
+E o fecho do arco do trabalho: **o ganho prometido na Parte 1, conferido.** Vocês voltam à venda que fizeram, colocam ao lado o número que o sistema realmente entregou e explicam a diferença. Prometer 80% e entregar 30%, com a conta à vista, é um resultado aceitável e honesto — e é o que acontece na maioria dos projetos reais. Prometer "mais eficiência" e não ter como conferir, não é.
 
 **5. A apresentação.** Demonstração ao vivo, **agente por agente**. Cada integrante do grupo deve conseguir explicar qualquer parte do sistema — não apenas a que escreveu.
 
@@ -90,6 +94,31 @@ Aqui o agente simples da Parte 1 se transforma em um agente completo. Cinco fren
 ---
 
 ## Regras gerais
+
+### Técnicas
+
+- **Python**, e **a biblioteca `openai`** para falar com o modelo. É a mesma pilha dos laboratórios da disciplina: a biblioteca é da OpenAI, mas a `base_url` aponta para o provedor que vocês escolherem — Mistral, outro serviço compatível, ou um modelo local. Trocar de modelo é trocar duas variáveis de ambiente, e é por isso que a exigência não conflita com a recomendação de usar o modelo que servir melhor ao caso.
+- **Chave de API nunca no repositório.** `.env` fora do git, `.env.example` dentro, com os nomes das variáveis e nenhum valor.
+- **`requirements.txt`** com as dependências fixadas, e o projeto rodando do zero em menos de cinco minutos.
+- **Instruções de uso no `README.md`** — não só de instalação. Ver abaixo.
+- **Toda a pesquisa e documentação em `docs/`.** Ver abaixo.
+
+### O `README.md` precisa responder duas coisas diferentes
+
+Os grupos costumam escrever só a primeira, e a segunda é a que falta:
+
+- **Como rodar** — clonar, instalar, configurar o `.env`, o comando que sobe o sistema. Testado do zero, por alguém que nunca viu o projeto.
+- **Como usar** — o que a pessoa digita, o que o sistema faz com aquilo, que saída ela recebe e como interpretá-la. Inclui: um **exemplo completo de uso** (entrada e saída reais, copiadas de uma execução), o que o sistema **não** faz, e o que acontece quando ele não sabe responder.
+
+Um sistema que roda e ninguém sabe usar não está entregue.
+
+### `docs/` — a pesquisa do case fica versionada
+
+**Todo documento gerado sobre o case vive em `docs/`**, no repositório, em Markdown. Isso inclui a caracterização do problema, a análise de modelos, a pesquisa de casos parecidos na indústria, as fontes consultadas, os registros de decisão e o que for produzido nas Partes 2 e 3.
+
+Duas razões, e a segunda é a que importa: o material fica **junto do código que ele justifica**, e a pesquisa passa a ter **histórico** — dá para ver quando o grupo mudou de ideia sobre o próprio case, e por quê. É o mesmo princípio do versionamento de prompt cobrado desde a Aula 03, aplicado ao raciocínio.
+
+### De processo
 
 - **Grupos de até 4 alunos.** Grupos menores são permitidos; a exigência de profundidade é a mesma.
 - **Um repositório Git por grupo**, com histórico de commits que mostre o trabalho de todos os integrantes.

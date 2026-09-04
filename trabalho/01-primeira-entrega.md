@@ -20,9 +20,9 @@ Quatro coisas:
 
 0. **O grupo** — até 4 alunos
 1. **O tema** escolhido
-2. **O detalhamento do tema**: o contexto de onde o agente vai ser usado
+2. **O detalhamento do tema**: o contexto de onde o agente vai ser usado, e **a justificativa de negócio** — por que agente, e que ganho se espera
 3. **A análise de modelos** que justifica a escolha do modelo
-4. **Um agente simples rodando**, com prompt engineering e arquitetura básica
+4. **Um agente simples rodando**, com prompt engineering e arquitetura básica — em **Python**, com a biblioteca **`openai`**, com **instruções de uso** e com a pesquisa em **`docs/`**
 
 ---
 
@@ -38,7 +38,7 @@ Criem o repositório Git do grupo e coloquem os nomes no `README.md`. Todos os i
 
 Este é o item mais importante da entrega, e o que mais decide o semestre de vocês.
 
-Entreguem um documento chamado `case.md` respondendo aos campos abaixo. Ele é a evolução da ficha de case preenchida em aula — se vocês já a preencheram, comecem dela.
+Entreguem um documento chamado `docs/case.md` respondendo aos campos abaixo. Ele é a evolução da ficha de case preenchida em aula — se vocês já a preencheram, comecem dela.
 
 ### 2.1 O problema
 
@@ -79,7 +79,73 @@ Se as respostas forem "o usuário informa tudo no formulário", reconsiderem o t
 
 A última coluna é requisito desta parte — ver o item 4.2.
 
-### 2.4 O verificador
+### 2.4 A justificativa de negócio — a venda
+
+Este é o campo novo, e é o que mais aproxima o trabalho da vida real. Vocês vão ter que **vender o sistema**.
+
+Não é retórica: em qualquer emprego, a decisão de construir um agente é aprovada ou recusada por alguém que não vai ler o seu código. Essa pessoa quer três coisas, nesta ordem — **por que agente**, **quanto se ganha** e **como você vai saber**.
+
+#### Por que um agente, e não software comum
+
+A pergunta mais importante e a que mais reprova. Se o problema se resolve com um formulário, uma consulta SQL e três `if`, **a resposta certa é o formulário** — e um trabalho que constrói um agente para isso está resolvendo o problema errado, mais caro.
+
+Responda em duas frases: o que exatamente na tarefa exige decisão em tempo de execução, e por que o nível de autonomia abaixo do seu não dava conta.
+
+#### O ganho esperado, com número e com a conta à vista
+
+Escolha **um ou dois eixos** de ganho — mais que isso é conversa fiada — e para cada um apresente:
+
+1. **A linha de base**: quanto custa, demora ou erra hoje. **Meça, não estime.** Cronometre dez casos, conte os itens de uma fila real, pergunte a quem faz. Um baseline de 10 medições vale mais que uma opinião.
+2. **O alvo**: onde você espera chegar, e por quê.
+3. **A conta**, escrita: `de X para Y = Z% de ganho`, multiplicado pelo volume.
+4. **A ressalva**: é uma **estimativa**, e você a declara como tal.
+
+Os eixos, com a unidade de cada um (a nota 01 da aula de casos de uso tem a tabela completa e exemplos reais):
+
+| Eixo | Unidade | Como soa uma boa afirmação |
+|---|---|---|
+| **Tempo por tarefa** | minutos por caso | *"triagem de 12 min para 2 min por chamado: −83%"* |
+| **Velocidade de processo** | tempo do início ao fim | *"do pedido ao parecer, de 3 dias para 4 horas"* |
+| **Produtividade** | itens por pessoa por dia | *"de 40 para 110 itens conferidos por analista/dia"* |
+| **Cobertura** | % resolvido sem humano | *"60% dos chamados fechados sem atendente, com 100% dos urgentes ainda escalados"* |
+| **Redução de carga** | fila que não chega à pessoa | *"−70% dos tickets de nível 1"* |
+| **Erro e retrabalho** | taxa antes × depois | *"erro de classificação de 18% para 5%: −72% de retrabalho"* |
+| **Custo por transação** | R$ por caso | *"de R$ 4,10 para R$ 0,45 por atendimento contido"* |
+| **Receita** | conversão, ticket médio | *"+8% de conversão na recomendação"* |
+
+**Duas dicas que separam uma venda boa de uma ruim.**
+
+A primeira: **número específico e feio vence número redondo e bonito.** *"Reduz 83% do tempo de triagem, de 12 para 2 minutos, em 200 chamados/dia"* é crível porque tem denominador. *"Aumenta a eficiência em 50%"* não é crível porque não tem.
+
+A segunda: **prometa o eixo que você consegue medir.** Se você não tem como medir erro, não prometa redução de erro — prometa tempo, que você cronometra. Promessa que não dá para conferir é a mesma coisa que não ter verificador, e reprova pelo mesmo motivo.
+
+#### O ganho para o usuário, que não é o mesmo do negócio
+
+Dois destinatários, dois ganhos, e eles às vezes **entram em conflito**:
+
+- **para o negócio**: custo, capacidade, velocidade, risco;
+- **para o usuário**: espera menor, menos repetição de informação, resposta na primeira tentativa, menos transferências, mais autonomia para resolver sozinho.
+
+Diga os dois. E se houver tensão — automação que corta custo e piora a experiência do caso difícil —, **diga a tensão**. É o que aconteceu no caso Klarna, visto em aula: a métrica que a empresa acompanhava melhorava enquanto a que importava piorava.
+
+#### O que não vale como justificativa
+
+| Não vale | Por quê |
+|---|---|
+| *"moderniza o processo"* | não é um ganho, é um adjetivo |
+| *"melhora a eficiência"* | qual eficiência, medida como? |
+| *"reduz custos"*, sem número | custo de quê, quanto, sobre que volume? |
+| *"usa IA de ponta"* | é o meio, não o fim |
+| *"os concorrentes já usam"* | é medo, não é ganho |
+| um número sem linha de base | *"−80%"* de quanto para quanto? |
+
+#### E o outro lado da conta
+
+Uma venda honesta declara o custo. Em três linhas: **quanto custa rodar** (a conta de tokens do item 3, por execução e por mês), **quanto custa construir** (o tempo de vocês) e **o que se perde** — o caso que o sistema vai errar, e quem paga por ele.
+
+> **O arco do trabalho:** o que vocês prometerem aqui será **conferido na Parte 3**, quando o sistema estiver rodando e a gestão de custos entrar. Prometer 80% e entregar 30% com a conta à vista é um resultado aceitável e honesto. Prometer "mais eficiência" e não ter como conferir, não.
+
+### 2.5 O verificador
 
 > **Como vocês vão saber que a saída está certa?**
 
@@ -94,13 +160,13 @@ Resposta que não vale: *"dá para ver que está certo"*.
 
 Verificador **construído** conta. O que não conta é não ter nenhum.
 
-### 2.5 O critério de sucesso
+### 2.6 O critério de sucesso
 
 **Um número, com denominador.** "Acerta em 80%" não diz nada; "acerta a categoria em 32 de 40 casos rotulados" diz.
 
 Se o custo do erro for **assimétrico** — se errar para um lado for muito pior que para o outro —, digam isso e usem duas métricas. Exemplo: *"acerta a categoria em ≥32/40 **e** não deixa passar nenhum caso urgente"*.
 
-### 2.6 Dados
+### 2.7 Dados
 
 **De onde vêm:** reais, públicos ou simulados.
 
@@ -112,13 +178,13 @@ Se simulados — e é o caso mais comum, e é legítimo —, expliquem **como vo
 
 Os dados dos laboratórios da disciplina foram montados exatamente assim. Façam igual.
 
-### 2.7 Dado sensível
+### 2.8 Dado sensível
 
 Que dado sensível este tema toca — pessoal, financeiro, de saúde, sigiloso? Se não toca nenhum, digam isso; é uma vantagem do tema, não uma omissão.
 
 Se toca, a regra é: **dado sensível não entra no repositório nem no contexto do modelo.** Ele é simulado.
 
-### 2.8 Espaço para o que ainda vem
+### 2.9 Espaço para o que ainda vem
 
 Marquem e **escrevam o quê**:
 
@@ -129,7 +195,7 @@ Marquem e **escrevam o quê**:
 
 Um `[x]` sem texto não conta. "RAG: o regulamento interno, 40 páginas em PDF" conta.
 
-### 2.9 O maior risco
+### 2.10 O maior risco
 
 O risco de verdade, não o de fachada. *"Pode ser que o modelo erre"* não é risco — é a premissa. *"A nossa única fonte é um PDF escaneado e o OCR pode não funcionar"* é risco, e vem com plano B.
 
@@ -137,7 +203,7 @@ O risco de verdade, não o de fachada. *"Pode ser que o modelo erre"* não é ri
 
 ## 3. A análise de modelos
 
-Um documento `modelos.md`. O objetivo é **justificar uma escolha**, não catalogar o mercado.
+Um documento `docs/modelos.md`. O objetivo é **justificar uma escolha**, não catalogar o mercado.
 
 ### 3.1 Os candidatos
 
@@ -186,7 +252,20 @@ Aqui vocês escrevem código. **Pouco código.**
 
 O objetivo é provar que o caminho existe: que as ferramentas são implementáveis, que o modelo escolhido dá conta, e que o problema responde ao tratamento. Não é para estar bonito nem completo.
 
-### 4.1 O mínimo exigido
+### 4.1 A pilha, e o mínimo exigido
+
+**Python**, com a biblioteca **`openai`**. É a mesma pilha dos laboratórios: a biblioteca é da OpenAI, e a `base_url` aponta para o provedor que vocês escolheram no item 3 — Mistral, outro serviço compatível, ou um modelo local. Se vocês escolheram um modelo diferente do usado em aula, o que muda são duas variáveis de ambiente, não o código.
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    base_url=os.environ["LLM_BASE_URL"],   # o provedor que vocês escolheram
+    api_key=os.environ["OPENAI_API_KEY"],
+)
+```
+
+A chave **nunca** no repositório: `.env` fora do git, `.env.example` dentro, com os nomes das variáveis e nenhum valor. E um `requirements.txt` com as versões fixadas.
 
 | Requisito | Detalhe |
 |---|---|
@@ -243,6 +322,24 @@ O log das quatro execuções vai no repositório.
 
 ---
 
+### 4.6 As instruções de uso
+
+O `README.md` precisa responder **duas** perguntas, e a segunda é a que costuma faltar:
+
+**Como rodar** — clonar, instalar, configurar o `.env`, o comando que sobe o sistema. Testado do zero, por alguém que nunca viu o projeto, em menos de cinco minutos.
+
+**Como usar** — e aqui é onde se separa um projeto entregue de um projeto que só compila:
+
+- **o que a pessoa digita** e em que formato;
+- **o que o sistema faz com aquilo**, em duas ou três frases;
+- **que saída ela recebe**, e como interpretá-la;
+- **um exemplo completo**, com entrada e saída **reais**, copiadas de uma execução — não inventadas;
+- **o que o sistema não faz**, e o que acontece quando ele não sabe responder.
+
+> Um sistema que roda e ninguém sabe usar não está entregue.
+
+---
+
 ## Como esta parte será avaliada
 
 Em ordem de peso:
@@ -250,8 +347,10 @@ Em ordem de peso:
 | O que se avalia | O que se espera |
 |---|---|
 | **A qualidade da escolha do tema** | problema em uma frase · usuário concreto · **verificador que existe** · critério de sucesso com denominador · espaço declarado para o que vem |
+| **A justificativa de negócio** | responde **por que agente e não software comum** · a linha de base foi **medida**, não estimada · a conta está à vista, com denominador e volume · o ganho do usuário está separado do ganho do negócio · o custo de rodar e o que se perde estão declarados |
 | **A honestidade da análise de modelos** | três candidatos comparados nos eixos **do caso** · a conta de custo feita · os cinco casos rodados de verdade · a condição de mudar de ideia |
-| **O agente rodando** | atende os requisitos de 4.1 · a integração de 4.2 é real · os 4 casos executados, com log |
+| **O agente rodando** | Python + `openai` · atende os requisitos de 4.1 · a integração de 4.2 é real · os 4 casos executados, com log |
+| **A entrega como projeto** | roda do zero em <5 min · o `README` diz **como usar**, com exemplo real · a pesquisa está em `docs/`, em Markdown · nenhuma chave no repositório |
 | **A justificativa da arquitetura** | o nível de autonomia é o menor que resolve, **e vocês explicam por que o de baixo não servia** |
 | **O rigor do prompt** | prompts em arquivo, versionados, com técnica e contrato declarados |
 
@@ -264,21 +363,30 @@ E o que **não** conta: quantidade de código, quantidade de ferramentas, sofist
 No repositório do grupo:
 
 ```
-README.md          nomes do grupo · o problema em uma frase · como rodar
-case.md            os itens 1 e 2
-modelos.md         o item 3
+README.md          nomes do grupo · o problema em uma frase
+                   COMO RODAR e COMO USAR (item 4.6)
+requirements.txt   dependências com versão fixada
+.env.example       os nomes das variáveis, sem nenhum valor
+docs/              TODA a pesquisa e documentação do case
+  case.md          os itens 1 e 2, incluindo a justificativa de negócio
+  modelos.md       o item 3
+  fontes.md        tudo que foi consultado, com link
+  autopsia.md      a autópsia do caso real, se vocês a fizeram
 prompts/           os prompts, versionados
 src/               o agente
 logs/              as 4 execuções demonstradas
 dados/             os dados simulados (com os casos difíceis nomeados)
 ```
 
-`README.md` precisa dizer **como rodar** em menos de cinco minutos, do zero, por alguém que nunca viu o projeto.
+**Todo documento gerado sobre o case vive em `docs/`**, em Markdown e versionado. Nas Partes 2 e 3 essa pasta cresce — plano de prompt engineering, arquitetura, decisões, resultados — e o histórico dela mostra **quando o grupo mudou de ideia sobre o próprio case, e por quê**. É o mesmo princípio do versionamento de prompt cobrado desde a Aula 03, aplicado ao raciocínio.
+
+Nada de `.docx` nem `.pdf`: Markdown, para que o `git diff` funcione.
 
 ---
 
 ## Dicas
 
+- **Meçam a linha de base antes de escrever qualquer prompt.** Cronometrem dez casos, contem uma fila real. Sem esse número, a venda da §2.4 é opinião — e é o item que mais some das entregas.
 - **Comecem pelo verificador.** Se vocês souberem como medir que a saída está certa, o resto do tema se organiza sozinho. Se não souberem, nenhum outro campo salva o trabalho.
 - **Escrevam os dados difíceis antes do agente.** Os quatro casos de 4.5 são o seu conjunto de teste, e escrevê-los primeiro força vocês a entender o domínio antes de escrever prompt.
 - **Não escolham o tema mais impressionante. Escolham o que vocês conseguem medir.** O impressionante que ninguém consegue avaliar vira, na apresentação final, uma demonstração que funciona uma vez.
