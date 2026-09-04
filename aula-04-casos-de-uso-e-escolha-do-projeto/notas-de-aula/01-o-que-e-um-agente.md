@@ -33,6 +33,7 @@ Ao final desta nota você deve ser capaz de:
 - **Citar** casos reais em produção nos seis tipos, com o número divulgado e a fonte.
 - **Inferir** a arquitetura provável de um caso a partir da descrição pública dele.
 - **Explicar** por que *code agents* é o tipo mais maduro, usando a ideia de **feedback verificável**.
+- **Reconhecer** o **assistente pessoal local** como categoria fora da taxonomia corporativa, e dizer o que ela mostra de único — proatividade, memória de longo prazo — e que risco ela cria.
 - **Enumerar** as seis características comuns aos casos que funcionam, e reconhecer a ausência delas num caso novo — inclusive no seu.
 
 ---
@@ -123,7 +124,7 @@ E a distinção que mais vale guardar, porque separa dois padrões que parecem i
 > **Paralelização (*sectioning*)**: as partes estão no **seu código**.
 > **Orquestrador-trabalhador**: as partes são decididas pelo **modelo**, em execução.
 
-Com o espectro da Aula 01 mais estes três nomes, você tem o suficiente para os §5 a §9 — onde cada caso real é lido pela arquitetura provável dele.
+Com o espectro da Aula 01 mais estes três nomes, você tem o suficiente para os §5 a §10 — onde cada caso real é lido pela arquitetura provável dele.
 
 ---
 
@@ -287,7 +288,51 @@ Aqui, errar é barato: um texto de produto ruim é corrigido, e ninguém é prej
 
 ---
 
-### 10. O que os casos que funcionam têm em comum
+### 10. O assistente pessoal local — a categoria que a taxonomia não tem
+
+Repare numa coisa sobre os seis tipos do §2: eles classificam **por destinatário**, e todos os seis destinatários são corporativos — o cliente, o funcionário, o analista, o time de segurança. Falta aquele cujo usuário é **você**.
+
+É uma categoria que cresceu rápido em 2026, roda **na sua máquina** e é, de longe, a mais fácil de experimentar.
+
+**OpenClaw** é um *runtime* de agente auto-hospedado que funciona como **gateway de mensagens**: um serviço de longa duração que conecta WhatsApp, Telegram, Discord, Slack, Signal, iMessage, Matrix e Teams a um agente que lê os seus arquivos locais, executa comandos no seu sistema e alcança serviços que um assistente em nuvem não alcança. A memória fica guardada localmente, as capacidades entram como *skills* instaláveis, e **você decide** qual provedor de modelo usar e quanto acesso ao sistema o agente recebe.
+
+**Hermes Agent** (Nous Research, código aberto, lançado em fevereiro de 2026) segue a mesma ideia por outro caminho: conecta-se a um *endpoint* de modelo, executa tarefas e melhora com o tempo através de memória e de **skills que ele mesmo cria**. Tem gateway para Telegram, Discord e Slack, roda inteiramente offline com modelos locais via Ollama, e o mesmo agente vai de um laptop a infraestrutura *serverless* — são seis *backends* de terminal (local, Docker, SSH, Daytona, Singularity, Modal).
+
+#### 10.1 Três coisas que só esta categoria mostra
+
+**1. Proatividade de verdade.** Volte ao eixo da **iniciativa** do §1. Todos os casos corporativos desta nota são **reativos**: alguém abre um chamado, manda uma mensagem, submete um lote. O *briefing* matinal do OpenClaw — o agente que te procura com o resumo do dia, o alerta de que algo que você acompanha mudou — é o único exemplo desta nota de um agente que **começa a conversa**.
+
+E isso muda o desenho, não só a experiência: alguém precisa decidir **quando ele acorda**, e o custo passa a existir mesmo quando ninguém está olhando.
+
+**2. Memória de longo prazo em uso.** É a característica listada no §1 que **nenhum** caso corporativo desta nota ilustra. Aqui ela é o argumento de venda central dos dois produtos: preferências, projetos em andamento e detalhes do seu ambiente acumulados indefinidamente — *quanto mais tempo roda, melhor te conhece*.
+
+**3. Uso pessoal que é, na prática, uso profissional.** O caso mais citado dos dois é operacional: acompanhar repositório, disparar *deploy*, revisar código, checar log — tudo pelo Telegram, em vez de trocar de aba. *"Algum teste falhou no último commit?"* devolve a resposta com o trecho de log relevante. É **code agent + data agent na mesma caixa**, com um usuário só.
+
+#### 10.2 E o risco, que é de outra ordem
+
+Aqui a categoria dá a melhor aula deste curso sobre o custo da autonomia — e não por hipótese.
+
+Um agente com acesso ao seu *shell*, aos seus arquivos e às suas credenciais, alcançável por um canal de mensagem, é uma superfície de ataque nova. Em 2026:
+
+- levantamentos encontraram **dezenas de milhares de instâncias do OpenClaw expostas na internet aberta** — a Bitsight relatou mais de 30 mil, e varreduras posteriores chegaram a números maiores —, em boa parte por configuração que escuta em **todas as interfaces de rede** em vez de apenas no `localhost`. Exposta assim, qualquer pessoa pode mandar comando ao agente, ler a memória e o histórico de conversa, ou levar os *tokens* guardados na máquina;
+- a vulnerabilidade apelidada de **ClawJacked** explorava a confiança em conexões WebSocket de `localhost`: um site malicioso conseguia sequestrar o agente que rodava na máquina da vítima e emitir comandos com privilégio administrativo;
+- pesquisa da Illumio encontrou **milhares de instalações mal configuradas** com senhas, chaves de API e dados privados expostos.
+
+E a lição é exatamente a da [nota 02](02-os-casos-que-falharam.md):
+
+> **O problema não é o modelo — é o acesso que se deu a ele, e a configuração com que se deu.**
+
+Um agente rodando na sua máquina, com o seu *shell*, é a **versão doméstica do caso Replit**. A diferença é que ali a vítima era um banco de produção de uma empresa, e aqui é você.
+
+#### 10.3 Para o seu tema
+
+Esta é a categoria mais próxima de vocês: dá para instalar um nesta semana, e é o jeito mais rápido de sentir na pele o que um agente com ferramentas de verdade faz — inclusive o susto de ver um comando ser executado.
+
+Como **tema do trabalho**, porém, cuidado: *"montar o meu assistente pessoal"* costuma cair direto no anti-padrão do **produto de terceiro**. O esforço vira integração de canal e infraestrutura, e a arquitetura de agente — que é o assunto da disciplina — fica com uma fatia pequena do trabalho. Se o tema for por aqui, escolha **uma** capacidade e construa só ela, com verificador.
+
+---
+
+### 11. O que os casos que funcionam têm em comum
 
 Olhando os seis tipos de uma vez, o padrão é consistente. Esta tabela é o que você leva desta nota para a escolha do tema do trabalho, onde ela vira critério:
 
@@ -304,7 +349,7 @@ E o que **não** aparece na lista, apesar de dominar a conversa pública: qual m
 
 ---
 
-### 11. A frase que resume a nota
+### 12. A frase que resume a nota
 
 Levantamentos de mercado convergem para a mesma formulação, e ela vale ser guardada:
 
@@ -395,6 +440,7 @@ O verificador não vem de graça do ambiente, como no caso do teste unitário. E
 - **Employee agents** funcionam por manter o humano como verificador com autoridade — a arquitetura mais tolerante a falha.
 - **Data agents** são o território do **orquestrador-trabalhador**, e o que mais precisa de teto.
 - **Creative** e **security** delimitam o espectro pela variável que decide autonomia: **o custo do erro**.
+- O **assistente pessoal local** (OpenClaw, Hermes) é a categoria que a taxonomia corporativa não tem, e a única desta nota que é **proativa** e usa **memória de longo prazo**. É também a que mostra o risco mais cru: dezenas de milhares de instâncias expostas em 2026, por configuração. **O problema não é o modelo — é o acesso que se deu a ele.**
 - Seis características comuns aos casos que funcionam — volume, verificador, tolerância a erro, reversibilidade, dado acessível por API e um número de sucesso.
 - Nenhum *case study* atribui o resultado ao modelo. Todos atribuem à **integração**.
 - **Quase nenhum "agente" de sucesso é um agente**: a autonomia fica confinada ao caminho estreito onde ela paga.
@@ -403,6 +449,8 @@ O verificador não vem de graça do ambiente, como no caso do teste unitário. E
 
 ## Fontes e leituras
 
+- **OpenClaw** — [documentação de configuração como assistente pessoal](https://docs.openclaw.ai/start/openclaw) e a [análise de exposição da Bitsight](https://www.bitsight.com/blog/openclaw-ai-security-risks-exposed-instances) — os dois lados do §10.
+- **Hermes Agent** — [Nous Research](https://hermes-agent.nousresearch.com/) e a [documentação de uso com modelos locais](https://unsloth.ai/docs/integrations/hermes-agent).
 - **Google Cloud — *The ROI of AI: agents are delivering for business now*** ([cloud.google.com/transform/roi-of-ai-how-agents-help-business](https://cloud.google.com/transform/roi-of-ai-how-agents-help-business)) — os números de ganho do §4, do *2025 ROI of AI Report*. Fornecedor sobre o próprio mercado, e **sem metodologia publicada**: leia como ordem de grandeza.
 - **Google Cloud — *What are AI agents?*** ([cloud.google.com/discover/what-are-ai-agents](https://cloud.google.com/discover/what-are-ai-agents)) — a distinção entre bot, assistente e agente e as características do §1.
 - **Google Cloud — catálogo de casos reais** ([1.302 casos, 11 setores × 6 tipos](https://cloud.google.com/transform/101-real-world-generative-ai-use-cases-from-industry-leaders)) — a taxonomia do §2, a origem dos casos nomeados e o material que você vai navegar para escolher o seu tema.
