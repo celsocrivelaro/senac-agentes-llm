@@ -1,0 +1,176 @@
+# Exercício 4B — A autópsia e a ficha
+
+## Contexto
+
+Este é o único exercício da disciplina **sem código**. Não é por ser mais leve — é porque a decisão que ele cobra vale mais que qualquer implementação que vocês fariam nesta semana.
+
+Ele tem duas partes, e elas se alimentam:
+
+- a **Parte 1** é a leitura crítica de um caso real de indústria. Ela existe para vocês descobrirem, na prática, o quanto um *case study* de fornecedor **não conta**;
+- a **Parte 2** é a ficha do case de vocês. Ela existe porque é o contrato do resto do semestre.
+
+Façam a Parte 1 primeiro. Ela muda a Parte 2.
+
+## Parte 1 — A autópsia de um caso real
+
+Cada grupo escolhe **um** caso público de agente em produção e escreve uma análise de **duas páginas**.
+
+### Onde procurar
+
+| Fonte | O que tem |
+|---|---|
+| [Catálogo do Google Cloud](https://cloud.google.com/transform/101-real-world-generative-ai-use-cases-from-industry-leaders) | mais de mil casos, por 11 setores × 6 tipos de agente |
+| [*awesome-agent-failures*](https://github.com/vectara/awesome-agent-failures) | casos de **falha**, com análise — vale tanto quanto |
+| Blogs de engenharia de empresas | os melhores: quem publica arquitetura, e não só resultado |
+| Imprensa setorial | útil para o que a empresa **não** publicou |
+
+**Regra de escolha:** não pode ser Klarna, Air Canada nem Replit — os três já foram dissecados em aula. E, de preferência, escolham um caso do **setor do case de vocês** — a Parte 1 vira pesquisa de campo para a Parte 2.
+
+### O que a análise deve conter
+
+**1. O que a empresa fez** (≈ meia página)
+O problema que ela tinha, o sistema que construiu, quem é o usuário final.
+
+**2. A arquitetura provável** (≈ meia página) — *o item central*
+Que padrão da Aula 04 está por trás? Desenhe o diagrama, em ASCII mesmo, no formato dos que vocês viram em aula. **Liste as pistas** que sustentam a sua inferência — a percentagem que não é 100%, a menção a transbordo humano, o volume, o tipo de ação.
+
+É inferência, e pode estar errada. O que se avalia é o **raciocínio**, não o acerto. Uma análise que diz *"provavelmente roteador, porque X, Y e Z — mas poderia ser um agente com ferramentas restritas se W"* vale mais que uma afirmação categórica sem pistas.
+
+**3. Os números divulgados** (≈ quarto de página)
+Quais foram, e o que exatamente cada um mede. Para cada número, aplique as quatro perguntas da nota 01 (quem pagou · quem respondeu · o que foi perguntado · medido ou declarado).
+
+**4. O que a divulgação NÃO conta** (≈ meia página) — *o item mais valioso*
+Todo *case study* de fornecedor omite algo. Nomeie as omissões:
+- qual é a **linha de base**? ("4× melhor" em relação a quê?)
+- como "resolvido" / "com sucesso" está definido?
+- quanto custou construir e quanto custa rodar?
+- o que acontece nos casos que o sistema **não** atende?
+- houve reversão, ajuste ou redução de escopo depois da publicação?
+
+Não é preciso responder — é preciso **saber perguntar**. Uma lista de cinco perguntas que a empresa não respondeu é uma boa resposta a este item.
+
+**5. As salvaguardas que este caso exige** (≈ quarto de página)
+Com a Aula 04 na mão: que ações são irreversíveis? onde precisaria de confirmação humana? o que aconteceria se o agente entrasse em laço? que dado sensível ele toca?
+
+### Formato
+
+Markdown, no repositório do grupo, em `aula04b-autopsia.md`. Cite todas as fontes com link. Duas páginas — análise curta e afiada vale mais que resumo longo.
+
+---
+
+## Parte 2 — A ficha de case, versionada
+
+A ficha preenchida à mão em sala, agora digital, em `case/ficha.md` no repositório do grupo.
+
+### O modelo
+
+```markdown
+# Case — [nome curto]
+**Grupo:** [nomes] · **Versão:** v1 · **Data:** [data]
+
+## O problema em uma frase
+[se não couber em uma frase, o case está grande demais]
+
+## Quem sofre com ele hoje
+[um cargo, uma pessoa concreta — não "as empresas", não "os usuários"]
+
+## O que o sistema faz
+[3 a 5 linhas]
+
+## Tipo de agente
+[customer · employee · code · data · creative · security]
+
+## Nível de autonomia pretendido
+[workflow · roteador · agente]
+**E por que este e não o de baixo:** [a justificativa é o que vale]
+
+## As ferramentas (3 a 6)
+| Ferramenta | Leitura ou escrita? | Reversível? |
+|---|---|---|
+| | | |
+
+## O verificador
+[COMO você vai saber que a saída está certa?
+ Se não souber responder, o case não passa.]
+
+## O critério de sucesso
+[um número, com denominador]
+
+## De onde vêm os dados
+[reais · públicos · simulados — e, se simulados, como você preserva
+ a DIFICULDADE do problema: qual é o caso divergente? qual é o
+ registro inexistente? qual é o caso que NÃO deve disparar a ação?]
+
+## Que dado sensível este case toca
+[pessoal? financeiro? de saúde? "nenhum" é resposta válida e é vantagem]
+
+## Espaço para o que ainda vem
+- [ ] RAG — que conhecimento externo, e em que formato?
+- [ ] Memória — precisa lembrar entre sessões? por quê?
+- [ ] MCP — conversa com sistema de terceiro? qual?
+- [ ] Evals — o que entra no conjunto de teste?
+
+## O maior risco deste case
+[o risco de verdade, não o de fachada — e o plano B]
+```
+
+### Os dois requisitos que vão além do preenchimento
+
+**1. A ficha é versionada.** Ela nasce `v1` nesta semana. **Toda** mudança até a semana 8 incrementa a versão e vira um commit cuja mensagem explica **por que** mudou:
+
+```
+case: v2 — troca o verificador de "avaliação humana" para conjunto
+rotulado, porque a aula de evals mostrou que avaliação subjetiva não
+serve de linha de base
+```
+
+É o mesmo princípio do versionamento de prompt cobrado desde a Aula 03, aplicado à decisão de projeto. **A trilha de como o case mudou de ideia é parte da avaliação** — ela é o registro do que vocês aprenderam, e é a única evidência disso que sobrevive ao semestre.
+
+**2. Um `README.md` de meia página** dizendo, para quem chegar de fora: qual é o problema, qual a arquitetura pretendida e como se saberá que funcionou.
+
+---
+
+## O que será avaliado
+
+**Parte 1 — a autópsia**
+
+| Critério | O que se espera |
+|---|---|
+| Inferência de arquitetura | as **pistas** estão listadas e sustentam a conclusão |
+| Leitura crítica dos números | as quatro perguntas foram aplicadas, não recitadas |
+| **As omissões** | nomeou o que a empresa não contou — este item pesa mais |
+| Salvaguardas | usou o vocabulário da Aula 04, e não adjetivos |
+| Fontes | tudo com link; distingue fonte primária de cobertura de imprensa |
+
+**Parte 2 — a ficha**
+
+| Critério | O que se espera |
+|---|---|
+| O problema cabe em uma frase | e a frase é específica |
+| O usuário é uma pessoa | com cargo |
+| **O verificador existe e é executável** | **reprova mais que todos os outros juntos** |
+| O critério de sucesso é um número | com denominador |
+| A autonomia é a menor que resolve | e a justificativa explica por que o nível abaixo não servia |
+| Os dados simulados preservam a dificuldade | os três casos difíceis estão nomeados |
+| Há espaço para o que vem | pelo menos dois, com o **quê** escrito |
+| O risco é real | e tem plano B |
+
+---
+
+## Entrega
+
+No repositório do grupo, até a próxima aula:
+
+- `aula04b-autopsia.md` — a Parte 1;
+- `case/ficha.md` — a Parte 2, em `v1`;
+- `case/README.md` — meia página.
+
+---
+
+## Dicas
+
+- **Comecem pelo verificador.** Se vocês souberem como medir que a saída está certa, o resto do case se organiza sozinho. Se não souberem, nenhum outro campo salva.
+- Na Parte 1, procurem o caso que tem **blog de engenharia**, e não só *case study* de marketing. A diferença de material é enorme, e o item 2 fica muito mais fácil.
+- Desconfiem do seu próprio entusiasmo com um case. O melhor teste é ler os quatro anti-padrões da nota 04 **procurando o seu case neles**, e não procurando motivo para ele não estar lá.
+- Não escolham o case mais impressionante. Escolham o que vocês conseguem **medir**. O impressionante que ninguém consegue avaliar vira, na semana 18, uma demonstração que funciona uma vez.
+- E lembrem do teto: **30,3%**. Se o seu case só faz sentido com o agente acertando quase sempre, sozinho, ele não é viável neste semestre — nem, provavelmente, neste ano.
