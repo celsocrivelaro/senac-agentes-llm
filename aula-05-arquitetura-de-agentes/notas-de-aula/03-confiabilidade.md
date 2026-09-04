@@ -1,4 +1,4 @@
-# IA Aplicada com LLMs — Aula 04: Arquitetura de agentes — Confiabilidade
+# IA Aplicada com LLMs — Aula 05: Arquitetura de agentes — Confiabilidade
 
 ## Introdução
 

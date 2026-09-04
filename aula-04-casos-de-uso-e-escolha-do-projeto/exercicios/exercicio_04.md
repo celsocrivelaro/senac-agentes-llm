@@ -1,4 +1,4 @@
-# Exercício 4B — A autópsia e a ficha
+# Exercício 4 — A autópsia e a ficha
 
 ## Contexto
 
@@ -32,12 +32,12 @@ Cada grupo escolhe **um** caso público de agente em produção e escreve uma an
 O problema que ela tinha, o sistema que construiu, quem é o usuário final.
 
 **2. A arquitetura provável** (≈ meia página) — *o item central*
-Que padrão da Aula 04 está por trás? Desenhe o diagrama, em ASCII mesmo, no formato dos que vocês viram em aula. **Liste as pistas** que sustentam a sua inferência — a percentagem que não é 100%, a menção a transbordo humano, o volume, o tipo de ação.
+Que padrão de arquitetura está por trás? (vocabulário: espectro de autonomia da Aula 01 e §2.1 da nota 01 desta aula) Desenhe o diagrama, em ASCII mesmo, no formato dos que vocês viram em aula. **Liste as pistas** que sustentam a sua inferência — a percentagem que não é 100%, a menção a transbordo humano, o volume, o tipo de ação.
 
 É inferência, e pode estar errada. O que se avalia é o **raciocínio**, não o acerto. Uma análise que diz *"provavelmente roteador, porque X, Y e Z — mas poderia ser um agente com ferramentas restritas se W"* vale mais que uma afirmação categórica sem pistas.
 
 **3. Os números divulgados** (≈ quarto de página)
-Quais foram, e o que exatamente cada um mede. Para cada número, aplique as quatro perguntas da nota 01 (quem pagou · quem respondeu · o que foi perguntado · medido ou declarado).
+Quais foram, e **o que exatamente cada um mede**. Para cada número, responda: **quem publicou** (fornecedor tem interesse no número), e **o que foi perguntado ou contado** — "resolvido", "com sucesso" e "eficiência" são réguas da própria empresa, e é preciso procurar a definição.
 
 **4. O que a divulgação NÃO conta** (≈ meia página) — *o item mais valioso*
 Todo *case study* de fornecedor omite algo. Nomeie as omissões:
@@ -50,11 +50,11 @@ Todo *case study* de fornecedor omite algo. Nomeie as omissões:
 Não é preciso responder — é preciso **saber perguntar**. Uma lista de cinco perguntas que a empresa não respondeu é uma boa resposta a este item.
 
 **5. As salvaguardas que este caso exige** (≈ quarto de página)
-Com a Aula 04 na mão: que ações são irreversíveis? onde precisaria de confirmação humana? o que aconteceria se o agente entrasse em laço? que dado sensível ele toca?
+Com a tabela de modos de falha da Aula 01 (nota 03 §4) na mão: que ações são irreversíveis? onde precisaria de confirmação humana? o que aconteceria se o agente entrasse em laço? que dado sensível ele toca? Não é preciso saber implementar as salvaguardas — é preciso saber **quais faltam**.
 
 ### Formato
 
-Markdown, no repositório do grupo, em `aula04b-autopsia.md`. Cite todas as fontes com link. Duas páginas — análise curta e afiada vale mais que resumo longo.
+Markdown, no repositório do grupo, em `aula04-autopsia.md`. Cite todas as fontes com link. Duas páginas — análise curta e afiada vale mais que resumo longo.
 
 ---
 
@@ -116,7 +116,7 @@ A ficha preenchida à mão em sala, agora digital, em `case/ficha.md` no reposit
 
 ### Os dois requisitos que vão além do preenchimento
 
-**1. A ficha é versionada.** Ela nasce `v1` nesta semana. **Toda** mudança até a semana 8 incrementa a versão e vira um commit cuja mensagem explica **por que** mudou:
+**1. A ficha é versionada.** Ela nasce `v1` nesta semana e é a base do `case.md` que a **Parte 1 do trabalho** pede (`trabalho/01-primeira-entrega.md`). **Toda** mudança até a entrega da Parte 2 incrementa a versão e vira um commit cuja mensagem explica **por que** mudou:
 
 ```
 case: v2 — troca o verificador de "avaliação humana" para conjunto
@@ -137,9 +137,9 @@ serve de linha de base
 | Critério | O que se espera |
 |---|---|
 | Inferência de arquitetura | as **pistas** estão listadas e sustentam a conclusão |
-| Leitura crítica dos números | as quatro perguntas foram aplicadas, não recitadas |
+| Leitura crítica dos números | procurou a **definição** por trás de cada métrica, em vez de repeti-la |
 | **As omissões** | nomeou o que a empresa não contou — este item pesa mais |
-| Salvaguardas | usou o vocabulário da Aula 04, e não adjetivos |
+| Salvaguardas | nomeou as que faltam usando a tabela de falhas da Aula 01, e não adjetivos |
 | Fontes | tudo com link; distingue fonte primária de cobertura de imprensa |
 
 **Parte 2 — a ficha**
@@ -161,7 +161,7 @@ serve de linha de base
 
 No repositório do grupo, até a próxima aula:
 
-- `aula04b-autopsia.md` — a Parte 1;
+- `aula04-autopsia.md` — a Parte 1;
 - `case/ficha.md` — a Parte 2, em `v1`;
 - `case/README.md` — meia página.
 
@@ -171,6 +171,6 @@ No repositório do grupo, até a próxima aula:
 
 - **Comecem pelo verificador.** Se vocês souberem como medir que a saída está certa, o resto do case se organiza sozinho. Se não souberem, nenhum outro campo salva.
 - Na Parte 1, procurem o caso que tem **blog de engenharia**, e não só *case study* de marketing. A diferença de material é enorme, e o item 2 fica muito mais fácil.
-- Desconfiem do seu próprio entusiasmo com um case. O melhor teste é ler os quatro anti-padrões da nota 04 **procurando o seu case neles**, e não procurando motivo para ele não estar lá.
+- Desconfiem do seu próprio entusiasmo com um case. O melhor teste é ler os quatro anti-padrões do enunciado da Parte 1 do trabalho **procurando o seu tema neles**, e não procurando motivo para ele não estar lá.
 - Não escolham o case mais impressionante. Escolham o que vocês conseguem **medir**. O impressionante que ninguém consegue avaliar vira, na semana 18, uma demonstração que funciona uma vez.
 - E lembrem do teto: **30,3%**. Se o seu case só faz sentido com o agente acertando quase sempre, sozinho, ele não é viável neste semestre — nem, provavelmente, neste ano.

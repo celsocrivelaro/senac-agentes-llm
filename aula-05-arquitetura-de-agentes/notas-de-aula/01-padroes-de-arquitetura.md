@@ -1,10 +1,14 @@
-# IA Aplicada com LLMs — Aula 04: Arquitetura de agentes — Padrões de arquitetura
+# IA Aplicada com LLMs — Aula 05: Arquitetura de agentes — Padrões de arquitetura
 
 ## Introdução
 
 A última nota da Aula 03 terminou com uma lista. Depois de montar o laço de tool calling, ela dizia: *você tem uma volta funcionando; falta o que transforma isso em sistema* — e enumerava estado e memória, múltiplas ferramentas, outros padrões de arquitetura, MCP, confiabilidade e context engineering dinâmica.
 
 Esta aula fecha três desses itens. Esta nota fecha o primeiro: **os padrões**.
+
+E ela chega numa hora específica. Na aula passada você leu uma dúzia de casos reais de indústria perguntando, para cada um, *"que padrão é este?"* — e respondeu com um vocabulário que era só de nomes: roteador, orquestrador-trabalhador, avaliador-otimizador. Agora cada um desses nomes vira código, com esqueleto, com custo em chamadas e com a metade que o material de mercado nunca traz: **quando não usar**.
+
+Você também sai da aula passada com um case escolhido. Vale ler esta nota com ele na cabeça — a pergunta útil em cada padrão não é "entendi?", é **"é este que o meu case precisa?"**.
 
 Mas antes de qualquer padrão, uma pergunta desconfortável. Você tem um laço que funciona. Por que ele não está pronto para rodar sozinho?
 
@@ -20,7 +24,7 @@ E existe uma quarta pergunta, anterior a todas — a que esta nota responde:
 
 Boa parte dos sistemas que as pessoas chamam de "agente" resolveria melhor o problema com o caminho escrito no código. Reconhecer isso não é modéstia: é a diferença entre um sistema que você consegue testar e um que você só consegue torcer para dar certo.
 
-> **Pré-requisitos:** da Aula 03, a [nota 04 §6 e §9](../../aula-03-prompt-engineering/notas-de-aula/04-tool-calling.md) (o laço ReAct e o que ficou pendente). Da Aula 01, a [nota 03 §1](../../aula-01-llms-e-agentes/notas-de-aula/03-agentes-de-ia.md) (definição de agente e o espectro de autonomia). Da Aula 02, a [nota 02 §7](../../aula-02-escolha-e-configuracao-de-modelos/notas-de-aula/02-configuracoes-da-chamada.md) (saída estruturada) e a [nota 04](../../aula-02-escolha-e-configuracao-de-modelos/notas-de-aula/04-custo-latencia-e-decisao.md) (a conta por chamada).
+> **Pré-requisitos:** da Aula 04, a [nota 01](../../aula-04-casos-de-uso-e-escolha-do-projeto/notas-de-aula/01-o-que-e-um-agente.md) — o §2.1 (os nomes de padrão) e os §4 a §8 (os casos que você leu com eles). Da Aula 03, a [nota 04 §6 e §9](../../aula-03-prompt-engineering/notas-de-aula/04-tool-calling.md) (o laço ReAct e o que ficou pendente). Da Aula 01, a [nota 03 §1](../../aula-01-llms-e-agentes/notas-de-aula/03-agentes-de-ia.md) (definição de agente e o espectro de autonomia). Da Aula 02, a [nota 02 §7](../../aula-02-escolha-e-configuracao-de-modelos/notas-de-aula/02-configuracoes-da-chamada.md) (saída estruturada) e a [nota 04](../../aula-02-escolha-e-configuracao-de-modelos/notas-de-aula/04-custo-latencia-e-decisao.md) (a conta por chamada).
 
 ---
 

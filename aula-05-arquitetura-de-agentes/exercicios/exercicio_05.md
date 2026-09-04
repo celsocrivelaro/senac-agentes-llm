@@ -1,4 +1,4 @@
-# Exercício 4 — O analista de prestação de contas
+# Exercício 5 — O analista de prestação de contas
 
 ## Contexto
 
@@ -264,7 +264,7 @@ Os números acima são ilustrativos — os de vocês serão outros. O que import
 No repositório de vocês:
 
 - `07-analista.py` (e `prompts/`, com as versões);
-- `aula04-log.txt` — a execução completa das oito despesas, com o resumo final;
+- `aula05-log.txt` — a execução completa das oito despesas, com o resumo final;
 - os comentários no código respondendo às três justificativas obrigatórias: **por que cada etapa tem a arquitetura que tem**, **por que o orçamento tem os valores que tem** e **por que a triagem usa (ou não usa) o modelo**.
 
 Sem relatório à parte. Como nos exercícios anteriores, **as justificativas moram no código**.

@@ -1,10 +1,10 @@
-# IA Aplicada com LLMs — Aula 04B: Casos de uso de agentes — Os casos que falharam
+# IA Aplicada com LLMs — Aula 04: Casos de uso de agentes — Os casos que falharam
 
 ## Introdução
 
 Esta é a nota mais útil da aula, e a razão é a de sempre: **um caso que funciona ensina que dá para fazer; um caso que falha ensina o que faltou.** A segunda informação é acionável; a primeira, geralmente, não.
 
-Três fracassos documentados publicamente, e nenhum deles é um caso de "a IA não funciona". Nos três, o sistema **funcionava** — foi a engenharia em volta dele que faltou. E, nos três, o que faltou tem nome e endereço na Aula 04:
+Três fracassos documentados publicamente, e nenhum deles é um caso de "a IA não funciona". Nos três, o sistema **funcionava** — foi a engenharia em volta dele que faltou. E, nos três, o que faltou tem nome — a Aula 01 (nota 03, §4) já listou os modos de falha de agentes, e estes três casos são três daquelas linhas acontecendo em produção:
 
 | Caso | O que aconteceu | A salvaguarda ausente |
 |---|---|---|
@@ -14,7 +14,7 @@ Três fracassos documentados publicamente, e nenhum deles é um caso de "a IA n�
 
 O tom desta nota é de **autópsia técnica**. Não há graça nenhuma em ridicularizar empresa que tentou: as três tomaram decisões que muita gente teria tomado, e as três publicaram — ou foram obrigadas a publicar — o resultado. Nós aprendemos de graça com o que elas pagaram para descobrir.
 
-> **Pré-requisitos:** as notas [01](01-o-mapa-da-adocao.md) e [02](02-os-casos-que-funcionam.md) desta aula. Da Aula 04: [nota 01 §2](../../aula-04-arquitetura-de-agentes/notas-de-aula/01-padroes-de-arquitetura.md) (a triagem e o custo do erro), [nota 02 §7](../../aula-04-arquitetura-de-agentes/notas-de-aula/02-o-agente-e-o-estado.md) (humano no laço) e [nota 03 §3 e §8](../../aula-04-arquitetura-de-agentes/notas-de-aula/03-confiabilidade.md) (erro fatal e idempotência).
+> **Pré-requisitos:** a [nota 01](01-o-que-e-um-agente.md) desta aula. Da Aula 01, a [nota 03 §3 e §4](../../aula-01-llms-e-agentes/notas-de-aula/03-agentes-de-ia.md) — o projeto de ferramentas (fronteira leitura/escrita, idempotência) e **a tabela de modos de falha**, que é o índice desta nota. Da Aula 03, a [nota 04](../../aula-03-prompt-engineering/notas-de-aula/04-tool-calling.md) — o laço e a separação entre quem decide e quem executa.
 
 ---
 
@@ -42,10 +42,10 @@ E o desfecho é a parte mais interessante: a Klarna **não voltou ao call center
 
 **A salvaguarda ausente: a rota para humano.**
 
-Traduzido para a Aula 04: o sistema tratou uma população heterogênea de conversas como se fosse homogênea. As consultas simples — status de pagamento, prazo, segunda via — são o caso ideal de automação: repetitivas, volumosas, com erro barato. As conversas complexas — cobrança indevida, disputa, cliente em situação financeira difícil — têm **outra função de custo do erro**, e por isso pedem outro nível de autonomia.
+Traduzido para o espectro de autonomia da Aula 01 (nota 03, §1.4): o sistema tratou uma população heterogênea de conversas como se fosse homogênea. As consultas simples — status de pagamento, prazo, segunda via — são o caso ideal de automação: repetitivas, volumosas, com erro barato. As conversas complexas — cobrança indevida, disputa, cliente em situação financeira difícil — têm **outra função de custo do erro**, e por isso pedem outro nível de autonomia.
 
 ```
-   O que foi feito                    O que a Aula 04 recomendaria
+   O que foi feito                    O que o espectro de autonomia pede
 
    conversa ──> [ AGENTE ]            conversa ──> [ ROTEADOR ] ──┬─> regra/FAQ
                     │                                             ├─> workflow
@@ -87,25 +87,27 @@ Isso tem três consequências diretas sobre arquitetura, e as três são conteú
 
 **O que aconteceu.** Em julho de 2025, um agente de codificação executou comandos destrutivos contra um **banco de dados de produção**, durante um congelamento de código e **contra instrução explícita** de não alterar nada. Registros foram apagados — pelos relatos públicos, dados de mais de 1.200 executivos e cerca de 1.200 empresas. Em seguida, o agente **afirmou que não havia como reverter**. Os dados foram recuperados no dia seguinte.
 
-**As salvaguardas ausentes — e são três, todas da Aula 04:**
+**As salvaguardas ausentes — e são três:**
 
-| O que aconteceu | O que faltou | Onde está na Aula 04 |
+| O que aconteceu | O que faltou | Você já viu isso? |
 |---|---|---|
-| ferramenta de escrita destrutiva executada livremente | **confirmação humana** em ação irreversível | nota 02, §7 |
-| instrução em prompt tratada como controle | **restrição por arquitetura** — a ferramenta não deveria existir naquela fase | nota 02, §6 |
-| o agente relatou o próprio estado ("não dá para reverter") | **o estado é do sistema**, não do modelo | nota 02, §2 |
+| ferramenta de escrita destrutiva executada livremente | **confirmação humana** em ação irreversível | **sim** — Aula 01, nota 03 §3: escrita irreversível exige confirmação |
+| instrução em prompt tratada como controle | **restrição por arquitetura** — a ferramenta não deveria estar disponível naquele momento | **em parte** — a próxima aula dá o mecanismo |
+| o agente relatou o próprio estado ("não dá para reverter") | **o estado é do sistema**, não do modelo | **não** — e é a pergunta que abre a próxima aula |
 
 O terceiro é o mais sutil e o mais importante, então vale a formulação explícita:
 
 > **Não pergunte ao agente o que ele fez.** Leia o registro que o seu código gravou.
 
-Um agente que informa a própria trajetória está gerando texto plausível sobre a própria trajetória — que é uma coisa diferente de tê-la executado. É por isso que a Aula 04 inteira gira em torno do objeto de estado: **o log é do programa**, e é a única fonte confiável sobre o que aconteceu.
+Um agente que informa a própria trajetória está gerando texto plausível sobre a própria trajetória — que é uma coisa diferente de tê-la executado. **O log é do programa**, e é a única fonte confiável sobre o que aconteceu.
+
+Guarde a pergunta, porque ela é o ponto de partida da próxima aula: *se não é o agente que sabe o que aconteceu, quem sabe — e onde isso fica guardado?*
 
 E o segundo item merece a frase que resume o caso:
 
 > **Instrução em prompt não é controle de acesso.**
 
-"Não altere o banco durante o congelamento" é um pedido. Credencial somente-leitura é um controle. Ambiente separado é um controle. Ferramenta não declarada na fase (Aula 04, nota 02 §6) é um controle. Quando a consequência é séria, a diferença entre pedido e controle é a diferença entre um incidente e um dia normal.
+"Não altere o banco durante o congelamento" é um pedido. Credencial somente-leitura é um controle. Ambiente separado é um controle. Ferramenta que nem foi oferecida ao modelo é um controle — e é a técnica que a próxima aula ensina. Quando a consequência é séria, a diferença entre pedido e controle é a diferença entre um incidente e um dia normal.
 
 ---
 
@@ -115,7 +117,7 @@ Os três casos acima são conhecidos porque viraram notícia. Não são exceçõ
 
 Um levantamento da Cyera sobre mais de **7.200 incidentes públicos de IA** identificou **344 casos verificados** de dano relevante a organizações causado por agentes — e, entre eles, **188 em que o dano foi causado pelo próprio sistema autônomo, sem nenhum atacante externo envolvido**.
 
-Esse recorte é o que interessa aqui. Não é segurança no sentido de invasão: é **o sistema fazendo, sozinho, algo que ninguém queria**. É a categoria de risco que a Aula 04 chama de confiabilidade, e ela é maior que a categoria "alguém atacou".
+Esse recorte é o que interessa aqui. Não é segurança no sentido de invasão: é **o sistema fazendo, sozinho, algo que ninguém queria**. É a categoria de risco que a próxima aula vai chamar de **confiabilidade**, e ela é maior que a categoria "alguém atacou".
 
 ---
 
@@ -137,7 +139,7 @@ Como usar esse número, e como não usar:
 - **é a melhor calibragem pública disponível** para tarefa profissional aberta e de longo horizonte;
 - **e ele sobe rápido** de uma geração de modelos para a seguinte. Qualquer número específico envelhece; a lição, não.
 
-> **A lição que não envelhece:** projete assumindo que o agente vai falhar numa fração relevante das tentativas — e é por isso que a Aula 04 gastou uma nota inteira em confiabilidade. **Um case que só funciona com autonomia próxima de 100% não é um case viável hoje.**
+> **A lição que não envelhece:** projete assumindo que o agente vai falhar numa fração relevante das tentativas — e é por isso que a próxima aula gasta uma nota inteira em confiabilidade. **Um case que só funciona com autonomia próxima de 100% não é um case viável hoje.**
 
 ---
 
@@ -147,7 +149,7 @@ Do outro lado do balcão existe um problema de mercado, e você vai encontrá-lo
 
 A Gartner deu nome a ele: ***agent washing*** — rebatizar de "agêntico" produtos que já existiam. Assistentes, RPA e chatbots ganham a palavra "agente" no material de marketing sem ganhar nenhuma capacidade agêntica. A estimativa da consultoria é que, entre os milhares de fornecedores que se apresentam como agênticos, apenas cerca de **130** entreguem algo substancialmente agêntico.
 
-Como distinguir, com o vocabulário da Aula 04. Três perguntas ao fornecedor:
+Como distinguir, com o vocabulário que você já tem. Três perguntas ao fornecedor:
 
 1. **Quem decide a sequência de passos — o seu produto ou o meu processo?** Se a sequência está configurada numa tela, é workflow. Isso pode ser ótimo; só não é agente.
 2. **Que ferramentas ele chama, e quem as executa?** Se não há execução de ação no mundo, é um chatbot com nome novo.
@@ -159,9 +161,9 @@ Como distinguir, com o vocabulário da Aula 04. Três perguntas ao fornecedor:
 
 ## Exemplos
 
-### Exemplo 1 — O mesmo incidente, com e sem as salvaguardas da Aula 04
+### Exemplo 1 — O mesmo incidente, com e sem salvaguardas
 
-O caso Replit, reescrito como se o agente tivesse sido construído com o que você aprendeu:
+O caso Replit, reescrito como se o agente tivesse sido construído com as salvaguardas. Parte disso você já sabe exigir; parte é o que a próxima aula vai te ensinar a implementar — o código abaixo é uma prévia dela, e não é preciso entender cada linha agora:
 
 ```
 SEM as salvaguardas
@@ -169,15 +171,15 @@ SEM as salvaguardas
   passo 13  o agente relata: "não é possível reverter"
   resultado: dados perdidos; a informação sobre o que houve vem do MODELO
 
-COM as salvaguardas da Aula 04
+COM as salvaguardas
   passo 12  executar_sql("DROP ...")
-            -> ferramenta NÃO declarada na fase atual (nota 02, §6)
-            -> o modelo não tem como chamá-la
-  [se estivesse declarada]
-            -> EXIGE_CONFIRMACAO: Termino.HUMANO, checkpoint gravado
-            -> o processo para e devolve o controle (nota 02, §7)
-  resultado: nenhuma escrita; e o que aconteceu está no trace, não na
-             narrativa do modelo (nota 03, §10)
+            -> a ferramenta NAO foi oferecida ao modelo neste momento
+            -> ele não tem como chamá-la
+  [se estivesse disponível]
+            -> exige confirmação: o agente PARA e devolve o controle
+            -> o estado é gravado antes de qualquer coisa acontecer
+  resultado: nenhuma escrita; e o que aconteceu está no registro do
+             programa, não na narrativa do modelo
 ```
 
 Repare que **nenhuma das três defesas depende de o modelo ser melhor**. As três são código seu.
@@ -203,11 +205,11 @@ Três descrições de material comercial:
 
 > Um agente de RH foi instruído no system prompt a "nunca compartilhar dados salariais". Um funcionário pediu a planilha de remuneração da equipe e o agente, que tinha acesso de leitura à base de RH, a devolveu.
 
-**Faltou restrição por arquitetura** (Aula 04, nota 02 §6). A instrução existia e foi ignorada — como toda instrução pode ser. A correção não é escrever a proibição em letras maiores; é **a ferramenta não ter acesso àquela coluna**: credencial restrita, visão de banco sem os campos sensíveis, ou ferramenta específica que devolve apenas o que aquele perfil pode ver.
+**Faltou restrição por arquitetura.** A instrução existia e foi ignorada — como toda instrução pode ser. A correção não é escrever a proibição em letras maiores; é **a ferramenta não ter acesso àquela coluna**: credencial restrita, visão de banco sem os campos sensíveis, ou ferramenta específica que devolve apenas o que aquele perfil pode ver.
 
-A regra da Aula 04, aplicada: *restrição por arquitetura vence restrição por prompt — instrução o modelo pode ignorar, ferramenta que não existe ele não tem como chamar.*
+A regra, que a próxima aula vai formular e implementar: *restrição por arquitetura vence restrição por prompt — instrução o modelo pode ignorar; ferramenta que não existe, ele não tem como chamar.*
 
-E note o parentesco com o caso brasileiro da [nota 04](04-o-brasil-e-a-escolha-do-case.md): vazamento de dado pessoal é a principal causa de reversão de projeto no país.
+E note que vazamento de dado pessoal é uma das principais causas de reversão de projeto de IA — assunto que a aula de segurança retoma.
 
 ### 2. Este case sobrevive às três lições?
 
@@ -246,4 +248,5 @@ Passe pelos três casos:
 - ***awesome-agent-failures*** — [repositório de estudos de caso de falhas de agentes](https://github.com/vectara/awesome-agent-failures). O melhor ponto de partida para o exercício desta aula.
 - **TheAgentCompany** — [arXiv 2412.14161](https://arxiv.org/abs/2412.14161), NeurIPS 2025. **A fonte revisada por pares desta aula**; leia pelo menos a seção de resultados.
 - **Gartner** — [*agent washing* e a previsão de cancelamentos](https://www.gartner.com/en/newsroom/press-releases/2025-06-25-gartner-predicts-over-40-percent-of-agentic-ai-projects-will-be-canceled-by-end-of-2027).
-- Aula 04, [nota 02 §6 e §7](../../aula-04-arquitetura-de-agentes/notas-de-aula/02-o-agente-e-o-estado.md) e [nota 03](../../aula-04-arquitetura-de-agentes/notas-de-aula/03-confiabilidade.md) — as salvaguardas que faltaram em cada caso.
+- Aula 01, [nota 03 §3 e §4](../../aula-01-llms-e-agentes/notas-de-aula/03-agentes-de-ia.md) — o projeto de ferramentas e a tabela de modos de falha que organiza esta nota.
+- **A próxima aula** ([Aula 05 — Arquitetura de agentes](../../aula-05-arquitetura-de-agentes/notas-de-aula/03-confiabilidade.md)) implementa, uma por uma, as salvaguardas que faltaram nestes três casos.
