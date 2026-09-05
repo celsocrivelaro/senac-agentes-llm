@@ -2,29 +2,29 @@
 
 ## Introdução
 
-A [nota anterior](01-padroes-de-arquitetura.md) gastou cinco padrões defendendo que você quase sempre deveria escrever um workflow. Esta nota trata do caso em que você não deve — e aí o problema deixa de ser *escolher a arquitetura* e passa a ser *controlar a que você escolheu*.
+A [nota anterior](01-padroes-de-arquitetura.md) apresentou cinco padrões em defesa da tese de que, na maioria dos casos, a solução adequada é um *workflow*. Esta nota trata do caso restante — aquele em que a autonomia se justifica. Aí o problema deixa de ser a escolha da arquitetura e passa a ser o controle da arquitetura escolhida.
 
-É a nota mais curta da aula e a mais importante, porque contém uma única mudança de código, aparentemente burocrática, da qual dependem **todas** as salvaguardas das notas 03 e 04:
+É a nota mais curta da aula e a mais consequente, porque contém uma única alteração de código, aparentemente burocrática, da qual dependem **todas** as salvaguardas das notas 03 e 04:
 
-> **A lista de mensagens não pode ser o estado do agente.**
+> **A lista de mensagens não pode ser a estrutura de estado do agente.**
 
-Enquanto ela for, você não impõe orçamento, não detecta laço, não salva checkpoint e não comprime contexto. Não porque seja difícil — porque a informação necessária **não está lá**.
+Enquanto o for, não é possível impor orçamento, detectar laço, salvar *checkpoint* ou comprimir contexto. Não por dificuldade de implementação: a informação necessária **não está representada**.
 
-> **Pré-requisitos:** [nota 01](01-padroes-de-arquitetura.md) desta aula · Aula 03, [nota 04 §5 e §6](../../aula-03-prompt-engineering/notas-de-aula/04-tool-calling.md) · Aula 01, [nota 03 §1.2 e §3](../../aula-01-llms-e-agentes/notas-de-aula/03-agentes-de-ia.md).
+> **Pré-requisitos:** [nota 01](01-padroes-de-arquitetura.md) desta aula · Aula 03, [nota 04](../../aula-03-prompt-engineering/notas-de-aula/04-tool-calling.md) §5 e §6 · Aula 01, [nota 03](../../aula-01-llms-e-agentes/notas-de-aula/03-agentes-de-ia.md) §1.2 e §3.
 >
-> **Código:** [`03-agente-com-estado.py`](https://github.com/celsocrivelaro/senac-llm-code/blob/main/aula05-agentes/03-agente-com-estado.py) — o laço da Aula 03 e esta versão lado a lado.
+> **Código:** [`03-agente-com-estado.py`](https://github.com/celsocrivelaro/senac-llm-code/blob/main/aula05-agentes/03-agente-com-estado.py) — o laço da Aula 03 e a versão desta nota, lado a lado.
 
 ---
 
 ## Objetivos de aprendizagem
 
-Ao final desta nota você deve ser capaz de:
+Ao final desta nota, o aluno deve ser capaz de:
 
-- **Reconhecer** as três condições que justificam um agente — inclusive a que quase nunca é dita.
+- **Reconhecer** as três condições que justificam um agente, inclusive a que raramente é enunciada.
 - **Enumerar** as perguntas que a lista de mensagens não responde.
 - **Modelar** a execução como objeto de estado explícito, e **derivar** dele a lista de mensagens.
-- **Expor dinamicamente** só o subconjunto de ferramentas da fase atual.
-- **Posicionar** a confirmação humana como forma de terminação, não como `input()` no meio do laço.
+- **Expor dinamicamente** apenas o subconjunto de ferramentas pertinente à fase corrente.
+- **Posicionar** a confirmação humana como forma de terminação, e não como `input()` no interior do laço.
 
 ---
 
@@ -32,60 +32,60 @@ Ao final desta nota você deve ser capaz de:
 
 ### 1. As três condições do agente
 
-A nota anterior deu a condição negativa: *não existe fluxograma*. Necessária, não suficiente. Um agente se justifica quando **três** coisas valem ao mesmo tempo:
+A nota anterior estabeleceu a condição negativa: não existe fluxograma. Ela é necessária e insuficiente. Um agente se justifica quando **três** condições valem simultaneamente:
 
-1. **A tarefa é aberta** — objetivo claro, caminho não.
-2. **O número de passos é desconhecido** antes de rodar.
-3. **O ambiente devolve feedback verificável.**
+1. **A tarefa é aberta** — o objetivo é claro, o caminho não.
+2. **O número de passos é desconhecido** antes da execução.
+3. **O ambiente devolve *feedback* verificável.**
 
-A terceira quase nunca é dita, e é a que decide. Um agente funciona porque **erra e se corrige**. Se toda ferramenta responde "ok" e nada nunca contradiz o modelo, o laço não corrige nada — só empilha passos sobre uma premissa errada, com a confiança intacta.
+A terceira raramente é enunciada e é a que decide. Um agente opera porque **erra e se corrige**. Se toda ferramenta responde afirmativamente e nada contradiz o modelo, o laço não corrige coisa alguma: acumula passos sobre uma premissa incorreta, com a confiança declarada intacta.
 
-| Tarefa | Feedback verificável? | Veredito |
+| Tarefa | *Feedback* verificável | Veredito |
 |---|---|---|
-| Corrigir um bug: roda o teste, passa ou falha | **sim**, binário | agente funciona bem |
-| Investigar despesa: valores batem com a política ou não | **sim**, parcial | agente funciona, com verificação |
-| Escrever texto persuasivo: nada diz se convenceu | **não** | não é agente — é uma chamada, talvez com avaliador |
+| Corrigir um defeito de software: o teste passa ou falha | **sim**, binário | agente é adequado |
+| Investigar despesa: os valores conferem com a política ou não | **sim**, parcial | agente é adequado, com verificação |
+| Redigir texto persuasivo: nenhuma ferramenta determina se convenceu | **não** | não é agente — é uma chamada, eventualmente com avaliador |
 
-> **A regra:** autonomia só compensa onde existe correção. Sem sinal de erro vindo do mundo, mais passos são mais chances de errar, não de acertar.
+> **Regra:** autonomia só compensa onde há correção. Sem sinal de erro proveniente do ambiente, mais passos significam mais oportunidades de errar, não de acertar.
 
 ---
 
-### 2. O que a lista de mensagens não sabe
+### 2. O que a lista de mensagens não representa
 
-Imagine o agente da Aula 03 na quadragésima mensagem. Responda **a partir da lista**:
+Considere o agente da Aula 03 na quadragésima mensagem. As perguntas seguintes não são respondíveis a partir da lista:
 
-| Pergunta | Onde está a resposta? |
+| Pergunta | Situação da informação |
 |---|---|
-| Quantos passos já foram dados? | em lugar nenhum — dá para *inferir* contando `assistant`, o que é frágil |
-| Quantos tokens? Quanto custou? | não está: os `usage` foram descartados |
-| Qual era o objetivo original? | na mensagem 2, soterrada (*lost in the middle*) |
-| A ferramenta X já falhou antes? | espalhada em `content` de mensagens `tool`, como **texto** |
-| Alguma chamada se repetiu? | daria para descobrir varrendo e reparseando JSON a cada volta |
-| Por que o agente parou? | **não está em lugar nenhum** |
+| Quantos passos foram executados? | ausente — é possível *inferir* contando mensagens `assistant`, o que é frágil |
+| Quantos tokens foram consumidos? Qual o custo? | ausente: os campos `usage` das respostas foram descartados |
+| Qual era o objetivo original? | na mensagem 2, soterrada no meio da janela (*lost in the middle*) |
+| A ferramenta X já falhou anteriormente? | dispersa em `content` de mensagens `tool`, como **texto** |
+| Alguma chamada se repetiu? | recuperável apenas por varredura e reanálise de JSON a cada volta |
+| Por que o agente parou? | **ausente** |
 
-O padrão: a informação ou **não existe**, ou existe **como texto dentro de um campo destinado ao modelo**. É o erro de projeto que você reconheceria em qualquer outro sistema — usar o formato de serialização da API como estrutura de dados interna. Ninguém guarda o estado de um pedido dentro do JSON que vai para o cliente HTTP.
+O padrão é regular: a informação ou **não existe**, ou existe **como texto no interior de um campo destinado ao modelo**. Trata-se do erro de projeto que seria reconhecido de imediato em qualquer outro sistema — empregar o formato de serialização da API como estrutura de dados interna. O estado de um pedido não é armazenado dentro do JSON enviado ao cliente HTTP.
 
 ```
    ANTES:   mensagens[]  é o estado E é o transporte
-            → tudo que não cabe numa mensagem, some
+            → o que não couber numa mensagem, desaparece
 
    DEPOIS:  Estado       é o estado
             mensagens[]  é DERIVADO do estado
-            → o estado guarda o que a API não carrega
+            → o estado armazena o que a API não carrega
 ```
 
 ---
 
 ### 3. O objeto de estado
 
-A Aula 01 (nota 03, §1.2) definiu o agente por quatro componentes: objetivo, LLM, ferramentas, laço. O objeto de estado é essa definição virando estrutura de dados, mais o que a execução produz.
+A Aula 01 (nota 03, §1.2) definiu o agente por quatro componentes: objetivo, LLM, ferramentas e laço. O objeto de estado é essa definição convertida em estrutura de dados, acrescida do que a execução produz.
 
 ```python
 class Termino(str, Enum):
     RESPONDEU = "respondeu"            # o modelo concluiu
-    ORCAMENTO = "orcamento_esgotado"   # bateu o teto
-    ERRO_FATAL = "erro_fatal"          # não dá para continuar
-    HUMANO = "aguardando_humano"       # precisa de confirmação
+    ORCAMENTO = "orcamento_esgotado"   # teto atingido
+    ERRO_FATAL = "erro_fatal"          # não há como continuar
+    HUMANO = "aguardando_humano"       # confirmação pendente
 
 @dataclass
 class Passo:
@@ -113,19 +113,19 @@ class Estado:
     historico: list[dict] = field(default_factory=list)   # DERIVADO, reconstruível
 ```
 
-Três decisões que não são óbvias:
+Três decisões de projeto não são evidentes:
 
-| Decisão | Por quê |
+| Decisão | Justificativa |
 |---|---|
-| **`objetivo` é campo próprio**, não a primeira mensagem | é a única informação que precisa estar disponível o tempo todo — para reancorar (nota 03 §7) e sobreviver à compaction (nota 04). Como `mensagens[1]`, ele pode ser comprimido junto com o resto |
-| **`passos` é lista de objetos**, não de dicionários de mensagem | ferramenta, argumentos e erro em **campos**, não em texto. É o que torna a detecção de laço uma comparação de tuplas em vez de *parsing* |
-| **`termino` é obrigatório no fim** | um agente que terminou sem registrar por quê é um agente que você não depura às onze da noite com o sistema em produção |
+| **`objetivo` é campo próprio**, e não a primeira mensagem | é a única informação que precisa estar disponível durante toda a execução — para reancoragem (nota 03, §7) e para sobreviver à *compaction* (nota 04). Armazenado como `mensagens[1]`, pode ser comprimido junto com o restante |
+| **`passos` é lista de objetos**, e não de dicionários de mensagem | ferramenta, argumentos e erro em **campos**, não em texto. É o que converte a detecção de laço em comparação de tuplas, em vez de análise sintática |
+| **`termino` é obrigatório ao final** | um agente que encerrou sem registrar a causa não é depurável em produção |
 
 ---
 
 ### 4. A derivação: estado → mensagens
 
-A lista não desaparece — ela é montada a cada volta, a partir do estado:
+A lista de mensagens não desaparece: passa a ser montada a cada volta, a partir do estado.
 
 ```python
 def montar_mensagens(estado: Estado) -> list[dict]:
@@ -134,13 +134,13 @@ def montar_mensagens(estado: Estado) -> list[dict]:
                  {"role": "user", "content": estado.objetivo}]
     mensagens.extend(estado.historico)
 
-    if estado.n_passos >= REANCORAR_A_CADA:      # o objetivo volta ao FIM
-        mensagens.append({"role": "user",        # da janela, onde o modelo
-                          "content": f"Objetivo: {estado.objetivo}"})  # o aproveita
+    if estado.n_passos >= REANCORAR_A_CADA:      # o objetivo retorna ao FIM
+        mensagens.append({"role": "user",        # da janela, onde é melhor
+                          "content": f"Objetivo: {estado.objetivo}"})  # aproveitado
     return mensagens
 ```
 
-E o laço passa a operar sobre o estado:
+O laço passa a operar sobre o estado:
 
 ```python
 def rodar(objetivo: str, orcamento: Orcamento) -> Estado:
@@ -155,7 +155,7 @@ def rodar(objetivo: str, orcamento: Orcamento) -> Estado:
             model=MODELO, messages=montar_mensagens(estado),
             tools=declaracoes(estado.ferramentas_ativas), temperature=0)
         msg = r.choices[0].message
-        estado.tokens_gastos += r.usage.total_tokens    # agora existe
+        estado.tokens_gastos += r.usage.total_tokens    # agora representado
 
         if not msg.tool_calls:
             estado.termino, estado.resposta = Termino.RESPONDEU, msg.content
@@ -170,35 +170,35 @@ def rodar(objetivo: str, orcamento: Orcamento) -> Estado:
 
 Três diferenças em relação ao original, nenhuma cosmética:
 
-1. **Devolve `Estado`, não `str`.** Quem chamou recebe a resposta *e* a trajetória, o custo e o motivo do término. Devolver só a string joga fora tudo que serve para depurar.
-2. **`while True` com saídas nomeadas**, no lugar de `for passo in range(max_passos)`. O `for` codificava uma única condição de parada; as outras três não cabiam nele.
-3. **`historico` é campo do estado**, e por isso pode ser reescrito (compaction) sem que o resto do agente saiba.
+1. **A função devolve `Estado`, não `str`.** O chamador recebe a resposta *e* a trajetória, o custo e a causa do término. Devolver apenas a cadeia de caracteres descarta tudo o que serve ao diagnóstico.
+2. **`while True` com saídas nomeadas**, em lugar de `for passo in range(max_passos)`. O `for` codificava uma única condição de parada; as outras três não são expressáveis nele.
+3. **`historico` é campo do estado** e, por isso, pode ser reescrito (*compaction*, nota 04) sem conhecimento do restante do agente.
 
-Nada disso deixa o agente mais inteligente. Deixa o agente **observável**, que é a pré-condição de tudo o mais.
+Nenhuma dessas alterações torna o agente mais capaz. Tornam-no **observável**, que é a pré-condição de todo o restante.
 
 ---
 
-### 5. O que o estado destrava
+### 5. O que o estado viabiliza
 
-| Salvaguarda | Precisa de | Onde |
+| Salvaguarda | Requer | Localização |
 |---|---|---|
-| Orçamento em quatro moedas | `tokens_gastos`, `custo_estimado`, `n_passos`, início | [nota 03](03-confiabilidade.md) §1 |
+| Orçamento em quatro moedas | `tokens_gastos`, `custo_estimado`, `n_passos`, instante inicial | [nota 03](03-confiabilidade.md) §1 |
 | Motivo de término | `termino` | nota 03 §2 |
 | Erro recuperável × fatal | `Passo.erro` por passo | nota 03 §3 |
-| Detecção de laço | `passos` com ferramenta e argumentos separados | nota 03 §6 |
+| Detecção de laço | `passos` com ferramenta e argumentos em campos distintos | nota 03 §6 |
 | Reancoragem do objetivo | `objetivo` fora do histórico | nota 03 §7 |
-| Checkpoint | o estado inteiro, serializável | nota 03 §9 |
-| Compaction | `historico` isolado e reescrevível | [nota 04](04-context-engineering-dinamica.md) |
+| *Checkpoint* | o estado íntegro, serializável | nota 03 §9 |
+| *Compaction* | `historico` isolado e reescrevível | [nota 04](04-context-engineering-dinamica.md) |
 
-Sete salvaguardas, um pré-requisito comum. É por isso que esta nota vem antes das outras duas.
+Sete salvaguardas com um pré-requisito comum. É a razão pela qual esta nota precede as duas seguintes.
 
 ---
 
-### 6. Múltiplas ferramentas, e a escolha entre elas
+### 6. Múltiplas ferramentas e a escolha entre elas
 
-Toda ferramenta declarada custa tokens em **todas** as chamadas: descrição e schema viajam na requisição a cada volta. Vinte ferramentas de ~120 tokens são ~2.400 tokens por volta, multiplicados por toda a trajetória.
+Toda ferramenta declarada consome tokens em **todas** as chamadas: descrição e schema trafegam na requisição a cada volta. Vinte ferramentas de aproximadamente 120 tokens somam cerca de 2.400 tokens por volta, multiplicados por toda a trajetória.
 
-E o dinheiro é o menor dos dois problemas. O maior é a **qualidade da escolha**: quanto mais ferramentas parecidas, mais o modelo erra qual chamar — a linha "ferramenta errada" da tabela de falhas da Aula 01 (nota 03, §4).
+O custo financeiro é o menor dos dois problemas. O maior é a **qualidade da seleção**: quanto mais ferramentas semelhantes constam da lista, maior a taxa de erro na escolha — condição registrada como "ferramenta errada" na tabela de modos de falha da Aula 01 (nota 03, §4).
 
 ```python
 FASES = {
@@ -211,23 +211,23 @@ def declaracoes(ativas: list[str]) -> list[dict]:
     return [DECLARACOES[nome] for nome in ativas]
 ```
 
-O ganho que não é de custo: na fase `coleta`, `registrar_parecer` **não existe** para o modelo. Não é uma instrução no system prompt pedindo que ele não registre antes da hora — é a ausência da ferramenta. Instrução ele pode ignorar; ferramenta não declarada ele não tem como chamar.
+O ganho não financeiro: na fase `coleta`, `registrar_parecer` **não existe** para o modelo. Não se trata de instrução no *system prompt* proibindo o registro antecipado — trata-se da ausência da ferramenta. Instrução é passível de ser ignorada; ferramenta não declarada não é invocável.
 
-> **Restrição por arquitetura vence restrição por prompt.** Sempre que der, prefira tornar a ação indisponível a pedir que ela não seja tomada.
+> **Restrição por arquitetura supera restrição por prompt.** Sempre que a alternativa existir, torna-se a ação indisponível em vez de solicitar que não seja executada.
 
 ---
 
 ### 7. Humano no laço
 
-A Aula 01 (nota 03 §3) estabeleceu a fronteira: leitura o agente faz livremente; **escrita irreversível exige confirmação**. O que muda é *como* isso é implementado.
+A Aula 01 (nota 03, §3) estabeleceu a fronteira: leitura é executada livremente pelo agente; **escrita irreversível exige confirmação**. O que se altera aqui é a forma de implementação.
 
 ```python
 if chamada.function.name == "registrar_parecer":
-    if input("confirma? [s/N] ") != "s":       # NÃO faça isto
+    if input("confirma? [s/N] ") != "s":       # implementação inadequada
         ...
 ```
 
-Funciona no laboratório e em lugar nenhum além dele: prende um processo esperando um humano, não sobrevive a reinício e não existe quando o agente roda como job ou atrás de uma fila. A versão correta trata a confirmação como **uma das quatro formas de terminar**:
+Essa forma opera em laboratório e em nenhum outro contexto: bloqueia um processo à espera de intervenção humana, não sobrevive a reinício e não se aplica quando o agente executa como *job* ou por trás de uma fila. A forma adequada trata a confirmação como **uma das quatro formas de terminação**:
 
 ```python
 def executar(chamada, estado: Estado) -> Passo:
@@ -244,19 +244,19 @@ def executar(chamada, estado: Estado) -> Passo:
                  resultado=FERRAMENTAS[nome](**argumentos))
 ```
 
-O agente **para**, grava o estado e devolve o controle. A aprovação chega depois — por outro processo, outra tela, outro dia — e a execução é retomada do checkpoint, sem repetir nenhum passo já dado. Só é possível porque o estado é serializável: com o estado dentro de `mensagens[]` na memória do processo, "retomar depois" não é opção, é reescrita.
+O agente **interrompe a execução**, persiste o estado e devolve o controle. A aprovação ocorre posteriormente — em outro processo, outra interface, outro dia — e a execução é retomada a partir do *checkpoint*, sem repetição de passos já executados. Isso só é possível porque o estado é serializável: com o estado contido em `mensagens[]` na memória do processo, a retomada posterior não é uma opção, e sim uma reescrita.
 
-E há um custo a admitir: **cada ponto de confirmação mata um pedaço da autonomia que justificava o agente**. Um agente que pede confirmação a cada passo é um assistente de digitação caro. A confirmação vai onde o erro é irreversível — e em nenhum outro lugar.
+Há um custo a registrar: **cada ponto de confirmação suprime parte da autonomia que justificava o agente**. Um agente que solicita confirmação a cada passo é um assistente de digitação de custo elevado. A confirmação se posiciona onde o erro é irreversível, e em nenhum outro ponto.
 
 ---
 
 ## Exemplos
 
-### Exemplo 1 — A mesma execução, vista pelas duas estruturas
+### Exemplo 1 — A mesma execução sob as duas estruturas
 
-Agente investigando uma despesa. Quatro passos, e o terceiro falha.
+Agente investigando uma despesa, em quatro passos, com falha no terceiro.
 
-**Com `mensagens[]`**, o que sobra no fim são nove dicionários. Para saber que houve erro, alguém precisa ler o `content` da sétima entrada e reparar que o JSON tem uma chave `erro`.
+**Com `mensagens[]`**, o resultado final são nove dicionários. A constatação de que houve erro exige a leitura do campo `content` da sétima entrada e a identificação de uma chave `erro` no JSON.
 
 **Com `Estado`:**
 
@@ -274,31 +274,32 @@ Estado(
     resposta="Despesa D-4471 aprovada: R$ 84,00 dentro do teto de R$ 120,00 ...")
 ```
 
-Sem *parsing*, responde: quantos passos, quanto custou, o que falhou, que o modelo **se corrigiu sozinho** (`F-88` → `F-088`) e por que terminou. Este é o objeto que a aula de observabilidade vai chamar de *trace*.
+A segunda estrutura responde, sem análise sintática: quantos passos, qual o custo, o que falhou, que o modelo **se corrigiu autonomamente** (`F-88` → `F-088`) e por que encerrou. É o objeto que a aula de observabilidade denominará *trace*.
 
-### Exemplo 2 — Três perguntas, uma linha cada
+### Exemplo 2 — Três consultas, uma linha cada
 
-O que o estado torna trivial e a lista de mensagens torna um projeto:
+Operações que o estado torna triviais e que a lista de mensagens converteria em projeto:
 
 ```python
 sum(1 for p in estado.passos if p.erro)                          # quantos erros?
-Counter((p.ferramenta, str(p.argumentos)) for p in estado.passos) # repetiu chamada?
-[p.ferramenta for p in estado.passos if p.tokens > 5_000]         # quem come a janela?
+Counter((p.ferramenta, str(p.argumentos)) for p in estado.passos) # chamada repetida?
+[p.ferramenta for p in estado.passos if p.tokens > 5_000]         # maior consumo?
 ```
 
-Nenhuma delas é escrevível sobre `mensagens[]` sem varrer e reparsear JSON a cada volta.
+Nenhuma delas é expressável sobre `mensagens[]` sem varredura e reanálise de JSON a cada volta.
 
-### Exemplo 3 — A ferramenta que some
+### Exemplo 3 — A ferramenta indisponível
 
 ```python
 estado.ferramentas_ativas = FASES["analise"]   # registrar_parecer NÃO declarada
 
-# O modelo tenta registrar mesmo assim? Não tem como. O máximo que ele faz é
-# DIZER que registrou — e a ausência do Passo denuncia a alucinação:
+# Tentativa de registro pelo modelo: inviável, a ferramenta não consta da
+# requisição. O comportamento máximo é DECLARAR que registrou — e a ausência
+# do Passo correspondente evidencia a alucinação:
 assert not any(p.ferramenta == "registrar_parecer" for p in estado.passos)
 ```
 
-Esse `assert` é um teste de verdade, e só é escrevível porque o estado guarda os passos como dados. Com a lista de mensagens, seria uma busca por substring.
+O `assert` acima constitui teste efetivo, e só é redigível porque o estado armazena os passos como dados. Sobre a lista de mensagens, o teste equivalente seria uma busca por subcadeia.
 
 ### Exemplo 4 — O checkpoint que retoma
 
@@ -312,67 +313,20 @@ def retomar(execucao_id: str, aprovado: bool) -> Estado:
     if not aprovado:
         estado.termino, estado.motivo = Termino.HUMANO, "reprovado pelo aprovador"
         return estado
-    estado.termino, estado.pendencia = None, None    # segue de onde parou
+    estado.termino, estado.pendencia = None, None    # prossegue de onde parou
     return continuar(estado)
 ```
 
-Quatro linhas de `json.dumps` são tudo o que separa "o agente pausou" de "o agente morreu". E repare no que **não** aparece aqui: nenhum passo é reexecutado — os três primeiros já estão em `estado.passos`, com resultado.
-
----
-
-## Exercícios resolvidos
-
-### 1. Agente ou não?
-
-> *"Quero um agente que leia as reclamações do mês e escreva um relatório executivo com os três principais problemas."*
-
-**Não é agente.** Tarefa aberta? Só em parte — o formato é conhecido. Passos desconhecidos? Não: ler, agrupar, escolher três, escrever. **Feedback verificável? Não** — nenhuma ferramenta diz se o relatório identificou os problemas certos. A terceira condição sozinha resolve o caso.
-
-A arquitetura adequada é *sectioning* (resumir lotes em paralelo) + uma chamada de síntese; se a qualidade do texto importar, um avaliador-otimizador com critério escrito.
-
-Se o pedido fosse *"investigue por que as reclamações de entrega dobraram em março"*, a resposta mudaria: o caminho depende do que cada consulta revelar, e os dados devolvem contradição — ou seja, feedback.
-
-### 2. O que está errado neste laço?
-
-```python
-def rodar(objetivo, max_passos=10):
-    msgs = [{"role": "system", "content": SYSTEM},
-            {"role": "user", "content": objetivo}]
-    for _ in range(max_passos):
-        r = client.chat.completions.create(model=MODELO, messages=msgs,
-                                           tools=TODAS_AS_20_FERRAMENTAS)
-        if not r.choices[0].message.tool_calls:
-            return r.choices[0].message.content
-        ...
-    return "não consegui"
-```
-
-| # | Defeito | Consequência |
-|---|---|---|
-| 1 | `return "não consegui"` é indistinguível de uma resposta | quem chamou não sabe se concluiu ou estourou o teto. Motivo de término é dado, não texto |
-| 2 | 20 ferramentas em toda chamada | custo fixo por volta e escolha pior (§6) |
-| 3 | `r.usage` é descartado | sem tokens não há orçamento, nem custo, nem consumo conhecido |
-| 4 | `max_passos` é a única barreira | um passo pode custar 200 tokens ou 40.000 ([nota 03 §1](03-confiabilidade.md)) |
-
-O quinto defeito é o que gera todos os outros: **`msgs` é o estado**.
-
----
-
-## Síntese
-
-- Três condições justificam um agente: tarefa aberta, passos desconhecidos e **feedback verificável**. Sem a terceira, autonomia só amplifica o erro.
-- A lista de mensagens é **transporte**, não estado. Ela não sabe quantos passos houve, quanto custou, o que falhou nem por que parou.
-- O objeto de estado é a definição de agente da Aula 01 virando `dataclass`.
-- O histórico passa a ser **derivado** do estado — e por isso reescrevível.
-- Sete salvaguardas das notas 03 e 04 dependem dessa separação. É a mudança que paga o resto da aula.
-- Exponha só as ferramentas da fase atual. **Restrição por arquitetura vence restrição por prompt.**
-- Confirmação humana é **forma de terminação** com checkpoint, não `input()` no meio do laço — e cada uma custa um pedaço da autonomia.
+Quatro linhas de serialização separam "o agente pausou" de "o agente encerrou". Note-se o que **não** consta do trecho: nenhum passo é reexecutado — os três primeiros já estão em `estado.passos`, com resultado.
 
 ---
 
 ## Fontes e leituras
 
-- Aula 01, [nota 03 §1.2, §3 e §4](../../aula-01-llms-e-agentes/notas-de-aula/03-agentes-de-ia.md) — os quatro componentes, projeto de ferramentas e a tabela de falhas.
-- Aula 03, [nota 04](../../aula-03-prompt-engineering/notas-de-aula/04-tool-calling.md) — o laço original que esta nota reescreve.
-- **A practical guide to building agents** — OpenAI (2025). Orquestração e *human-in-the-loop*.
-- **Building Effective Agents** — Anthropic (2024). Agentes autônomos e a insistência em ambientes que devolvem sinal.
+ANTHROPIC. **Building effective agents**. 2024. (Seção sobre agentes autônomos e sobre a exigência de ambientes que devolvam sinal.)
+
+OPENAI. **A practical guide to building agents**. 2025. (Capítulos de orquestração e de *human-in-the-loop*.)
+
+YAO, S. et al. **ReAct**: synergizing reasoning and acting in language models. arXiv:2210.03629, 2022.
+
+**Material da disciplina.** Aula 01, [nota 03](../../aula-01-llms-e-agentes/notas-de-aula/03-agentes-de-ia.md) §1.2, §3 e §4 — os quatro componentes, projeto de ferramentas e a tabela de modos de falha. Aula 03, [nota 04](../../aula-03-prompt-engineering/notas-de-aula/04-tool-calling.md) — o laço original que esta nota reescreve.

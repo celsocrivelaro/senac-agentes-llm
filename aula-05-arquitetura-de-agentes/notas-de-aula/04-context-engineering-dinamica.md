@@ -2,36 +2,36 @@
 
 ## Introdução
 
-A nota 02 da Aula 03 fechou com uma promessa: *aqui, o que você monta na chamada; na aula de agentes, o que se faz com a janela **ao longo da trajetória***. Esta nota paga a promessa, e responde à terceira das perguntas que abriram a aula — *por que o laço não está pronto para rodar sozinho?* Porque **ele não sabe esquecer**.
+A nota 02 da Aula 03 encerrou com uma promessa: naquela nota, o que se monta na chamada; na aula de agentes, o que se faz com a janela **ao longo da trajetória**. Esta nota cumpre a promessa e trata da terceira limitação enunciada na abertura da aula: o laço **não sabe esquecer**.
 
-> **A cada volta, o histórico inteiro é reenviado. Nada nunca sai.**
+> **A cada volta, o histórico íntegro é reenviado. Nada é removido.**
 
-Numa trajetória de três passos isso é irrelevante. Numa de trinta, domina o custo, a latência e — o que menos se espera — a **qualidade**.
+Numa trajetória de três passos, a propriedade é irrelevante. Numa de trinta, ela domina o custo, a latência e — o efeito menos esperado — a **qualidade**.
 
-> **Pré-requisitos:** notas [02](02-o-agente-e-o-estado.md) e [03](03-confiabilidade.md) desta aula · Aula 03, [nota 02](../../aula-03-prompt-engineering/notas-de-aula/02-context-engineering.md) inteira · Aula 02, [nota 01 §4](../../aula-02-escolha-e-configuracao-de-modelos/notas-de-aula/01-escolha-de-modelos.md).
+> **Pré-requisitos:** notas [02](02-o-agente-e-o-estado.md) e [03](03-confiabilidade.md) desta aula · Aula 03, [nota 02](../../aula-03-prompt-engineering/notas-de-aula/02-context-engineering.md) integralmente · Aula 02, [nota 01](../../aula-02-escolha-e-configuracao-de-modelos/notas-de-aula/01-escolha-de-modelos.md) §4.
 >
-> **Código:** [`06-compaction.py`](https://github.com/celsocrivelaro/senac-llm-code/blob/main/aula05-agentes/06-compaction.py) — trajetória longa com e sem compaction, com os tokens por passo na tela.
+> **Código:** [`06-compaction.py`](https://github.com/celsocrivelaro/senac-llm-code/blob/main/aula05-agentes/06-compaction.py) — trajetória longa com e sem *compaction*, com a contagem de tokens por passo.
 
 ---
 
 ## Objetivos de aprendizagem
 
-Ao final desta nota você deve ser capaz de:
+Ao final desta nota, o aluno deve ser capaz de:
 
-- **Calcular** o crescimento do contexto ao longo de uma trajetória, e mostrar por que é superlinear no acumulado.
-- **Distinguir** curadoria estática (o que você monta na chamada) de dinâmica (o que o programa faz durante a execução).
-- **Aplicar** *tool clearing*, compaction reativa e periódica, e sumarização de trajetória.
-- **Decidir o que preservar por obrigação** num resumo, e o que pode ser descartado.
-- **Usar sub-agentes como isolamento de contexto**, sabendo exatamente o que se perde.
-- **Ordenar** as táticas da mais barata e segura para a mais destrutiva.
+- **Calcular** o crescimento do contexto ao longo de uma trajetória e demonstrar que é superlinear no acumulado.
+- **Distinguir** curadoria estática — o que se monta na chamada — de curadoria dinâmica — o que o programa faz durante a execução.
+- **Aplicar** *tool clearing*, *compaction* reativa e periódica, e sumarização de trajetória.
+- **Determinar o que preservar obrigatoriamente** num resumo e o que pode ser descartado.
+- **Empregar sub-agentes como isolamento de contexto**, com conhecimento preciso da perda envolvida.
+- **Ordenar** as táticas da mais segura à mais destrutiva.
 
 ---
 
 ## Desenvolvimento teórico
 
-### 1. A aritmética que ninguém faz
+### 1. A aritmética do acumulado
 
-System prompt + declarações ≈ 1.500 tokens. Cada passo acrescenta a chamada do modelo (~80) e o resultado da ferramenta (~400) — **~480 tokens por passo**. O contexto enviado no passo *n* é `1.500 + 480 × (n − 1)`; o total consumido é a soma disso desde o primeiro.
+Considere um agente cujo *system prompt* e declarações de ferramentas somam aproximadamente 1.500 tokens, e em que cada passo acrescenta ao histórico a mensagem do modelo (cerca de 80 tokens) e o resultado da ferramenta (cerca de 400 tokens) — aproximadamente **480 tokens por passo**. O contexto enviado no passo *n* é `1.500 + 480 × (n − 1)`; o total consumido é a soma desses valores desde o primeiro passo.
 
 | Passo | Contexto neste passo | Total acumulado |
 |---:|---:|---:|
@@ -57,23 +57,23 @@ System prompt + declarações ≈ 1.500 tokens. Cada passo acrescenta a chamada 
             3    6    9   12   15   18   21   24   27   30  passos
 ```
 
-> *A aritmética do acumulado, não uma medição.* Rode o `06-compaction.py` com o seu modelo e refaça a tabela — a **forma** da curva não muda, os valores sim.
+> Os valores acima resultam da aritmética do acumulado, não de medição. A execução do `06-compaction.py` com o modelo em uso permite refazer a tabela: a **forma** da curva não se altera, os valores sim.
 
-Três leituras:
+Três leituras decorrem do quadro:
 
-| Efeito | O que acontece |
+| Efeito | Descrição |
 |---|---|
-| **Custo quadrático** | cada passo reenvia tudo o que veio antes. Dobrar os passos não dobra a conta: quadruplica. Um agente de 30 passos custa quase **sete** vezes um de 10 |
-| **Latência acompanha** | o tempo até o primeiro token depende do tamanho da entrada (Aula 02 nota 04 §5). O agente começa em 400 ms e termina em vários segundos por passo |
-| **A qualidade cai antes de a janela acabar** | no passo 25 o objetivo está cercado por 12.000 tokens de observações — a região do meio, onde o modelo recupera pior (*lost in the middle*) |
+| **Custo quadrático** | cada passo reenvia todo o histórico anterior. Dobrar o número de passos quadruplica a conta: um agente de 30 passos custa aproximadamente **sete** vezes um de 10 |
+| **Latência proporcional** | o tempo até o primeiro token depende do tamanho da entrada (Aula 02, nota 04, §5). A execução inicia em cerca de 400 ms por passo e encerra em vários segundos |
+| **Degradação de qualidade anterior ao limite da janela** | no passo 25, o objetivo está cercado por cerca de 12.000 tokens de observações — a região central, onde a recuperação é pior (*lost in the middle*, LIU et al., 2023) |
 
-O terceiro é o menos intuitivo e o mais importante: o agente não fica pior por falta de espaço. Fica pior por **excesso de passado**.
+O terceiro efeito é o menos intuitivo e o mais relevante: o desempenho do agente não se degrada por falta de espaço, e sim por **excesso de passado**.
 
-> **A formulação que vale guardar:** num agente, a janela não é um limite que você atinge. É um recurso que se degrada continuamente enquanto você o consome.
+> **Formulação:** num agente, a janela de contexto (*context window*) não é um limite que se atinge. É um recurso que se degrada continuamente à medida que é consumido.
 
 ---
 
-### 2. Estático × dinâmico
+### 2. Curadoria estática × dinâmica
 
 ```
    ESTÁTICO (aula 03)                DINÂMICO (esta nota)
@@ -84,34 +84,34 @@ O terceiro é o menos intuitivo e o mais importante: o agente não fica pior por
    │ documentos        │             │ passos 24-30      │  íntegros
    │ pergunta          │             │ objetivo (de novo)│  reancorado
    └───────────────────┘             └───────────────────┘
-   você decide uma vez               o programa decide a cada volta
+   decisão única, no código          decisão a cada volta, no programa
 ```
 
-A curadoria estática é uma decisão tomada uma vez, por você, ao escrever o código. A dinâmica é o que o programa faz com a janela **enquanto** a execução acontece, sem saber de antemão quantos passos haverá nem o que cada ferramenta vai devolver.
+A curadoria estática é uma decisão tomada uma vez, na redação do código. A dinâmica é o tratamento aplicado à janela **durante** a execução, sem conhecimento prévio do número de passos nem do conteúdo devolvido por cada ferramenta.
 
-Só é implementável por causa da [nota 02](02-o-agente-e-o-estado.md): reescrever o histórico exige que ele seja **campo do estado**, e não a própria estrutura em que o agente vive. Um agente cujo estado é `mensagens[]` não pode comprimir o histórico sem se apagar.
+Sua implementação depende da [nota 02](02-o-agente-e-o-estado.md): reescrever o histórico exige que ele seja **campo do estado**, e não a estrutura em que o agente reside. Um agente cujo estado é `mensagens[]` não pode comprimir o histórico sem se apagar.
 
 ---
 
-### 3. As três coisas que enchem a janela
+### 3. A composição da janela
 
-| Fonte | Volume | Ainda é útil depois? |
+| Origem | Volume | Utilidade posterior |
 |---|---|---|
-| **Resultados de ferramenta** | o maior, de longe | quase sempre **não** — depois de consumido, virou decisão |
-| **Raciocínio intermediário** | médio | raramente |
-| **Declarações de ferramentas** | fixo, mas em *toda* volta | sim, enquanto a ferramenta estiver ativa |
-| **System prompt e objetivo** | pequeno | **sempre** |
+| **Resultados de ferramenta** | o maior, com folga | quase sempre **nula** — uma vez consumido, o resultado converteu-se em decisão |
+| **Raciocínio intermediário** | médio | rara |
+| **Declarações de ferramentas** | fixo, em *toda* volta | permanente, enquanto a ferramenta estiver ativa |
+| **System prompt e objetivo** | pequeno | **permanente** |
 
-A tabela sugere a ordem de ataque, e ela é contraintuitiva para quem pensa em "resumir a conversa": o alvo principal **não é o diálogo**, são os **resultados de ferramenta**. Um `consultar_politica` que devolveu 900 tokens de texto legal foi lido, foi usado para decidir, e continua ocupando 900 tokens em todas as voltas seguintes.
+A tabela indica a ordem de intervenção, e ela é contraintuitiva para quem pensa em "resumir a conversa": o alvo principal **não é o diálogo**, são os **resultados de ferramenta**. Uma chamada a `consultar_politica` que devolveu 900 tokens de texto normativo foi lida, foi utilizada na decisão e continua ocupando 900 tokens em todas as voltas subsequentes.
 
 ---
 
-### 4. Tool clearing — a tática mais barata
+### 4. Tool clearing
 
-Descarte o **corpo** de resultados antigos, preservando o registro de que a chamada aconteceu:
+A tática consiste em descartar o **corpo** de resultados antigos, preservando o registro de que a chamada ocorreu:
 
 ```python
-MANTER_INTEGROS = 3          # os N passos mais recentes ficam completos
+MANTER_INTEGROS = 3          # os N passos mais recentes permanecem completos
 
 def limpar_resultados(estado: Estado) -> None:
     for passo in estado.passos[:-MANTER_INTEGROS]:
@@ -121,27 +121,27 @@ def limpar_resultados(estado: Estado) -> None:
             passo.limpo = True
 ```
 
-O histórico enviado passa a conter, no lugar do resultado inteiro:
+O histórico enviado passa a conter, no lugar do resultado íntegro:
 
 ```json
 {"role": "tool", "tool_call_id": "...",
  "content": "[resultado removido] consultar_politica(categoria=refeicao) -> teto R$ 120,00 por refeição; exige nota fiscal"}
 ```
 
-| Por que é a primeira tática | |
+| Propriedade | Descrição |
 |---|---|
-| **Seletiva** | mexe só no que já foi consumido; não toca no raciocínio nem no objetivo |
-| **Reversível** | o resultado completo continua no `Passo`, no estado — só saiu do que se envia. Para auditoria e trace, ele está lá |
-| **Preserva a estrutura** | o modelo continua vendo que chamou aquela ferramenta com aqueles argumentos |
-| **É código, não modelo** | zero chamadas extras de LLM |
+| **Seletiva** | atua apenas sobre o que já foi consumido; não afeta raciocínio nem objetivo |
+| **Reversível** | o resultado íntegro permanece no `Passo`, no estado — foi removido apenas do que se envia. Permanece disponível para auditoria e para o *trace* |
+| **Preserva a estrutura** | o modelo continua registrando que a ferramenta foi invocada com aqueles argumentos |
+| **Determinística** | é código, não modelo: nenhuma chamada adicional |
 
-O terceiro ponto é onde a compressão ingênua estraga tudo: **apagar a chamada inteira faz o agente repeti-la**. Ele não lembra de ter consultado, consulta de novo, e você criou um laço com a sua própria otimização.
+A terceira propriedade é o ponto em que a compressão ingênua falha: **remover a chamada íntegra induz o agente a repeti-la**. Sem registro da consulta anterior, ele consulta novamente — e a otimização produziu um laço.
 
 ---
 
 ### 5. Compaction: reativa × periódica
 
-Quando *tool clearing* não basta, comprima o histórico inteiro num resumo. A decisão de projeto é **quando disparar**.
+Quando o *tool clearing* é insuficiente, comprime-se o histórico íntegro num resumo. A decisão de projeto está no critério de disparo.
 
 ```python
 LIMIAR = 0.6                 # REATIVA: fração da janela do modelo
@@ -155,12 +155,12 @@ if estado.n_passos and estado.n_passos % COMPACTAR_A_CADA == 0:
 
 | | Reativa | Periódica |
 |---|---|---|
-| **Dispara** | só quando precisa | sempre, no ritmo fixo |
-| **Custo** | menor — nenhuma compressão desnecessária | maior — comprime mesmo quando cabia |
-| **Previsibilidade** | baixa: não se sabe em que passo acontece | alta |
-| **Risco** | um resultado gigante pode estourar antes do próximo teste | comprimir cedo e perder detalhe ainda em uso |
+| **Disparo** | ao cruzar o limiar | a cada N passos |
+| **Custo** | menor — nenhuma compressão desnecessária | maior — comprime mesmo quando desnecessário |
+| **Previsibilidade** | baixa: o passo de disparo é desconhecido | alta |
+| **Risco** | um único resultado extenso pode exceder a janela antes da verificação seguinte | comprimir prematuramente e descartar detalhe ainda em uso |
 
-Na prática a combinação vence: **periódica como piso, reativa como teto**. Voltando à aritmética da §1, com compaction periódica a cada 10 passos reduzindo o histórico a ~1.200 tokens:
+Na prática, a combinação prevalece: **periódica como piso, reativa como teto**. Retomando a aritmética da §1, com *compaction* periódica a cada 10 passos reduzindo o histórico a cerca de 1.200 tokens:
 
 | Passos | Sem compaction | Com compaction |
 |---:|---:|---:|
@@ -168,21 +168,21 @@ Na prática a combinação vence: **periódica como piso, reativa como teto**. V
 | 20 | 121.200 | 85.200 |
 | 30 | 253.800 | **133.800** |
 
-Aos 30 passos, quase **metade** dos tokens — e o efeito cresce com o tamanho da trajetória, porque o que a compaction elimina é justamente o termo quadrático.
+Aos 30 passos, a redução aproxima-se de metade dos tokens — e o efeito cresce com o comprimento da trajetória, uma vez que o termo eliminado é justamente o quadrático.
 
 ---
 
-### 6. Sumarização de trajetória: o que não se pode perder
+### 6. Sumarização de trajetória: o conjunto mínimo
 
-| Preservar sempre | Por quê |
+| Preservar obrigatoriamente | Justificativa |
 |---|---|
-| **O objetivo** | é a âncora; sem ele o agente deriva (nota 03 §7). No nosso desenho ele nem passa pela compaction — é campo do estado |
-| **Decisões já tomadas** | "concluí que a despesa viola o artigo 4" precisa sobreviver, ou o agente reconclui |
-| **Ações de escrita executadas** | "já registrei o parecer P-1001" — perder isto é registrar duas vezes |
-| **Erros já cometidos** | "o id F-88 não existe" — perder isto é repetir a tentativa |
-| **Fatos que a decisão final vai citar** | valores, prazos, artigos da política |
+| **O objetivo** | é a âncora; sem ele o agente deriva (nota 03, §7). No desenho adotado, ele não passa pela *compaction* — é campo do estado |
+| **Decisões tomadas** | "a despesa viola o artigo 4" precisa sobreviver, sob pena de reconclusão |
+| **Ações de escrita executadas** | "o parecer P-1001 foi registrado" — a perda dessa informação produz registro duplicado |
+| **Erros cometidos** | "o identificador F-88 não existe" — a perda induz repetição da tentativa |
+| **Fatos numéricos citados** | valores, prazos, artigos da política que a decisão final referenciará |
 
-Pode ir embora sem dor: raciocínio intermediário, resultados já consumidos, tentativas que não levaram a nada, e o texto integral de documentos dos quais só um trecho importou.
+Podem ser descartados sem prejuízo: raciocínio intermediário, resultados já consumidos, tentativas infrutíferas e o texto íntegro de documentos dos quais apenas um trecho foi relevante.
 
 ```python
 PROMPT_COMPACTACAO = """Resuma a trajetória abaixo para que outro agente
@@ -201,15 +201,15 @@ Não conclua a tarefa. Não invente informação que não esteja na trajetória.
 """
 ```
 
-Este prompt segue tudo o que a Aula 03 ensinou: contrato de saída explícito, exemplos negativos e formato definido. **O prompt de compaction é um prompt de produção** — versionado e testado como qualquer outro (Aula 03, nota 03). Um resumo que perde um identificador de escrita causa um dano que nenhum log explica depois.
+O prompt observa os requisitos estabelecidos na Aula 03: contrato de saída explícito, exemplos negativos e formato definido. **O prompt de compaction é um prompt de produção** — versionado e submetido a suíte de regressão como qualquer outro (Aula 03, nota 03). Um resumo que omite um identificador de escrita produz um dano que nenhum registro posterior explica.
 
-> **Compaction é perda de informação com aparência de continuidade.** O agente segue funcionando, com uma memória que alguém editou. Quando ele errar por causa disso, o erro não vai parecer erro de memória — vai parecer burrice do modelo.
+> **Compaction é perda de informação com aparência de continuidade.** O agente prossegue em operação, com uma memória que foi editada. O erro decorrente não se apresenta como falha de memória: apresenta-se como incapacidade do modelo.
 
 ---
 
 ### 7. Sub-agentes como isolamento de contexto
 
-Esta tática é diferente das outras: em vez de comprimir o contexto depois, ela **impede que ele se forme**.
+Esta tática difere das anteriores: em vez de comprimir o contexto posteriormente, **impede sua formação**.
 
 ```
    PRINCIPAL                            SUB-AGENTE
@@ -219,49 +219,49 @@ Esta tática é diferente das outras: em vez de comprimir o contexto depois, ela
    │ [resumo 1,2k]    │  <──devolve──   │ 60k tokens       │
    │ ...              │                 │ (descartados)    │
    └──────────────────┘                 └──────────────────┘
-     paga 1,2k                            gastou 60k, e some
+     consome 1,2k                         consumiu 60k, e encerra
 ```
 
-É a tática certa quando a subtarefa é **verificável e delimitada**: *"encontre em qual artigo da política esta categoria é tratada e devolva o texto do artigo"*. Entra pergunta, sai resposta curta.
+É a tática adequada quando a subtarefa é **verificável e delimitada**: *"identifique em qual artigo da política esta categoria de despesa é tratada e devolva o texto do artigo"*. Entra uma pergunta, sai uma resposta curta.
 
-O preço é o mais alto das quatro:
+O custo é o mais elevado das quatro táticas:
 
-> **O que o sub-agente não resumiu, o principal nunca saberá.** Não é compressão: é uma parede. O principal não percebe que faltou algo, porque nunca viu o que existia do outro lado.
+> **O que o sub-agente não incluir no resumo, o principal jamais conhecerá.** Não se trata de compressão, e sim de barreira. O principal não dispõe de meio para constatar a omissão, uma vez que nunca teve acesso ao conteúdo original.
 
-Sub-agente para subtarefa **fechada**, com critério claro de sucesso. Sub-agente para tarefa exploratória — *"investigue isso aí e me conte"* — é uma forma cara de perder informação.
+Daí a restrição: sub-agente para subtarefa **fechada**, com critério de sucesso explícito. Sub-agente para tarefa exploratória — *"investigue e relate"* — constitui forma custosa de perder informação.
 
-Aqui esta aula encosta em multi-agente e para. Coordenação, protocolo, agentes que revisam uns aos outros: é aula própria. Desta nota fica o uso **arquitetural** do sub-agente, como técnica de contexto.
+Este é o ponto em que a aula toca em sistemas multiagente e se detém. Coordenação, protocolo de comunicação e revisão mútua entre agentes são objeto de aula própria. Desta nota permanece o uso **arquitetural** do sub-agente, como técnica de gestão de contexto.
 
 ---
 
-### 8. A ordem de aplicação
+### 8. Ordem de aplicação
 
-| # | Tática | Destrói? | Quando |
+| # | Tática | Destrutiva | Aplicação |
 |---|---|---|---|
-| **0** | **Encurtar o retorno das ferramentas** | não | **antes de tudo** |
-| 1 | **Tool clearing** | não — reversível, o dado fica no estado | sempre, a partir de ~5 passos |
-| 2 | **Compaction periódica + reativa** | sim, de forma controlada | trajetórias longas (>10 passos) |
-| 3 | **Sumarização agressiva** | sim | quando a trajetória é o custo dominante |
-| 4 | **Sub-agentes** | sim, irreversivelmente | subtarefa fechada e verificável |
+| **0** | **Encurtar o retorno das ferramentas** | não | **antes de qualquer outra** |
+| 1 | *Tool clearing* | não — reversível, o dado permanece no estado | sempre, a partir de aproximadamente 5 passos |
+| 2 | *Compaction* periódica + reativa | sim, de forma controlada | trajetórias longas (mais de 10 passos) |
+| 3 | Sumarização agressiva | sim | quando a trajetória é o custo dominante |
+| 4 | Sub-agentes | sim, irreversivelmente | subtarefa fechada e verificável |
 
-A tática zero vale mais que as quatro. Uma ferramenta que devolve 900 tokens quando 60 bastariam é defeito de projeto (Aula 03, nota 04 §7), e resolvê-lo na origem é sempre melhor do que comprimir depois. **Antes de escrever a primeira linha de compaction, olhe os retornos das suas ferramentas.**
+A tática zero tem retorno superior ao das quatro seguintes. Uma ferramenta que devolve 900 tokens onde 60 seriam suficientes constitui defeito de projeto da ferramenta (Aula 03, nota 04, §7), e corrigi-lo na origem é sempre preferível a comprimir posteriormente. **Antes da primeira linha de compaction, examinam-se os retornos das ferramentas.**
 
 ---
 
-### 9. Fechando a lista
+### 9. Encerramento da lista de pendências
 
-| Pendência (Aula 03, nota 04 §9) | Situação |
+| Pendência (Aula 03, nota 04, §9) | Situação |
 |---|---|
-| ~~outros padrões de arquitetura~~ | **fechado** — [nota 01](01-padroes-de-arquitetura.md) |
-| ~~estado~~ (dentro de uma execução) | **fechado** — [nota 02](02-o-agente-e-o-estado.md) |
-| ~~múltiplas ferramentas e a escolha entre elas~~ | **fechado** — nota 02 §6 |
-| ~~confiabilidade: retry, laço, orçamento, checkpoint~~ | **fechado** — [nota 03](03-confiabilidade.md) |
-| ~~context engineering dinâmica~~ | **fechado** — esta nota |
+| ~~outros padrões de arquitetura~~ | **encerrada** — [nota 01](01-padroes-de-arquitetura.md) |
+| ~~estado, no interior de uma execução~~ | **encerrada** — [nota 02](02-o-agente-e-o-estado.md) |
+| ~~múltiplas ferramentas e a escolha entre elas~~ | **encerrada** — nota 02, §6 |
+| ~~confiabilidade: retentativa, laço, orçamento, checkpoint~~ | **encerrada** — [nota 03](03-confiabilidade.md) |
+| ~~context engineering dinâmica~~ | **encerrada** — esta nota |
 | **memória entre execuções** | aula de memória |
 | **MCP** | aula de MCP |
-| **multi-agente** (coordenação) | aula de sistemas multi-agente |
+| **multiagente** (coordenação) | aula de sistemas multiagente |
 
-E duas pendências novas, criadas por esta aula: o **trace** que você passou a gravar (nota 03 §10) é a matéria-prima das aulas de **observabilidade** e **evals**. Fechar um assunto abre outro — a diferença é que agora as perguntas são melhores.
+Duas pendências novas foram criadas por esta aula: o **trace** registrado a partir da nota 03, §10, é a matéria-prima das aulas de **observabilidade** e de **evals**. O encerramento de um assunto abre outro, com a diferença de que as perguntas subsequentes são mais precisas.
 
 ---
 
@@ -269,7 +269,7 @@ E duas pendências novas, criadas por esta aula: o **trace** que você passou a 
 
 ### Exemplo 1 — O mesmo agente, com e sem tool clearing
 
-Trajetória de 12 passos, ferramenta que devolve ~400 tokens por chamada.
+Trajetória de 12 passos, com ferramenta que devolve aproximadamente 400 tokens por chamada.
 
 ```
 SEM tool clearing                    COM tool clearing (3 passos íntegros)
@@ -279,40 +279,40 @@ SEM tool clearing                    COM tool clearing (3 passos íntegros)
   total: ~49.700 tokens                total: ~28.900 tokens
 ```
 
-A partir do passo 6 o contexto **para de crescer**: estabiliza em "três resultados inteiros + ~30 tokens de marcador por passo antigo". A curva quadrática vira quase reta, sem nenhuma chamada extra de LLM.
+A partir do passo 6 o contexto **cessa de crescer**: estabiliza em três resultados íntegros mais aproximadamente 30 tokens de marcador por passo antigo. A curva quadrática converte-se em curva quase linear, sem nenhuma chamada adicional ao modelo.
 
 ### Exemplo 2 — A tática zero, medida
 
-Mesma ferramenta, dois projetos de retorno:
+A mesma ferramenta, sob dois projetos de retorno:
 
 ```python
-# 900 tokens: devolve o artigo inteiro da política
+# 900 tokens: devolve o artigo íntegro da política
 {"artigo": "Art. 4º — Das despesas com alimentação. §1º O reembolso de
  refeições em viagem a serviço fica limitado ... [38 linhas] ..."}
 
-# 60 tokens: devolve o que a decisão precisa
+# 60 tokens: devolve o que a decisão requer
 {"categoria": "refeicao", "teto": 120.00, "exige_nf": true,
  "artigo": "4º §1º", "excecoes": ["viagem internacional: teto 260,00"]}
 ```
 
-Numa trajetória de 12 passos com 4 consultas à política, a diferença é ~3.400 tokens **por volta** a partir da quarta consulta. Nenhuma compaction recupera isso tão barato quanto reescrever o `return` da ferramenta.
+Numa trajetória de 12 passos com 4 consultas à política, a diferença é de aproximadamente 3.400 tokens **por volta** a partir da quarta consulta. Nenhum mecanismo de *compaction* recupera esse volume ao custo de reescrever o `return` da ferramenta.
 
-### Exemplo 3 — Uma compaction que quebrou o agente
+### Exemplo 3 — Uma compaction que comprometeu a execução
 
 ```python
-# Resumo produzido por um prompt vago: "resuma a conversa acima".
+# Resumo produzido por um prompt genérico: "resuma a conversa acima".
 resumo = """O agente analisou a despesa D-4471 do funcionário F-088,
 consultou a política de refeições e concluiu que a despesa está dentro
 do teto. O parecer foi elaborado."""
 ```
 
-Sumiu **o identificador do parecer registrado**: "o parecer foi elaborado" não diz que `registrar_parecer` já executou e devolveu `P-1001`. No passo seguinte o agente, sem ver registro de escrita concluída, chamou `registrar_parecer` de novo.
+O elemento omitido é **o identificador do parecer registrado**: "o parecer foi elaborado" não informa que `registrar_parecer` foi executado e devolveu `P-1001`. No passo seguinte, o agente — sem registro de escrita concluída — invocou `registrar_parecer` novamente.
 
-O que salvou foi a **chave de idempotência** da [nota 03 §8](03-confiabilidade.md): a segunda chamada devolveu `{"id": "P-1001", "ja_existia": true}` e o agente seguiu.
+A execução foi preservada pela **chave de idempotência** ([nota 03](03-confiabilidade.md), §8): a segunda chamada devolveu `{"id": "P-1001", "ja_existia": true}` e o agente prosseguiu.
 
-Duas lições. A primeira: o prompt de compaction precisa exigir a preservação de escritas. A segunda, mais geral: **as salvaguardas se cobrem umas às outras** — nenhuma é suficiente sozinha, e é por isso que a arquitetura tem camadas em vez de um remédio.
+Duas conclusões. A primeira: o prompt de *compaction* precisa exigir a preservação das ações de escrita. A segunda, de alcance mais geral: **as salvaguardas se cobrem mutuamente**. Nenhuma é suficiente isoladamente, e é por essa razão que a arquitetura é composta por camadas em vez de um mecanismo único.
 
-### Exemplo 4 — O que o sub-agente não contou
+### Exemplo 4 — A informação que o sub-agente omitiu
 
 ```
 PRINCIPAL delega:  "qual o teto de reembolso para refeição?"
@@ -321,62 +321,18 @@ SUB-AGENTE (9 passos, 22k tokens) devolve:  "R$ 120,00 por refeição."
 Passo seguinte do principal: aprova uma refeição de R$ 180,00 em Lisboa.
 ```
 
-O sub-agente tinha lido a exceção — *viagem internacional: teto R$ 260,00* — e não a incluiu, porque a pergunta não pedia. O principal aprovou por R$ 120,00 de teto e reprovou uma despesa legítima, **sem nenhum sinal de que faltava informação**.
+O sub-agente havia lido a exceção — *viagem internacional: teto R\$ 260,00* — e não a incluiu, porque a pergunta não a solicitava. O principal aplicou o teto de R\$ 120,00 e reprovou uma despesa legítima, **sem qualquer indício de informação faltante**.
 
-A parede é essa. Compaction perde detalhe e deixa rastro no resumo; sub-agente perde detalhe e não deixa rastro nenhum. Por isso a pergunta delegada precisa carregar o critério inteiro: *"qual o teto aplicável a esta despesa, considerando destino e exceções?"*
-
----
-
-## Exercícios resolvidos
-
-### 1. Qual tática para cada caso?
-
-| Situação | Tática | Por quê |
-|---|---|---|
-| 8 passos, ferramentas devolvem 200 tokens | **nenhuma** | ~3.100 tokens no pior passo. Comprimir é otimização prematura que só adiciona risco |
-| 40 passos lendo trechos de documentos longos | **tool clearing + compaction periódica** | o volume está nos resultados; comece pela tática reversível |
-| Uma ferramenta devolve 25.000 tokens | **encurtar a ferramenta** (tática zero) | é defeito de projeto; nenhuma compressão conserta a origem |
-| Subtarefa de pesquisa com nº imprevisível de consultas | **sub-agente** | fechada e verificável; devolve o achado, descarta o caminho |
-| Trajetória longa e o agente começa a ignorar o pedido | **reancoragem** (nota 03 §7), antes de comprimir | o problema é posição, não volume |
-
-O último é o mais instrutivo: nem todo problema de contexto se resolve com compressão. Se o objetivo está soterrado, o remédio é **movê-lo**, não encolher o resto.
-
-### 2. Consertar este prompt de compaction
-
-```python
-PROMPT = "Resuma a conversa acima em até 200 palavras."
-```
-
-| Defeito | Consequência | Correção |
-|---|---|---|
-| Não diz **o que preservar** | o modelo resume narrativamente — o que se leu, o que se conversou — que é o que não importa | lista obrigatória: decisões, escritas com identificadores, erros, fatos numéricos |
-| Não diz **para quem serve** | sai uma sinopse, não um *handoff* | "resuma para que outro agente continue do ponto em que parou" |
-| Não tem **exemplos negativos** | o modelo às vezes entrega a conclusão dentro do resumo, e o agente continua de uma conclusão que ninguém verificou | "não conclua a tarefa", "não invente informação" |
-
-O limite de 200 palavras é a única coisa aproveitável — mas em tokens, e calibrado pelo que sobra do orçamento, não por um número redondo.
-
----
-
-## Síntese
-
-- O histórico inteiro é reenviado a cada volta: o **custo acumulado cresce com o quadrado** do número de passos.
-- A qualidade cai **antes** de a janela acabar — o objetivo vai para o meio, que é onde o modelo lê pior.
-- Curadoria dinâmica é o que o programa faz com a janela durante a execução, e só é possível porque o histórico é campo do estado.
-- O maior volume está nos **resultados de ferramenta**, não no diálogo. Ataque ali primeiro.
-- **Tool clearing** é a primeira tática: barata, reversível, e preserva a estrutura da trajetória. Apagar a chamada inteira faz o agente repeti-la.
-- **Compaction** periódica dá previsibilidade, reativa dá economia; a combinação cobre os dois riscos.
-- Um resumo preserva obrigatoriamente: objetivo, decisões, **escritas executadas com identificadores**, erros e fatos numéricos.
-- O prompt de compaction é um prompt de produção — versionado e testado.
-- **Sub-agente** isola contexto ao preço mais alto: o que ele não resumiu, ninguém recupera, e não fica rastro.
-- A tática zero vale mais que as quatro: **encurte o retorno das suas ferramentas**.
-- As salvaguardas se cobrem umas às outras — a idempotência salvou o erro da compaction.
+A distinção é essa: *compaction* descarta detalhe e deixa vestígio no resumo; sub-agente descarta detalhe sem deixar vestígio algum. Daí a exigência de que a pergunta delegada carregue o critério íntegro: *"qual o teto aplicável a esta despesa, considerados destino e exceções?"*
 
 ---
 
 ## Fontes e leituras
 
-- Aula 03, [nota 02](../../aula-03-prompt-engineering/notas-de-aula/02-context-engineering.md) — context engineering estática, cuja promessa esta nota cumpre; [nota 03](../../aula-03-prompt-engineering/notas-de-aula/03-prompt-como-codigo.md) — versionamento, que vale para o prompt de compaction; [nota 04 §7](../../aula-03-prompt-engineering/notas-de-aula/04-tool-calling.md) — projeto de ferramenta, a origem da tática zero.
-- Aula 02, [nota 01 §4](../../aula-02-escolha-e-configuracao-de-modelos/notas-de-aula/01-escolha-de-modelos.md) — janela, custo quadrático da atenção e *lost in the middle*; [nota 04 §5](../../aula-02-escolha-e-configuracao-de-modelos/notas-de-aula/04-custo-latencia-e-decisao.md) — latência e tamanho da entrada.
-- **Effective context engineering for AI agents** — Anthropic (2025). Compaction, *tool clearing* e sub-agentes.
-- **Building Effective Agents** — Anthropic (2024). Agentes autônomos e o custo da trajetória.
-- **Lost in the Middle: How Language Models Use Long Contexts** — Liu et al. (2023). O viés em U que fundamenta a reancoragem.
+ANTHROPIC. **Effective context engineering for AI agents**. 2025. (*Compaction*, *tool clearing* e sub-agentes como táticas de gestão de contexto ao longo da trajetória.)
+
+ANTHROPIC. **Building effective agents**. 2024. (Seção sobre agentes autônomos e o custo da trajetória.)
+
+LIU, N. F. et al. **Lost in the middle**: how language models use long contexts. arXiv:2307.03172, 2023. (Fundamenta a reancoragem do objetivo.)
+
+**Material da disciplina.** Aula 03, [nota 02](../../aula-03-prompt-engineering/notas-de-aula/02-context-engineering.md) — context engineering estática, cuja promessa esta nota cumpre; [nota 03](../../aula-03-prompt-engineering/notas-de-aula/03-prompt-como-codigo.md) — versionamento, aplicável ao prompt de *compaction*; [nota 04](../../aula-03-prompt-engineering/notas-de-aula/04-tool-calling.md) §7 — projeto de ferramenta, origem da tática zero. Aula 02, [nota 01](../../aula-02-escolha-e-configuracao-de-modelos/notas-de-aula/01-escolha-de-modelos.md) §4 — janela, custo quadrático da atenção e *lost in the middle*; [nota 04](../../aula-02-escolha-e-configuracao-de-modelos/notas-de-aula/04-custo-latencia-e-decisao.md) §5 — latência e tamanho da entrada.

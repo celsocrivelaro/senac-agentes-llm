@@ -2,40 +2,40 @@
 
 ## Introdução
 
-A Aula 01 (nota 03, §4) trouxe uma tabela com oito modos de falha de agentes. Naquele momento era um mapa: você ainda não tinha escrito um agente, e as salvaguardas eram nomes. Esta nota transforma cada linha em código.
+A Aula 01 (nota 03, §4) apresentou uma tabela com oito modos de falha de agentes. Naquele momento tratava-se de um mapa: nenhum agente havia sido implementado, e as salvaguardas eram nomes. Esta nota converte cada linha em código.
 
-| Falha | Como aparece | Resolvida em |
+| Falha | Manifestação | Tratada em |
 |---|---|---|
-| **Laço** | repete a mesma chamada indefinidamente | §6 |
-| **Deriva de objetivo** | numa trajetória longa, se afasta do pedido | §7 |
-| **Alucinação de argumento** | inventa um id plausível que não existe | §3 e §4 |
-| **Ferramenta errada** | escolhe escrever quando devia ler | [nota 02 §6](02-o-agente-e-o-estado.md) |
-| **Contexto estourado** | a trajetória não cabe mais na janela | [nota 04](04-context-engineering-dinamica.md) |
-| **Erro em cascata** | uma observação errada contamina o resto | §3 e §8 |
-| **Custo descontrolado** | consome mil vezes o previsto | §1 |
-| **Silêncio** | falhou e você não sabe por quê | §2 e §10 |
+| **Laço** | repetição indefinida da mesma chamada | §6 |
+| **Deriva de objetivo** | afastamento do pedido em trajetória longa | §7 |
+| **Alucinação de argumento** | invenção de identificador plausível e inexistente | §3 e §4 |
+| **Ferramenta errada** | seleção de escrita onde caberia leitura | [nota 02](02-o-agente-e-o-estado.md) §6 |
+| **Contexto estourado** | a trajetória excede a janela | [nota 04](04-context-engineering-dinamica.md) |
+| **Erro em cascata** | uma observação incorreta contamina o restante | §3 e §8 |
+| **Custo descontrolado** | consumo em ordem de grandeza acima do previsto | §1 |
+| **Silêncio** | falha sem causa identificável | §2 e §10 |
 
-Tudo aqui depende do objeto de estado da [nota 02](02-o-agente-e-o-estado.md) — não conceitualmente: os campos usados nesta nota **não existem** no laço da Aula 03.
+Todo o conteúdo desta nota depende do objeto de estado da [nota 02](02-o-agente-e-o-estado.md). A dependência não é conceitual: os campos empregados aqui **não existem** no laço da Aula 03.
 
-> **Nenhuma salvaguarda é grátis.** Orçamento apertado mata tarefa legítima. Detector agressivo interrompe agente que progredia devagar. Confirmação em excesso mata a autonomia que justificava o agente. Cada seção traz o preço junto com o remédio — escolher a dose é engenharia, não receita.
+> **Nenhuma salvaguarda é gratuita.** Orçamento restritivo interrompe tarefa legítima. Detector agressivo interrompe agente em progresso lento. Confirmação em excesso suprime a autonomia que justificava o agente. Cada seção apresenta o custo junto com o mecanismo; a calibragem da dose é trabalho de engenharia, não aplicação de receita.
 
-> **Pré-requisitos:** notas [01](01-padroes-de-arquitetura.md) e [02](02-o-agente-e-o-estado.md) desta aula · Aula 01, [nota 03 §3 e §4](../../aula-01-llms-e-agentes/notas-de-aula/03-agentes-de-ia.md) · Aula 02, [nota 01 §8.2](../../aula-02-escolha-e-configuracao-de-modelos/notas-de-aula/01-escolha-de-modelos.md) e [nota 04](../../aula-02-escolha-e-configuracao-de-modelos/notas-de-aula/04-custo-latencia-e-decisao.md).
+> **Pré-requisitos:** notas [01](01-padroes-de-arquitetura.md) e [02](02-o-agente-e-o-estado.md) desta aula · Aula 01, [nota 03](../../aula-01-llms-e-agentes/notas-de-aula/03-agentes-de-ia.md) §3 e §4 · Aula 02, [nota 01](../../aula-02-escolha-e-configuracao-de-modelos/notas-de-aula/01-escolha-de-modelos.md) §8.2 e [nota 04](../../aula-02-escolha-e-configuracao-de-modelos/notas-de-aula/04-custo-latencia-e-decisao.md).
 >
-> **Código:** [`04-orcamento-e-terminacao.py`](https://github.com/celsocrivelaro/senac-llm-code/blob/main/aula05-agentes/04-orcamento-e-terminacao.py) e [`05-erros-e-laco.py`](https://github.com/celsocrivelaro/senac-llm-code/blob/main/aula05-agentes/05-erros-e-laco.py) — o script central da aula.
+> **Código:** [`04-orcamento-e-terminacao.py`](https://github.com/celsocrivelaro/senac-llm-code/blob/main/aula05-agentes/04-orcamento-e-terminacao.py) e [`05-erros-e-laco.py`](https://github.com/celsocrivelaro/senac-llm-code/blob/main/aula05-agentes/05-erros-e-laco.py).
 
 ---
 
 ## Objetivos de aprendizagem
 
-Ao final desta nota você deve ser capaz de:
+Ao final desta nota, o aluno deve ser capaz de:
 
-- **Impor** um orçamento em quatro moedas — passos, tokens, dinheiro e tempo — e justificar cada teto.
-- **Implementar** as quatro formas de terminar um agente, registrando qual ocorreu.
-- **Classificar** um erro de ferramenta em recuperável ou fatal, e tratar cada classe de forma diferente.
-- **Escrever** um retorno de erro que faz o modelo se corrigir em vez de repetir a falha.
-- **Distinguir** o que merece retry automático do que só o modelo resolve.
+- **Impor** orçamento em quatro moedas — passos, tokens, unidade monetária e tempo de parede — e justificar cada teto.
+- **Implementar** as quatro formas de terminação de um agente, registrando qual ocorreu.
+- **Classificar** um erro de ferramenta em recuperável ou fatal e tratar cada classe distintamente.
+- **Redigir** um retorno de erro que induza correção pelo modelo, em vez de repetição da falha.
+- **Distinguir** o que admite retentativa automática do que só o modelo resolve.
 - **Detectar** laço por repetição de chamada e por ausência de progresso.
-- **Proteger** ferramentas de escrita com chave de idempotência, e **retomar** de um checkpoint.
+- **Proteger** ferramentas de escrita com chave de idempotência e **retomar** a execução a partir de *checkpoint*.
 
 ---
 
@@ -43,7 +43,7 @@ Ao final desta nota você deve ser capaz de:
 
 ### 1. Orçamento em quatro moedas
 
-`max_passos=6` é necessário e é o mais fraco dos quatro tetos, porque **passo não é unidade de custo**. Um passo que consulta um id custa 300 tokens; um que lê um documento de 30 páginas custa 40.000. "No máximo 10 passos" significa "entre 3 mil e 400 mil tokens" — o que não é um limite.
+`max_passos=6` é necessário e é o mais fraco dos quatro tetos, porque **passo não é unidade de custo**. Um passo que consulta um identificador consome cerca de 300 tokens; um passo que lê um documento de 30 páginas consome cerca de 40.000. "No máximo 10 passos" equivale a "entre 3 mil e 400 mil tokens", o que não constitui limite.
 
 ```python
 @dataclass
@@ -55,7 +55,7 @@ class Orcamento:
     inicio: float = field(default_factory=time.monotonic)
 
     def excedido(self, estado: Estado) -> str | None:
-        """Devolve QUAL teto estourou — ou None. O motivo importa."""
+        """Devolve QUAL teto foi excedido — ou None. O motivo é relevante."""
         if estado.n_passos >= self.max_passos:
             return f"passos: {estado.n_passos}/{self.max_passos}"
         if estado.tokens_gastos >= self.max_tokens:
@@ -67,27 +67,28 @@ class Orcamento:
         return None
 ```
 
-| Decisão no código | Por quê |
+| Decisão de implementação | Justificativa |
 |---|---|
-| **Orçamento é parâmetro**, não constante | tarefas diferentes merecem tetos diferentes, e número mágico no meio do arquivo ninguém ajusta. Triagem simples e investigação de divergência não têm o mesmo direito de gastar |
-| **Custo em reais** vem da Aula 02 (nota 04) | `entrada × preço_in + saída × preço_out`, acumulado no estado. É a moeda que o seu chefe entende |
-| **Tempo de parede** é o teto esquecido | pega o caso que os outros três não pegam: a ferramenta travada esperando resposta que não vem. Sem ele o agente não estoura nada — só não termina |
-| **Devolve *qual* teto estourou** | `bool` seria mais simples e inútil: morrer por tempo e morrer por tokens têm diagnósticos opostos |
+| **Orçamento é parâmetro**, não constante | tarefas distintas admitem tetos distintos, e constante no interior do arquivo não é ajustada. Triagem simples e investigação de divergência não têm o mesmo direito de consumo |
+| **Custo monetário** provém da Aula 02 (nota 04) | `entrada × preço_in + saída × preço_out`, acumulado no estado. É a unidade compreendida pela gestão |
+| **Tempo de parede** é o teto usualmente omitido | cobre o caso que os outros três não cobrem: a ferramenta bloqueada aguardando resposta. Sem ele, o agente não excede nenhum limite — apenas não termina |
+| **A função devolve *qual* teto foi excedido** | um retorno booleano seria mais simples e inútil: encerramento por tempo e por tokens exigem diagnósticos opostos |
 
-> **O preço:** todo teto tem falso positivo — tarefa legítima e difícil morre sem resposta. Por isso o motivo é registrado: para distinguir "o agente falhou" de "o orçamento estava curto", que exigem correções opostas.
+> **Custo da salvaguarda:** todo teto produz falso positivo — tarefa legítima e difícil encerra sem resposta. Daí o registro do motivo: ele permite distinguir "o agente falhou" de "o orçamento estava subdimensionado", que demandam correções opostas.
 
 ---
 
-### 2. As quatro formas de terminar
+### 2. As quatro formas de terminação
 
 ```
-   1. RESPONDEU     o modelo devolveu sem tool_calls      ✓ sucesso
-   2. ORCAMENTO     estourou um dos quatro tetos          ✗ inconcluso
-   3. ERRO_FATAL    não há como continuar                 ✗ falha
-   4. HUMANO        pausou aguardando confirmação         ⏸ suspenso
+   1. RESPONDEU     o modelo devolveu sem tool_calls      sucesso
+   2. ORCAMENTO     um dos quatro tetos foi excedido      inconcluso
+   3. ERRO_FATAL    não há como prosseguir                falha
+   4. HUMANO        execução suspensa aguardando          suspenso
+                    confirmação
 ```
 
-O laço da Aula 03 tratava a 1 com `return` e a 2 com `raise RuntimeError`. A 3 derrubava o programa por exceção não tratada, e a 4 não existia. Com o estado, o término vira **dado**:
+O laço da Aula 03 tratava a primeira com `return` e a segunda com `raise RuntimeError`. A terceira derrubava o programa por exceção não tratada, e a quarta não existia. Com o objeto de estado, o término converte-se em **dado**:
 
 ```python
 def rodar(objetivo: str, orcamento: Orcamento) -> Estado:
@@ -107,15 +108,15 @@ def rodar(objetivo: str, orcamento: Orcamento) -> Estado:
         registrar_trace(estado)             # sempre, inclusive nas falhas
 ```
 
-Repare no `finally`: o trace é gravado **em todos os caminhos**, e é nos de falha que ele vale mais. O `except` que registra só o sucesso é o que garante que você nunca vai descobrir a causa.
+O bloco `finally` é essencial: o *trace* é persistido **em todos os caminhos**, e é nos caminhos de falha que ele tem maior valor. Um tratamento que registre apenas o sucesso assegura que a causa do problema jamais será identificada.
 
-> **A linha "silêncio" da tabela de falhas morre aqui.** Um agente que sempre diz por que parou e sempre grava a trajetória vai falhar — mas você saberá onde.
+> A linha "silêncio" da tabela de modos de falha é eliminada aqui. Um agente que sempre declara a causa do encerramento e sempre persiste a trajetória continuará falhando, mas a localização da falha será conhecida.
 
 ---
 
 ### 3. Erro de ferramenta: recuperável × fatal
 
-A decisão de projeto mais importante da nota, e ela é **do seu código**, não do modelo.
+Esta é a decisão de projeto mais consequente da nota, e ela cabe **ao código**, não ao modelo.
 
 ```
    ferramenta levantou exceção
@@ -126,14 +127,14 @@ A decisão de projeto mais importante da nota, e ela é **do seu código**, não
   vira mensagem       aborta o laço
   role="tool"         Termino.ERRO_FATAL
      │
-  o modelo tenta de novo, com informação nova
+  o modelo repete a tentativa, com informação nova
 ```
 
-**Recuperável** é o que o modelo contorna mudando o que faz: argumento inválido, registro inexistente, formato errado, resultado vazio. **Fatal** é o que nenhuma decisão do modelo resolve: credencial, banco fora do ar, disco cheio — devolver isso ao modelo produz quatro reformulações educadas até o orçamento acabar.
+**Recuperável** é o erro contornável por alteração da chamada: argumento inválido, registro inexistente, formato incorreto, resultado vazio. **Fatal** é o erro que nenhuma decisão do modelo resolve: credencial, indisponibilidade de banco de dados, disco cheio. Devolver um erro fatal ao modelo produz sucessivas reformulações da chamada até a exaustão do orçamento.
 
 ```python
 class ErroRecuperavel(Exception):
-    """O modelo pode contornar mudando a chamada."""
+    """Contornável por alteração da chamada."""
     def __init__(self, mensagem, **contexto):
         self.payload = {"erro": mensagem, **contexto}
 
@@ -147,7 +148,7 @@ def buscar_despesa(id: str) -> dict:
     try:
         registro = BANCO.get(id)
     except ConnectionError as e:
-        raise ErroFatal(f"banco indisponível: {e}") from e   # o modelo não resolve
+        raise ErroFatal(f"banco indisponível: {e}") from e   # fora do alcance do modelo
     if registro is None:
         raise ErroRecuperavel("despesa não encontrada", id=id,
                               sugestao="confira o id com listar_despesas")
@@ -161,22 +162,22 @@ def executar(chamada, estado: Estado) -> Passo:
     try:
         passo.resultado = FERRAMENTAS[nome](**argumentos)
     except ErroRecuperavel as e:
-        passo.erro, passo.resultado = e.payload["erro"], e.payload   # volta ao modelo
-    except TypeError as e:                    # parâmetro que a função não tem
+        passo.erro, passo.resultado = e.payload["erro"], e.payload   # retorna ao modelo
+    except TypeError as e:                    # parâmetro inexistente na função
         passo.erro = str(e)
         passo.resultado = {"erro": "argumentos inválidos", "detalhe": str(e)}
     return passo
 ```
 
-O `except TypeError` merece uma linha: o modelo às vezes inventa um parâmetro. Sem esse tratamento, uma alucinação de argumento derruba o processo inteiro; com ele, vira observação e o modelo corrige na volta seguinte.
+O tratamento de `TypeError` merece registro: o modelo eventualmente invoca a função com um parâmetro que ela não declara. Sem esse tratamento, uma alucinação de argumento derruba o processo; com ele, converte-se em observação, e o modelo corrige na volta seguinte.
 
-> **O preço:** marcar como fatal o que era recuperável mata trajetórias que se salvariam; o inverso queima o orçamento contra uma parede. Na dúvida, olhe a causa — se a origem é o **argumento**, é recuperável; se é a **infraestrutura**, é fatal.
+> **Custo da salvaguarda:** classificar como fatal o que era recuperável encerra trajetórias recuperáveis; o inverso consome o orçamento integralmente contra uma condição irreversível. Em caso de dúvida, examina-se a origem: se está no **argumento**, é recuperável; se está na **infraestrutura**, é fatal.
 
 ---
 
-### 4. O retorno de erro é prompt
+### 4. O retorno de erro como prompt
 
-A Aula 03 (nota 04, §4) estabeleceu que a descrição da ferramenta é prompt. O corolário quase nunca é dito:
+A Aula 03 (nota 04, §4) estabeleceu que a descrição da ferramenta é prompt. O corolário raramente é enunciado:
 
 > **A mensagem de erro também é prompt.** É o único texto que o modelo lê para decidir como se corrigir.
 
@@ -184,28 +185,28 @@ A Aula 03 (nota 04, §4) estabeleceu que a descrição da ferramenta é prompt. 
 {"erro": "falhou"}                                             # inútil
 
 {"erro": "ValueError: invalid literal for int(): 'D-4471'"}    # verdadeiro,
-                                                               # e sem ação possível
+                                                               # e não acionável
 {"erro": "formato de id inválido",                             # útil
  "esperado": "D seguido de 4 dígitos, ex: D-4471",
  "recebido": "4471",
  "sugestao": "chame listar_despesas para obter os ids válidos"}
 ```
 
-O terceiro funciona porque responde às três perguntas que o modelo precisa responder para agir: **o que estava errado**, **qual era o certo**, **o que fazer agora**. Os dois primeiros deixam adivinhar, e adivinhação custa passos.
+O terceiro retorno é eficaz porque responde às três perguntas necessárias à ação: **o que estava incorreto**, **qual seria o correto** e **qual a próxima ação**. Os dois primeiros deixam a inferência a cargo do modelo, e inferência consome passos.
 
-Consequência prática: revise os retornos de erro olhando trajetórias reais. Quando o agente se perde depois de um erro, o defeito quase sempre está no texto que você devolveu, não no modelo. O caso mais valioso é o erro que **ensina o caminho** — a `sugestao` apontando outra ferramenta transforma beco sem saída em passo produtivo.
+Consequência prática: os retornos de erro devem ser revisados sobre trajetórias reais. Quando o agente se desorganiza após um erro, o defeito reside quase sempre no texto devolvido, não no modelo. O caso de maior valor é o do erro que **indica o caminho** — a chave `sugestao` apontando outra ferramenta converte um impasse em passo produtivo.
 
 ---
 
-### 5. Retry, e onde ele não vale
+### 5. Retentativa, e onde ela não se aplica
 
-Num agente existem **dois** mecanismos de recuperação, e confundi-los é caro:
+Num agente coexistem **dois** mecanismos de recuperação, cuja confusão é onerosa:
 
-| Tipo de falha | Quem resolve | Como |
+| Tipo de falha | Responsável | Mecanismo |
 |---|---|---|
-| `429`, `500`, timeout de rede | **o seu código** | backoff exponencial, transparente para o modelo |
-| argumento inválido, registro inexistente | **o modelo** | erro volta como observação; ele muda a chamada |
-| credencial, serviço fora | **ninguém** | `ErroFatal`, aborta |
+| `429`, `500`, tempo esgotado de rede | **o código** | *backoff* exponencial, transparente ao modelo |
+| argumento inválido, registro inexistente | **o modelo** | o erro retorna como observação; a chamada é alterada |
+| credencial, serviço indisponível | nenhum | `ErroFatal`, aborta |
 
 ```python
 def chamar_com_retry(**kwargs):
@@ -218,25 +219,25 @@ def chamar_com_retry(**kwargs):
 ```
 
 ```python
-# ERRADO: repetir a mesma chamada de ferramenta que falhou por argumento
+# INADEQUADO: repetir a chamada de ferramenta que falhou por argumento
 for tentativa in range(3):
     try:
         return FERRAMENTAS[nome](**argumentos)
     except ErroRecuperavel:
-        continue          # os argumentos são os mesmos. O erro será o mesmo.
+        continue          # os argumentos são idênticos. O erro será idêntico.
 ```
 
-Repetir uma chamada determinística com os mesmos argumentos é retry sem informação nova. Quem "tenta de novo" nesse caso é **o modelo**, e ele só consegue porque recebeu a observação do erro.
+Repetir uma chamada determinística com os mesmos argumentos constitui retentativa sem informação nova. Nesse caso, quem repete a tentativa é **o modelo**, e apenas porque recebeu a observação do erro.
 
-> **Regra de bolso:** retry automático é para falha de **transporte**. Falha de **conteúdo** volta para o modelo.
+> **Regra:** retentativa automática destina-se a falha de **transporte**. Falha de **conteúdo** retorna ao modelo.
 
 ---
 
 ### 6. Detecção de laço e de progresso nulo
 
-`max_passos` limita o dano do laço; não detecta o laço. Com teto de 12, um agente preso na primeira volta gasta 12 passos antes de morrer, e a mensagem que chega é "orçamento esgotado" — diagnóstico errado para o problema certo.
+`max_passos` limita o dano do laço; não o detecta. Com teto de 12, um agente bloqueado na primeira volta consome 12 passos antes de encerrar, e a mensagem produzida é "orçamento esgotado" — diagnóstico incorreto para o problema efetivo.
 
-**Laço estrito** — a mesma ferramenta com os mesmos argumentos:
+**Laço estrito** é a repetição da mesma ferramenta com os mesmos argumentos:
 
 ```python
 def assinatura(passo: Passo) -> tuple:
@@ -248,9 +249,9 @@ def detectar_laco(estado: Estado, limite: int = 3) -> bool:
     return len({assinatura(p) for p in estado.passos[-limite:]}) == 1
 ```
 
-O `sort_keys=True` não é detalhe: sem ele `{"id": "D-1", "ano": 2026}` e `{"ano": 2026, "id": "D-1"}` são assinaturas diferentes, e o detector não detecta nada.
+O parâmetro `sort_keys=True` não é detalhe: sem ele, `{"id": "D-1", "ano": 2026}` e `{"ano": 2026, "id": "D-1"}` produzem assinaturas distintas, e o detector não detecta nada.
 
-**Progresso nulo** é a versão sutil, e a mais comum: as chamadas *variam*, mas nada avança. Política, histórico, política de novo, despesa, política. Cada chamada difere da anterior; o conjunto se repete.
+**Progresso nulo** é a variante sutil e mais frequente: as chamadas *variam*, mas o estado não avança — política, histórico, política novamente, despesa, política. Cada chamada difere da anterior; o conjunto se repete.
 
 ```python
 def sem_progresso(estado: Estado, janela: int = 6) -> bool:
@@ -259,26 +260,26 @@ def sem_progresso(estado: Estado, janela: int = 6) -> bool:
         return False
     recentes = estado.passos[-janela:]
     distintas = {assinatura(p) for p in recentes}
-    # muitas chamadas, poucas distintas, e nenhuma escrita: está girando
+    # muitas chamadas, poucas distintas, nenhuma escrita: a execução gira
     return len(distintas) <= janela // 2 and not any(
         p.ferramenta in FERRAMENTAS_DE_ESCRITA for p in recentes)
 ```
 
-Ao detectar, três respostas — da mais suave à mais dura:
+Detectada a condição, há três respostas, da mais branda à mais severa:
 
-| Resposta | O que faz | Quando |
+| Resposta | Ação | Aplicação |
 |---|---|---|
-| **Injetar observação** | *"você já chamou X com estes argumentos e recebeu isto. Use o que já tem ou diga o que falta."* | primeira detecção — é a intervenção mais barata e costuma bastar |
-| **Reduzir ferramentas ativas** | tirar a que está sendo repetida força outro caminho | a observação não resolveu |
-| **Abortar** | `Termino.ERRO_FATAL`, motivo `laco_detectado` | diagnóstico honesto e conta fechada |
+| **Injetar observação** | *"a ferramenta X já foi chamada com estes argumentos e devolveu este resultado. Utilize a informação disponível ou declare o que falta."* | primeira detecção — é a intervenção mais barata e usualmente suficiente |
+| **Reduzir ferramentas ativas** | remover a ferramenta repetida força outro caminho | a observação não surtiu efeito |
+| **Abortar** | `Termino.ERRO_FATAL`, motivo `laco_detectado` | diagnóstico correto e custo encerrado |
 
-> **O preço:** detector agressivo interrompe agente que progredia devagar. Tarefa que legitimamente consulta a mesma ferramenta com argumentos parecidos — varrer uma lista — dispara falso positivo. Calibre com trajetórias reais, e comece frouxo.
+> **Custo da salvaguarda:** detector agressivo interrompe agente em progresso lento. Tarefa que legitimamente consulta a mesma ferramenta com argumentos semelhantes — varredura de lista, por exemplo — produz falso positivo. A calibragem do limite deve ser feita sobre trajetórias reais, partindo de valores permissivos.
 
 ---
 
 ### 7. Deriva de objetivo
 
-Numa trajetória de trinta passos, o pedido original está lá atrás, cercado de observações — exatamente a posição em que o modelo aproveita pior a informação (*lost in the middle*, Aula 02 nota 01 §4.3). O sintoma: o agente resolve com esmero um sub-problema que ninguém pediu.
+Numa trajetória de trinta passos, o pedido original está distante e cercado de observações — precisamente a posição em que o modelo recupera pior a informação (*lost in the middle*, LIU et al., 2023, retomado na Aula 02, nota 01, §4.3). A manifestação típica: o agente resolve com esmero um subproblema não solicitado.
 
 ```python
 REANCORAR_A_CADA = 5
@@ -288,17 +289,17 @@ if estado.n_passos and estado.n_passos % REANCORAR_A_CADA == 0:
                  "content": f"Lembrete do objetivo: {estado.objetivo}"})
 ```
 
-Custa algumas dezenas de tokens a cada cinco passos e é, em custo-benefício, a melhor linha desta nota. Só é possível porque `objetivo` é campo do estado, e não uma mensagem que a compaction pode engolir ([nota 02 §3](02-o-agente-e-o-estado.md)).
+O custo é de algumas dezenas de tokens a cada cinco passos, o que a torna a intervenção de melhor relação custo-benefício desta nota. Só é viável porque `objetivo` é campo do estado, e não mensagem passível de ser absorvida pela *compaction* ([nota 02](02-o-agente-e-o-estado.md) §3).
 
 ---
 
-### 8. Idempotência: agora não é mais hipótese
+### 8. Idempotência: de prudência a necessidade
 
-A Aula 01 (nota 03, §3) já pedia chave de idempotência em ferramenta de escrita. Era prudência. Agora é necessidade, por um motivo desta nota: **as salvaguardas que acabamos de adicionar aumentam a chance de repetir uma escrita.**
+A Aula 01 (nota 03, §3) já prescrevia chave de idempotência em ferramenta de escrita, como prudência. Passa a ser necessidade por um motivo específico desta nota: **as salvaguardas introduzidas aqui aumentam a probabilidade de repetição de escrita.**
 
-- o **retry** de rede reenvia requisição cujo efeito já ocorreu (o que se perdeu foi a resposta);
-- o **checkpoint** (§9) retoma de um estado salvo, e o último passo pode ter executado sem ser gravado;
-- a **detecção de laço**, ao injetar observação e deixar continuar, pode levar o agente a repetir a ação que ele achou que não funcionou.
+- a **retentativa** de rede reenvia requisição cujo efeito já ocorreu — o que se perdeu foi a resposta;
+- o **checkpoint** (§9) retoma de um estado persistido, e o último passo pode ter executado sem ter sido registrado;
+- a **detecção de laço**, ao injetar observação e permitir a continuação, pode induzir o agente a repetir a ação que supôs malsucedida.
 
 ```python
 def registrar_parecer(despesa_id: str, veredito: str, justificativa: str,
@@ -312,50 +313,50 @@ def registrar_parecer(despesa_id: str, veredito: str, justificativa: str,
     return parecer
 ```
 
-A chave precisa ser **determinística e derivada do conteúdo** — `f"{despesa_id}:{veredito}"` ou um hash dos campos. Chave gerada com `uuid4()` a cada chamada não é chave de idempotência: é um identificador novo por tentativa, que é exatamente o que se quer evitar.
+A chave precisa ser **determinística e derivada do conteúdo** — `f"{despesa_id}:{veredito}"` ou um resumo criptográfico dos campos. Chave gerada por `uuid4()` a cada chamada não é chave de idempotência: é identificador novo por tentativa, precisamente o que se pretende evitar.
 
-E o retorno diz `ja_existia: True`. Isso é informação para o **modelo**: ele descobre que a ação já ocorreu e não tenta de novo. Escrita idempotente que devolve resposta idêntica esconde do agente o fato de que ele se repetiu.
+O retorno inclui `ja_existia: True`. Trata-se de informação destinada ao **modelo**: ele constata que a ação já ocorreu e não a repete. Escrita idempotente que devolve resposta idêntica oculta do agente o fato de que houve repetição.
 
 ---
 
 ### 9. Checkpoint
 
-O código está na [nota 02, exemplo 4](02-o-agente-e-o-estado.md) — quatro linhas de `json.dumps` sobre o estado. O que ele destrava:
+A implementação consta da [nota 02, exemplo 4](02-o-agente-e-o-estado.md) — quatro linhas de serialização sobre o estado. O mecanismo viabiliza:
 
-1. **Confirmação humana assíncrona** — o agente pausa, grava e devolve o controle; a aprovação chega horas depois e a execução continua de onde parou.
-2. **Retomada após queda** — o processo morreu no passo 9 de uma trajetória cara; retomar não repete os 9 passos nem os efeitos colaterais deles.
-3. **Depuração por reprodução** — carregar o estado de uma execução que deu errado e continuar dali, com log ligado.
+1. **Confirmação humana assíncrona** — o agente suspende a execução, persiste o estado e devolve o controle; a aprovação ocorre horas depois e a execução prossegue do ponto de suspensão.
+2. **Retomada após queda** — o processo encerrou no passo 9 de uma trajetória custosa; a retomada não repete os 9 passos nem seus efeitos colaterais.
+3. **Depuração por reprodução** — carregar o estado de uma execução malsucedida e prosseguir a partir dele, com registro detalhado ativo.
 
-A armadilha: **salvar depois de executar, nunca antes**. Se o checkpoint gravar a intenção e o processo cair entre gravação e execução, a retomada reexecuta. É a idempotência da §8 que fecha essa fresta — as duas trabalham juntas, e nenhuma sozinha resolve.
+A armadilha: **persistir depois de executar, nunca antes**. Se o *checkpoint* registrar a intenção e o processo encerrar entre o registro e a execução, a retomada reexecuta a ação. É a idempotência da §8 que fecha essa lacuna — as duas salvaguardas operam em conjunto, e nenhuma é suficiente isoladamente.
 
-> Persistir estado **entre execuções diferentes** — o agente lembrar da semana passada — é a aula de memória. Checkpoint é dentro de uma execução só.
+> Persistir estado **entre execuções distintas** — o agente recuperar o que ocorreu na semana anterior — é objeto da aula de memória. O *checkpoint* opera no interior de uma única execução.
 
 ---
 
-### 10. O trace: o subproduto que vale mais que o produto
+### 10. O trace como subproduto
 
-Repare no que foi construído sem que ninguém pedisse. Para detectar laço, foi preciso guardar ferramenta e argumentos de cada passo. Para o orçamento, tokens e custo. Para o término, o motivo. Junte tudo e você tem, por execução, um registro estruturado do que o agente fez, quanto gastou, o que falhou e por que parou.
+Cabe registrar o que foi construído sem que constituísse requisito. Para detectar laço, foi necessário armazenar ferramenta e argumentos de cada passo. Para o orçamento, tokens e custo. Para o término, o motivo. O conjunto constitui, por execução, um registro estruturado do que o agente executou, quanto consumiu, o que falhou e por que encerrou.
 
-Isso tem nome — **trace** — e é a matéria-prima de duas aulas que ainda vêm: **observabilidade** (agregar traces: qual ferramenta mais falha? qual o custo médio por tarefa?) e **evals** (sem trajetória você avalia só a resposta final; com ela, avalia **o caminho**, onde a maioria dos defeitos mora).
+Esse registro denomina-se **trace**, e é a matéria-prima de duas aulas subsequentes: **observabilidade** — agregação de *traces* para responder qual ferramenta falha mais e qual o custo médio por tarefa — e **evals** — sem trajetória registrada, avalia-se apenas a resposta final; com ela, avalia-se **o percurso**, onde reside a maioria dos defeitos.
 
-> **Não se avalia o que não se rastreia.** Foi por isso que o estado veio antes de tudo.
+> **Não se avalia o que não se rastreia.** É a razão pela qual o objeto de estado precede todo o restante.
 
 ---
 
 ## Exemplos
 
-### Exemplo 1 — A mesma trajetória, com e sem erro que ensina
+### Exemplo 1 — A mesma trajetória, com e sem erro informativo
 
-Despesa cujo id o usuário digitou errado. Orçamento de 12 passos.
+Despesa cujo identificador foi digitado incorretamente. Orçamento de 12 passos.
 
 ```
-SEM detector e com erro inútil ({"erro": "falhou"}):
+SEM detector e com erro não informativo ({"erro": "falhou"}):
   passo  0..11  consultar_historico {"funcionario": "F-88"} -> erro
   TERMINO: orcamento_esgotado (passos: 12/12) | 14.200 tokens | R$ 0,036
 ```
 
 ```
-COM erro que ensina:
+COM erro informativo:
   passo  0  consultar_historico {"funcionario": "F-88"}
             -> {"erro": "funcionário não encontrado", "recebido": "F-88",
                 "esperado": "F seguido de 3 dígitos, ex: F-088",
@@ -365,22 +366,22 @@ COM erro que ensina:
   TERMINO: respondeu | 1.480 tokens | R$ 0,004
 ```
 
-Nove vezes menos tokens — e **o detector de laço nem chegou a disparar**. Quem resolveu foi o texto do erro. O detector é a rede de segurança para quando isso não bastar, e a maior parte do ganho está em não precisar dele.
+A redução é de nove vezes em tokens — e **o detector de laço não chegou a ser acionado**. A resolução decorreu do texto do erro. O detector é a rede de segurança para os casos em que o texto não basta, e a maior parte do ganho está em não depender dele.
 
-### Exemplo 2 — Progresso nulo: o laço que o detector estrito não pega
+### Exemplo 2 — Progresso nulo: o laço não capturado pelo detector estrito
 
 ```
 passo 3  consultar_politica   {"categoria": "refeicao"}
 passo 4  consultar_historico  {"funcionario": "F-088"}
 passo 5  consultar_politica   {"categoria": "refeicao"}     <- repetida
 passo 6  buscar_despesa       {"id": "D-4471"}
-passo 7  consultar_politica   {"categoria": "refeicao"}     <- de novo
-passo 8  consultar_historico  {"funcionario": "F-088"}      <- de novo
+passo 7  consultar_politica   {"categoria": "refeicao"}     <- repetida
+passo 8  consultar_historico  {"funcionario": "F-088"}      <- repetida
 ```
 
-`detectar_laco` não dispara: nunca há três iguais em sequência. `sem_progresso` dispara: seis chamadas, **três** assinaturas distintas, nenhuma escrita. O agente tem toda a informação e não consegue concluir — o problema não é falta de dado, é o critério de conclusão estar vago no system prompt.
+`detectar_laco` não é acionado: não há três assinaturas idênticas em sequência. `sem_progresso` é acionado: seis chamadas, **três** assinaturas distintas, nenhuma escrita. O agente dispõe de toda a informação e não conclui — o problema não é ausência de dado, e sim vagueza do critério de conclusão no *system prompt*.
 
-### Exemplo 3 — Os quatro términos, no log
+### Exemplo 3 — As quatro terminações no registro
 
 ```
 exec 3f9a1c  termino=respondeu           passos=4   tokens=2.180  R$ 0,006
@@ -392,13 +393,13 @@ exec 09fa7e  termino=aguardando_humano   passos=6   tokens=3.940  R$ 0,010
               pendencia={"ferramenta": "registrar_parecer", "argumentos": {...}}
 ```
 
-Quatro execuções, quatro diagnósticos diferentes — e três ações diferentes de quem opera: a segunda pede revisar o orçamento **ou** o prompt; a terceira, avisar a infraestrutura; a quarta, alguém aprovar. Sem o campo `termino`, as quatro chegariam como "não deu certo".
+Quatro execuções, quatro diagnósticos e três ações operacionais distintas: a segunda demanda revisão do orçamento ou do prompt; a terceira, comunicação à infraestrutura; a quarta, aprovação humana. Sem o campo `termino`, as quatro seriam reportadas como falha genérica.
 
-### Exemplo 4 — Idempotência salvando um parecer duplicado
+### Exemplo 4 — Idempotência impedindo parecer duplicado
 
 ```python
-# Passo 7: o agente registra. A rede cai DEPOIS da gravação, antes da resposta.
-# O retry reenvia.
+# Passo 7: o agente registra. A rede falha APÓS a gravação, antes da resposta.
+# A retentativa reenvia a requisição.
 chave = "D-4471:aprovado"
 
 registrar_parecer("D-4471", "aprovado", "dentro do teto", chave=chave)
@@ -408,67 +409,18 @@ registrar_parecer("D-4471", "aprovado", "dentro do teto", chave=chave)
 # -> {"id": "P-1001", ..., "ja_existia": True}    mesmo parecer, não um novo
 ```
 
-Sem a chave, o segundo registro cria `P-1002`, e alguém vai auditar uma despesa com dois pareceres idênticos sem saber qual vale.
-
----
-
-## Exercícios resolvidos
-
-### 1. Este erro é recuperável ou fatal?
-
-| Erro | Classe | Por quê |
-|---|---|---|
-| `consultar_politica("alimentacao")` — as válidas são `refeicao`, `transporte`, `hospedagem` | **recuperável** | é argumento; devolva as válidas e o modelo escolhe |
-| Token da API do ERP expirado | **fatal** | nenhuma decisão do modelo renova credencial |
-| `buscar_despesa("D-9999")` — id bem formado, registro inexistente | **recuperável** | o modelo pode listar e escolher outro |
-| Timeout de 30s no banco | **depende** | primeira ocorrência: retry no seu código; após N tentativas, fatal |
-| `registrar_parecer` sem `justificativa` | **recuperável** | argumento faltando; devolva o campo exigido |
-| Disco cheio ao gravar | **fatal** | infraestrutura |
-
-A pergunta que resolve todos: **existe alguma chamada diferente que o modelo poderia fazer para contornar?** Se existe, é recuperável — e o retorno de erro deve dizer qual é.
-
-### 2. Calcular o orçamento de uma tarefa
-
-> Triagem de despesa: em média 3 passos de ~1.200 tokens. R$ 0,60 por milhão de tokens de entrada, R$ 1,80 de saída, ~15% de saída. Qual orçamento?
-
-```
-tokens por tarefa = 3 × 1.200 = 3.600
-entrada (85%)     = 3.060 × 0,60 / 1e6 = R$ 0,0018
-saída   (15%)     =   540 × 1,80 / 1e6 = R$ 0,0010
-custo médio                            ≈ R$ 0,0028
-```
-
-O teto **não** é a média — é o ponto a partir do qual você prefere uma tarefa incompleta a uma conta aberta. Folga de 3× a 4× cobre os casos difíceis legítimos e ainda pega o agente descontrolado:
-
-```python
-Orcamento(max_passos=10, max_tokens=15_000, max_reais=0.02, max_segundos=90)
-```
-
-A conta que justifica o esforço: em 10.000 despesas/mês, o custo esperado é ~R$ 28. Um agente sem teto que entre em laço em 1% dos casos, gastando 12 passos cada, **dobra** essa conta — e a linha que impede isso tem quatro linhas de código.
-
----
-
-## Síntese
-
-- `max_passos` não é orçamento: passo não é unidade de custo. Meça em **passos, tokens, dinheiro e tempo de parede** — e passe o orçamento como parâmetro.
-- Um agente termina de quatro formas, e as quatro viram **dado** no estado. O trace é gravado no `finally`.
-- Erro de ferramenta é **recuperável** (o modelo contorna) ou **fatal** (aborta). Quem classifica é o seu código.
-- **A mensagem de erro é prompt:** o que estava errado, qual era o certo, o que fazer agora.
-- Retry automático é para falha de **transporte**; falha de **conteúdo** volta para o modelo com informação nova.
-- Detecte laço por assinatura repetida e **progresso nulo** por chamadas que variam sem avançar. Intervenha antes de abortar.
-- Reafirme o objetivo no fim do contexto a cada N passos: melhor custo-benefício da nota.
-- Chave de idempotência derivada do **conteúdo**, não da tentativa — e o retorno avisa quando a ação já existia.
-- Checkpoint depois de executar, nunca antes.
-- Nada disso é grátis: cada salvaguarda tem falso positivo, e calibrar a dose é o trabalho.
-- O subproduto de tudo é o **trace** — matéria-prima das aulas de observabilidade e evals.
+Sem a chave, o segundo registro cria `P-1002`, e a auditoria posterior encontra dois pareceres idênticos para a mesma despesa, sem critério de desempate.
 
 ---
 
 ## Fontes e leituras
 
-- Aula 01, [nota 03 §3 e §4](../../aula-01-llms-e-agentes/notas-de-aula/03-agentes-de-ia.md) — a tabela de falhas que organiza esta nota, e a idempotência.
-- Aula 02, [nota 01 §8.2](../../aula-02-escolha-e-configuracao-de-modelos/notas-de-aula/01-escolha-de-modelos.md) — backoff exponencial; [nota 04](../../aula-02-escolha-e-configuracao-de-modelos/notas-de-aula/04-custo-latencia-e-decisao.md) — a conta por chamada, que vira o teto em reais.
-- Aula 03, [nota 04 §4 e §7](../../aula-03-prompt-engineering/notas-de-aula/04-tool-calling.md) — a descrição da ferramenta como prompt, estendida aqui ao retorno de erro.
-- **Building Effective Agents** — Anthropic (2024), seção sobre *guardrails* e limites de execução.
-- **A practical guide to building agents** — OpenAI (2025), capítulo de *guardrails* e tratamento de exceções.
-- **OWASP Agentic Security Initiative** — riscos específicos de agentes. Citado só como referência; o tratamento é da aula de segurança.
+ANTHROPIC. **Building effective agents**. 2024. (Seção sobre *guardrails* e limites de execução.)
+
+LIU, N. F. et al. **Lost in the middle**: how language models use long contexts. arXiv:2307.03172, 2023.
+
+OPENAI. **A practical guide to building agents**. 2025. (Capítulo de *guardrails* e tratamento de exceções.)
+
+OWASP. **Agentic Security Initiative**: catálogo de riscos específicos de agentes. (Citado como referência; o tratamento é objeto da aula de segurança.)
+
+**Material da disciplina.** Aula 01, [nota 03](../../aula-01-llms-e-agentes/notas-de-aula/03-agentes-de-ia.md) §3 e §4 — a tabela de modos de falha que organiza esta nota e a idempotência. Aula 02, [nota 01](../../aula-02-escolha-e-configuracao-de-modelos/notas-de-aula/01-escolha-de-modelos.md) §8.2 — *backoff* exponencial; [nota 04](../../aula-02-escolha-e-configuracao-de-modelos/notas-de-aula/04-custo-latencia-e-decisao.md) — a conta por chamada, que fundamenta o teto monetário. Aula 03, [nota 04](../../aula-03-prompt-engineering/notas-de-aula/04-tool-calling.md) §4 e §7 — a descrição da ferramenta como prompt, aqui estendida ao retorno de erro.
