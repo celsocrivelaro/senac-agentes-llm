@@ -140,7 +140,9 @@ Quatro escolhas que reprovam antes de começar:
 | **Grande demais** | o tema não cabe em uma frase | vira um pouco de tudo e nada inteiro |
 | **Clone de produto** | o esforço é interface e infraestrutura | vocês passam o semestre longe do assunto da disciplina |
 
-Isso está detalhado na nota **"O Brasil e a escolha do case"** da aula sobre casos de uso — leiam antes de fechar o tema.
+A lista acima é curta de propósito, e é ela que vale como critério. O que está **por trás** dela são os casos da Aula 04: a [nota 01, §11](../aula-04-casos-de-uso-e-escolha-do-projeto/notas-de-aula/01-o-que-e-um-agente.md) mostra o que os casos que funcionam têm em comum — feedback verificável, escopo estreito, verificador construído —, e a [nota 02](../aula-04-casos-de-uso-e-escolha-do-projeto/notas-de-aula/02-os-casos-que-falharam.md) traz as autópsias de quem errou.
+
+O lugar de aplicar esta lista ao seu tema é o [exercício 04](../aula-04-casos-de-uso-e-escolha-do-projeto/exercicios/exercicio_04.md), e é lá que ele é validado com o professor. Façam isso **antes** de fechar o tema.
 
 ---
 
