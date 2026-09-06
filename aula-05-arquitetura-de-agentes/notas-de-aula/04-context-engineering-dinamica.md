@@ -261,7 +261,7 @@ A tática zero tem retorno superior ao das quatro seguintes. Uma ferramenta que 
 | **MCP** | aula de MCP |
 | **multiagente** (coordenação) | aula de sistemas multiagente |
 
-Duas pendências novas foram criadas por esta aula: o **trace** registrado a partir da nota 03, §10, é a matéria-prima das aulas de **observabilidade** e de **evals**. O encerramento de um assunto abre outro, com a diferença de que as perguntas subsequentes são mais precisas.
+Uma pendência nova foi criada por esta aula: o **trace** registrado a partir da nota 03, §10, é a matéria-prima da aula de **evals** e da **observabilidade** que a aula de produção trata. O encerramento de um assunto abre outro, com a diferença de que as perguntas subsequentes são mais precisas.
 
 ---
 

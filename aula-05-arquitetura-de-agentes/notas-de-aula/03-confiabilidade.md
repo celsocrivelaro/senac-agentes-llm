@@ -337,7 +337,7 @@ A armadilha: **persistir depois de executar, nunca antes**. Se o *checkpoint* re
 
 Cabe registrar o que foi construído sem que constituísse requisito. Para detectar laço, foi necessário armazenar ferramenta e argumentos de cada passo. Para o orçamento, tokens e custo. Para o término, o motivo. O conjunto constitui, por execução, um registro estruturado do que o agente executou, quanto consumiu, o que falhou e por que encerrou.
 
-Esse registro denomina-se **trace**, e é a matéria-prima de duas aulas subsequentes: **observabilidade** — agregação de *traces* para responder qual ferramenta falha mais e qual o custo médio por tarefa — e **evals** — sem trajetória registrada, avalia-se apenas a resposta final; com ela, avalia-se **o percurso**, onde reside a maioria dos defeitos.
+Esse registro denomina-se **trace**, e tem dois destinos no curso. O primeiro é a aula de **evals**: sem trajetória registrada, avalia-se apenas a resposta final; com ela, avalia-se **o percurso**, onde reside a maioria dos defeitos. O segundo é a **observabilidade**, na aula de produção — a agregação de *traces* que responde qual ferramenta falha mais e qual o custo médio por tarefa, e que só faz sentido depois de o sistema estar no ar.
 
 > **Não se avalia o que não se rastreia.** É a razão pela qual o objeto de estado precede todo o restante.
 
