@@ -19,7 +19,8 @@ Ao fim das três partes, o grupo tem:
 - um sistema **multiagente** resolvendo um problema real, com mais de um agente e uma arquitetura de coordenação declarada;
 - os agentes **conversando com software tradicional** — API, banco de dados, serviço interno —, via ferramentas próprias e via **MCP**;
 - uma **base de memória consultável** pelos agentes (RAG);
-- um **workflow orquestrado com LangChain**;
+- **memória entre execuções** — o que o sistema lembra de ontem, e o que ele deliberadamente não guarda;
+- um **workflow orquestrado com LangGraph**;
 - um **plano de prompt engineering** documentado e versionado;
 - e as três preocupações que separam protótipo de sistema: **segurança**, **MLOps/observabilidade** e **gestão de custos**.
 
@@ -30,7 +31,7 @@ Ao fim das três partes, o grupo tem:
 | Parte | Tema central | O que entra |
 |---|---|---|
 | **1** | **Escolher e provar o terreno** | tema e contexto · **a justificativa de negócio** (por que agente, e que ganho) · análise de modelos · **um agente simples** com prompt engineering e arquitetura básica · integração simples com software tradicional (pode ser mock) |
-| **2** | **O agente de verdade** | plano de prompt engineering · arquitetura do agente documentada · **RAG** como memória consultável · **MCP** no lugar da integração manual · **workflow com LangChain** |
+| **2** | **O agente de verdade** | plano de prompt engineering · arquitetura do agente documentada · **RAG** como memória consultável · **memória** entre execuções · **MCP** no lugar da integração manual · **workflow com LangGraph** |
 | **3** | **O sistema** | **multiagente** com arquitetura de coordenação · **segurança** · **MLOps** e observabilidade · **gestão de custos** · **apresentação em aula** |
 
 Cada parte é avaliada **na entrega dela**. Uma Parte 1 fraca não é compensada por uma Parte 3 boa — mas uma Parte 1 bem escolhida torna as outras duas muito mais fáceis.
@@ -51,7 +52,7 @@ O objetivo desta parte não é impressionar. É **descobrir cedo** se o tema esc
 
 ## Parte 2 — O agente de verdade
 
-Aqui o agente simples da Parte 1 se transforma em um agente completo. Cinco frentes:
+Aqui o agente simples da Parte 1 se transforma em um agente completo. Seis frentes, e **cada uma acrescenta uma peça ao sistema e cobra um número por ela**:
 
 **1. O plano de prompt engineering.** Um documento que declara, para cada etapa do sistema: qual técnica de prompting é usada, **por quê**, qual o contrato de saída, e como aquela etapa é testada. Os prompts vivem em arquivo, versionados, com a combinação `prompt × modelo × parâmetros` registrada — como a disciplina cobra desde a aula de prompt engineering.
 
@@ -59,9 +60,11 @@ Aqui o agente simples da Parte 1 se transforma em um agente completo. Cinco fren
 
 **3. RAG como memória consultável.** Uma base de conhecimento que os agentes consultam — não um chatbot sobre PDFs, mas a **memória do sistema**: o conhecimento de domínio que os agentes precisam para decidir. Vocês definem o que entra, como é indexado e como a resposta cita a fonte.
 
-**4. MCP no lugar da integração manual.** A integração simples da Parte 1 é reescrita como **servidor MCP**. O ganho a demonstrar: a ferramenta deixa de ser código acoplado ao seu agente e passa a ser um serviço que qualquer agente consome.
+**4. Memória entre execuções.** O RAG consulta documentos que alguém escreveu; a memória guarda o que **o próprio sistema** viveu. As duas se confundem porque ambas recuperam por relevância, e distingui-las no seu case é parte da entrega — junto com a decisão que mais vale nota: **o que o sistema deliberadamente não guarda**.
 
-**5. Workflow com LangChain.** A orquestração passa a usar LangChain. E, junto com ela, a pergunta que a disciplina insiste desde a aula de arquitetura: **o que o framework te deu, e o que ele te tirou?** Comparar a versão na mão com a versão em framework é parte da entrega.
+**5. MCP no lugar da integração manual.** A integração simples da Parte 1 é reescrita como **servidor MCP**. O ganho a demonstrar: a ferramenta deixa de ser código acoplado ao seu agente e passa a ser um serviço que qualquer agente consome.
+
+**6. Workflow com LangGraph.** A orquestração passa a usar **LangGraph**, do ecossistema LangChain — o modelo mental dele é grafo de estado, que é literalmente o que vocês construíram à mão na aula de arquitetura, e é o que torna a comparação possível. E, junto com ela, a pergunta que a disciplina insiste desde aquela aula: **o que o framework te deu, e o que ele te tirou?** Comparar a versão na mão com a versão em framework é parte da entrega — e concluir que não compensa portar, **com a contagem à vista**, é resultado válido.
 
 ---
 
@@ -156,9 +159,10 @@ A partir da escolha do tema, cada aula nova termina com a mesma pergunta: **o qu
 | Prompt engineering | o plano de prompt engineering e o versionamento |
 | Arquitetura de agentes | o agente, o estado, o orçamento, as salvaguardas |
 | Casos de uso de agentes | **a escolha do tema** e a ficha de case |
-| Embeddings e RAG | a base de memória da Parte 2 |
+| Embeddings e RAG | a base de conhecimento consultável da Parte 2 |
+| Memória | o que o sistema lembra entre execuções, na Parte 2 |
 | MCP | a reescrita da integração na Parte 2 |
-| LangChain / frameworks | o workflow da Parte 2 |
+| Frameworks e orquestração | o workflow em LangGraph da Parte 2 |
 | Multiagente | a arquitetura de coordenação da Parte 3 |
 | Observabilidade e evals | o MLOps da Parte 3 |
 | Segurança e custos | as duas últimas frentes da Parte 3 |
