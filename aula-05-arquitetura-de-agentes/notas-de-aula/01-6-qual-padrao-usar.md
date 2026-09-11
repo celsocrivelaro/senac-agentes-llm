@@ -81,7 +81,7 @@ Os padrões não são mutuamente exclusivos. Sistemas reais os encaixam, cada pe
                         [ AVALIADOR-OTIMIZADOR ]      (revisão do texto final)
 ```
 
-Este é, deliberadamente, o desenho do exercício desta aula: a autonomia cara fica confinada ao caminho estreito em que é necessária, e o volume trafega por código determinístico.
+O desenho tem uma propriedade que nenhum padrão isolado tem: **a autonomia cara fica confinada ao caminho estreito em que é necessária**, e o volume trafega por código determinístico. É esta composição que o exercício desta aula pede que você desenhe para o **seu** case — não esta, necessariamente, mas uma que você consiga defender do mesmo jeito.
 
 > **Princípio de projeto:** autonomia é recurso escasso, e o trabalho de arquitetura consiste em gastá-la apenas onde ela produz retorno.
 

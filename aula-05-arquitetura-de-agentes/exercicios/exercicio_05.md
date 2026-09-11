@@ -1,52 +1,40 @@
-# Exercício 5 — Analista de prestação de contas
+# Exercício 5 — O analista de prestação de contas
 
 ## Contexto
 
-O exercício 3 produziu um atendimento em cinco etapas implementado como agente.
-A autópsia da Aula 05 estabeleceu que quatro das cinco etapas constavam do
-código: tratava-se de um *workflow* com dois momentos de decisão. Aquela escolha
-era adequada ao objetivo de então — o mecanismo de *tool calling*. Este exercício
-tem por objeto a escolha da arquitetura.
+O exercício 3 produziu um atendimento de cinco etapas implementado como agente. A autópsia desta aula mostrou que quatro daquelas etapas estavam no código: era um *workflow* com dois momentos de decisão. Aquela escolha servia ao objetivo de então — o mecanismo de *tool calling*. **Aqui o objeto é a escolha da arquitetura.**
 
-O problema foi construído de modo que a escolha incorreta se manifeste no custo.
-Trata-se de um lote de despesas a conferir contra uma política de reembolso, em
-que a maioria dos itens é decidida por regra determinística. Encaminhar todos os
-itens ao modelo produz resultado correto a um custo aproximadamente dez vezes
-maior, e com qualidade inferior justamente nos casos triviais.
+O domínio é novo de propósito: um lote de despesas a conferir contra uma política de reembolso. Ele foi construído para que **a escolha errada apareça na conta** — a maioria dos itens se decide por regra determinística, e mandar todos ao modelo produz o resultado certo gastando cerca de dez vezes mais, com qualidade pior justamente nos casos triviais.
 
-> **Questão a ser respondida ao final:** quantos dos 8 itens exigiram chamada ao
-> modelo?
+> **Questão a ser respondida ao final:** quantos dos 8 itens exigiram chamada ao modelo — e quantos você esperava que exigissem?
+
+> **Este exercício é o par prático do [exercicio_05-trabalho.md](exercicio_05-trabalho.md).** Lá você desenha a arquitetura do seu case; aqui você implementa uma arquitetura já desenhada, para sentir no código o que cada padrão cobra.
 
 ## Objetivo
 
-Implementar o programa `07-analista.py`, que processa um lote de despesas e
-produz um parecer por item, empregando **quatro padrões de arquitetura**, cada um
-na etapa adequada:
+Implementar `08-analista.py`, que processa o lote e produz um parecer por item, com **quatro padrões**, cada um na etapa em que ele é o certo:
 
 ```
- ┌────────────────────────────────────────────────────────────────┐
- │  lote de 8 despesas                                            │
- │         │                                                      │
- │         ▼                                                      │
- │  ┌─────────────┐   dentro da política ──> REGRA EM CÓDIGO      │
- │  │  ROUTER     │   ambíguo ─────────────> AGENTE COM ESTADO    │
- │  │             │   acima da alçada ─────> HUMANO (pausa)       │
- │  └─────────────┘   nenhuma ─────────────> fila de revisão      │
- │         │                                                      │
- │         ▼                                                      │
- │  ┌──────────────────────────┐                                  │
- │  │ ORQUESTRADOR-TRABALHADOR │  monta o parecer do lote         │
- │  └──────────────────────────┘                                  │
- │         │                                                      │
- │         ▼                                                      │
- │  ┌──────────────────────────┐                                  │
- │  │  AVALIADOR-OTIMIZADOR    │  critica e revisa o texto final  │
- │  └──────────────────────────┘                                  │
- └────────────────────────────────────────────────────────────────┘
+  lote de 8 despesas
+        │
+        ▼
+  ┌─────────────┐   dentro da política ──> REGRA EM CÓDIGO (sem LLM)
+  │   ROUTER    │   ambíguo ─────────────> AGENTE COM ESTADO
+  │             │   acima da alçada ─────> HUMANO (pausa)
+  └─────────────┘   nenhuma ─────────────> fila de revisão
+        │
+        ▼
+  ┌──────────────────────────┐
+  │ ORQUESTRADOR-TRABALHADOR │   monta o parecer do lote
+  └──────────────────────────┘
+        │
+        ▼
+  ┌──────────────────────────┐
+  │   AVALIADOR-OTIMIZADOR   │   critica e revisa o texto final
+  └──────────────────────────┘
 ```
 
-No desenho, **a autonomia cara está confinada a um caminho estreito**; o volume
-trafega por código determinístico.
+**A autonomia cara está confinada a um caminho estreito**; o volume trafega por código determinístico. É o desenho que a [nota 01-6](../notas-de-aula/01-6-qual-padrao-usar.md) §5 defende — e que o `05-trabalho.md` pede que você justifique para o seu próprio case.
 
 ## Dados do problema
 
@@ -132,156 +120,86 @@ Os oito itens constituem situações deliberadamente distintas:
 
 ## Requisitos
 
+## Requisitos
+
 ### 1. A triagem — o *Router*
 
-Cada despesa passa por uma triagem que devolve **uma rota**, em saída estruturada com `enum` (Aula 02, nota 02, §7):
+Saída estruturada com `enum` de quatro rotas, e **a rota `nenhuma` é obrigatória**: sem escape, o modelo escolhe uma rota inaplicável com alta confiança.
 
-```python
-ROTAS = ["dentro_da_politica", "ambiguo", "acima_da_alcada", "nenhuma"]
-```
+A rota de maior valor é a que **não chama o modelo**. `D-4471` e `D-4472` estão dentro da política, e uma regra em código resolve os dois — **se o seu sistema chamar o modelo para eles, é defeito**, e o relatório do fim vai mostrar.
 
-Regras:
+Antes de classificar com o modelo, tente a regra. É a cascata do [`01-router.py`](https://github.com/celsocrivelaro/senac-llm-code/blob/main/aula05-agentes/01-router.py).
 
-- **A rota `acima_da_alcada` é decidida em código, antes de qualquer chamada ao modelo.** Valor acima de R$ 500 é regra da empresa, não objeto de inferência: delegá-la ao modelo suprime uma garantia sem contrapartida.
-- **A rota `dentro_da_politica` é resolvida por código sempre que a regra bastar** — categoria, teto, presença de nota fiscal. Item resolvido por regra **não deve gerar chamada ao modelo**.
-- **A rota `nenhuma` é obrigatória** e encaminha à fila de revisão. Classificação forçada entre opções inaplicáveis é erro silencioso.
-- O programa **conta e imprime**, ao final: quantos itens foram resolvidos por regra, quantos pelo agente, quantos foram para humano e quantos para a fila.
+### 2. O portão — padrão Sequencial
 
-> A triagem admite implementação integralmente em código ou emprego do modelo apenas onde a regra não alcança. Ambas as escolhas são defensáveis; a ausência de justificativa não é. **Registrar a justificativa em comentário, no código.**
+A despesa `D-4475` declara R$ 96 e o recibo diz R$ 196. **Isso não é trabalho do modelo**: é uma comparação entre dois números, e ela vai num `if`, antes de qualquer chamada.
 
-### 2. O lote — orquestrador-trabalhador
+Implemente um portão que confira, para todo item: o funcionário existe, a categoria existe na política, e **o valor declarado bate com o recibo**. Item que não passa **não segue** para a análise — vai com o motivo para a fila.
 
-O parecer do lote não é a concatenação dos pareceres individuais. Concluído o lote, um orquestrador determina **quais análises agregadas se aplicam** a *este* lote — e essas subtarefas não constam do código.
-
-Exemplos de decisões possíveis — nenhuma obrigatória, e é esse o ponto: agrupar violações por funcionário, cruzar com o histórico de reprovações anteriores, destacar o padrão de uma categoria específica.
-
-Requisitos:
-
-- o plano do orquestrador vem em **saída estruturada**, com uma lista de subtarefas;
-- **teto de subtarefas** — plano que exceda o teto aborta com erro explícito. Orquestrador sem teto é conta aberta;
-- as subtarefas são executadas e sintetizadas num parecer único do lote.
+É a distinção que a [nota 01-1](../notas-de-aula/01-1-sequencial.md) faz entre validação de **forma** e de **fato**. `D-4477` cita `F-88`, que não existe: forma certa, fato errado.
 
 ### 3. Os ambíguos — o agente com estado
 
-Apenas os itens roteados como `ambiguo` são processados por agente. Esse agente **não** é o laço da Aula 03: opera sobre um objeto de estado (nota 02).
+`D-4473`, `D-4476` e `D-4478` exigem ler a política, o histórico do funcionário e decidir. O agente roda com:
 
-O `Estado` precisa ter, no mínimo:
+- **objeto de estado** — objetivo, trajetória, ferramentas ativas, término;
+- **orçamento nos três tetos** — passos, tokens e tempo, passados como **parâmetro**;
+- **término registrado** — o programa diz *por que* parou;
+- **detector de laço** ligado.
 
-```python
-objetivo · passos (ferramenta, argumentos, resultado, erro, tokens)
-tokens_gastos · custo_estimado · ferramentas_ativas · termino · resposta
-```
+`registrar_parecer` é **escrita**: chave de idempotência derivada do conteúdo, com `ja_existia` no retorno. E `D-4474` está acima da alçada: o agente **pausa**, grava e devolve o controle — `Termino.HUMANO`, sem `input()` no meio do laço.
 
-Ferramentas disponíveis ao agente (todas de leitura, exceto a última):
+### 4. O parecer do lote — orquestrador-trabalhador
 
-| Ferramenta | O que faz |
-|---|---|
-| `buscar_despesa(id)` | devolve o registro de `DESPESAS` |
-| `consultar_politica(categoria)` | devolve o artigo, o teto e se exige nota |
-| `consultar_historico(funcionario)` | devolve os pareceres anteriores |
-| `ler_recibo(despesa_id)` | devolve o valor do recibo digitalizado |
-| `registrar_parecer(...)` | **escrita** — idempotente, ver requisito 5 |
+As análises que o lote comporta **dependem do que a triagem produziu** — e por isso só existem em execução. Daí o `MAX_SUBTAREFAS`: um orquestrador sem teto é uma conta aberta assinada por um modelo.
 
-Requisitos:
+### 5. A revisão — avaliador-otimizador
 
-- **exposição por fase**: `registrar_parecer` **não** pode constar das declarações enquanto o agente está em análise. Empregar `ferramentas_ativas` (nota 02, §6);
-- a função devolve o **`Estado`**, não uma string;
-- todo passo é registrado, com ferramenta, argumentos e erro em **campos** — não em texto.
+Critério **escrito**, item a item, com schema booleano: *cita o artigo da política? cita o valor? conclui?* Um `{"nota": 8}` não é acionável.
 
-### 4. O parecer final — avaliador-otimizador
+Teto de rodadas, e o retorno **declara** a saída por teto. Melhor esforço apresentado como aprovação é pior que reprovação explícita.
 
-O texto do parecer do lote é submetido a um avaliador antes de ser dado como concluído.
+> **Antes de escrever o avaliador, leia a [nota 01-5](../notas-de-aula/01-5-avaliador-otimizador.md) §2.1.** Boa parte deste critério é executável — e o que é executável se verifica em código, não com um LLM.
 
-O critério **deve estar escrito** e ser verificável item a item; formulações como "avalie se está bom" não atendem ao requisito. No mínimo:
+### 6. O carimbo
 
-```python
-{"cita_artigo": bool,      # o parecer cita o artigo da política aplicado?
- "cita_valores": bool,     # menciona os valores exatos?
- "conclui": bool,          # termina com veredito explícito por item?
- "o_que_corrigir": str}
-```
-
-E:
-
-- **teto de rodadas** (3 é suficiente);
-- saída por teto deve ser **declarada** como tal no retorno; melhor esforço apresentado como aprovação não atende ao requisito.
-
-### 5. Confiabilidade — tudo verificável no log
-
-Os cinco itens a seguir são obrigatórios e serão conferidos no log entregue:
-
-**5.1 Orçamento nas quatro moedas** — passos, tokens, unidade monetária e tempo de parede, passado como **parâmetro** e não como constante no interior do arquivo. Justificar os valores em comentário, a partir da conta da Aula 02, nota 04.
-
-**5.2 As quatro formas de terminar**, registradas no estado: `RESPONDEU`, `ORCAMENTO`, `ERRO_FATAL`, `HUMANO`. O log de cada execução diz **qual** ocorreu e por quê.
-
-**5.3 Erro recuperável × fatal.** A despesa `D-4477` contém identificador de funcionário inválido, deliberadamente. O retorno de erro deve informar o que estava incorreto, qual o formato esperado e qual a próxima ação. `{"erro": "não encontrado"}` não atende ao requisito.
-
-**5.4 Chave de idempotência** em `registrar_parecer`, derivada do **conteúdo** (não `uuid4()`), e o retorno avisando `ja_existia` quando a ação já havia ocorrido.
-
-**5.5 Detector de chamada repetida** ativo, com limite configurável. Ao detectar, o programa deve **intervir antes de abortar**: injetar a observação e permitir nova tentativa. Registrar no log o instante de disparo.
-
-### 6. O contexto — medir antes de otimizar
-
-O programa registra, para cada passo do agente, **o número de tokens enviados**, e ao final imprime a curva por passo e o total acumulado.
-
-A implementação de *compaction* não é exigida (consta dos desafios). A obtenção do número é: sem ele, qualquer otimização de contexto é conjectura.
-
-### 7. Prompts em arquivo, versionados — e agora a arquitetura também
-
-Permanece válido o requisito da Aula 03: os prompts residem em `prompts/`, versionados, e cada etapa declara a combinação `prompt × modelo × parâmetros`, registrada no início da execução.
-
-**O que muda nesta aula:** a **arquitetura entra no carimbo**.
-
-```
-etapa=triagem      arquitetura=regra_em_codigo   prompt=—              modelo=—
-etapa=ambiguo      arquitetura=agente_react      prompt=analise-v3     modelo=... temp=0
-etapa=lote         arquitetura=orq_trabalhador   prompt=orquestra-v1   modelo=... temp=0
-etapa=parecer      arquitetura=avaliador_otim    prompt=avaliador-v2   modelo=... temp=0
-```
-
-Substituir *workflow* por agente numa etapa constitui mudança de versão **tanto quanto** alterar o prompt, e invalida a comparação com execuções anteriores. Alterada a arquitetura de uma etapa após a execução, incrementa-se a versão e reexecutam-se as oito despesas.
+Prompts em `prompts/`, versionados, com `prompt × modelo × parâmetros`. E esta aula acrescenta **a arquitetura**: trocar *workflow* por agente numa etapa é mudança de versão tanto quanto trocar o prompt, e invalida a comparação com as execuções anteriores.
 
 ## O que deve sair na tela
 
-Para cada despesa, uma linha de roteamento; para os itens ambíguos, a trajetória; ao final, o parecer do lote e o resumo:
-
 ```
-D-4471  rota=dentro_da_politica   [regra]     0 chamadas
-D-4472  rota=dentro_da_politica   [regra]     0 chamadas
-D-4473  rota=ambiguo              [agente]    4 passos  1.980 tokens  R$ 0,0048  -> RESPONDEU
-...
-D-4477  rota=ambiguo              [agente]    3 passos  1.510 tokens  R$ 0,0036  -> RESPONDEU
-        passo 0: consultar_historico(F-88) -> ERRO RECUPERÁVEL (esperado F-XXX)
-        passo 1: consultar_historico(F-088) -> ok
+TRIAGEM
+  <id>  rota=<qual>  [regra|modelo]
 
-RESUMO DO LOTE
-  por regra: 2   |   por agente: 4   |   humano: 1   |   fila: 1
-  chamadas de LLM: 17     tokens: 24.310     custo: R$ 0,058
-  se tudo tivesse ido para o agente: ~32 chamadas (estimativa)
+PORTÃO
+  <id>  BARRADO — <motivo>
+
+AGENTE (itens ambíguos)
+  <id>  termino=<motivo>  passos=<n>  tokens=<n>
+
+CONTA
+  itens ................. 8
+  resolvidos por REGRA .. <n>   (zero chamadas de LLM)
+  enviados ao MODELO .... <n>
+  chamadas totais ....... <n>
+  se TUDO fosse ao modelo: ~<n> chamadas  (<n>x)
 ```
-
-Os números acima são ilustrativos. O requisito é que **todos eles existam** na saída.
 
 ## Desafios opcionais
 
-1. **Compaction.** Implementar *tool clearing* no agente e comparar a curva de tokens por passo com e sem a tática. Identificar a informação perdida no resumo.
-2. **Checkpoint.** Persistir o estado a cada passo e fazer o item `D-4474` (alçada humana) suspender efetivamente a execução: gravar, encerrar o processo e, em segundo comando, retomar com a aprovação e concluir sem repetição de passos.
-3. **Suíte de regressão.** Redigir 8 casos com critério por propriedade (Aula 03, nota 03) e executar a suíte contra duas versões da mesma etapa. Critério k/N, não igualdade de cadeia de caracteres.
-4. **Detector de progresso nulo.** O detector do requisito 5.5 captura repetição idêntica. Implementar também o caso em que as chamadas variam sem que o estado avance.
+**A.** Rode o lote inteiro **sem** o portão e sem a regra, mandando os 8 itens ao agente. Compare as duas execuções em chamadas, e olhe o parecer da `D-4475` na versão sem portão.
+
+**B.** Persista o *checkpoint* entre execuções: rode, interrompa no item 5, rode de novo e verifique que ele **retoma**. É o gancho da aula de memória.
 
 ## Entrega
 
-No repositório do grupo:
+No repositório do laboratório: `08-analista.py`, a pasta `prompts/` e o log das duas execuções do desafio A, se você o fizer.
 
-- `07-analista.py` (e `prompts/`, com as versões);
-- `aula05-log.txt` — a execução completa das oito despesas, com o resumo final;
-- comentários no código com as três justificativas obrigatórias: **a arquitetura adotada em cada etapa**, **os valores do orçamento** e **o emprego ou não do modelo na triagem**.
-
-Não há relatório em separado. Como nos exercícios anteriores, **as justificativas residem no código**.
+**Parâmetros e justificativas no código**, em comentário — sem relatório à parte, como nos exercícios anteriores.
 
 ## Dicas
 
-- Iniciar pela triagem em código puro, sem chamada ao modelo, e executar. O número de itens já resolvidos antes da primeira linha de agente é a lição central do exercício.
-- Escrever o `Estado` **antes** do laço. Iniciar pelo laço reconduz a `mensagens[]` como estrutura de estado, e todos os requisitos do item 5 tornam-se inviáveis.
-- Provocar os erros deliberadamente: executar uma vez com o detector desativado, observar o laço, e ativá-lo em seguida. O log das duas execuções é mais instrutivo que o código.
-- Um retorno de erro adequado economiza mais tokens que qualquer *compaction*. Antes de otimizar contexto, revisar os textos de erro redigidos.
+- **Comece pela regra, não pelo agente.** Escreva primeiro o código que decide `D-4471` e `D-4472` sem modelo nenhum. Se isso funcionar, você já tem 25% do lote resolvido e o número que o exercício pede.
+- **O portão antes da triagem economiza mais que o portão depois.** Pense onde ele cabe.
+- **`D-4477` é erro recuperável**, não fatal: o retorno precisa dizer o que errou, qual era o certo e o que fazer — e o modelo se corrige sozinho na volta seguinte.
+- **Se o seu agente gastar mais de 8 passos num item**, o problema não é o teto: é o retorno de alguma ferramenta que não está ensinando nada.
