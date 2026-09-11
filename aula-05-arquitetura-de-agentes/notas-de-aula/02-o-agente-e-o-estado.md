@@ -2,7 +2,7 @@
 
 ## Introdução
 
-A [nota anterior](01-padroes-de-arquitetura.md) apresentou cinco padrões em defesa da tese de que, na maioria dos casos, a solução adequada é um *workflow*. Esta nota trata do caso restante — aquele em que a autonomia se justifica. Aí o problema deixa de ser a escolha da arquitetura e passa a ser o controle da arquitetura escolhida.
+As [notas de padrões](01-6-qual-padrao-usar.md) apresentaram cinco arquiteturas em defesa da tese de que, na maioria dos casos, a solução adequada é um *workflow*. Esta nota trata do caso restante — aquele em que a autonomia se justifica. Aí o problema deixa de ser a escolha da arquitetura e passa a ser o controle da arquitetura escolhida.
 
 É a nota mais curta da aula e a mais consequente, porque contém uma única alteração de código, aparentemente burocrática, da qual dependem **todas** as salvaguardas das notas 03 e 04:
 
@@ -10,9 +10,9 @@ A [nota anterior](01-padroes-de-arquitetura.md) apresentou cinco padrões em def
 
 Enquanto o for, não é possível impor orçamento, detectar laço, salvar *checkpoint* ou comprimir contexto. Não por dificuldade de implementação: a informação necessária **não está representada**.
 
-> **Pré-requisitos:** [nota 01](01-padroes-de-arquitetura.md) desta aula · Aula 03, [nota 04](../../aula-03-prompt-engineering/notas-de-aula/04-tool-calling.md) §5 e §6 · Aula 01, [nota 03](../../aula-01-llms-e-agentes/notas-de-aula/03-agentes-de-ia.md) §1.2 e §3.
+> **Pré-requisitos:** [nota 01](01-0-padroes-de-arquitetura.md) e a série de padrões ([01-1](01-1-sequencial.md) a [01-6](01-6-qual-padrao-usar.md)) · Aula 03, [nota 04](../../aula-03-prompt-engineering/notas-de-aula/04-tool-calling.md) §5 e §6 · Aula 01, [nota 03](../../aula-01-llms-e-agentes/notas-de-aula/03-agentes-de-ia.md) §1.2 e §3.
 >
-> **Código:** [`03-agente-com-estado.py`](https://github.com/celsocrivelaro/senac-llm-code/blob/main/aula05-agentes/03-agente-com-estado.py) — o laço da Aula 03 e a versão desta nota, lado a lado.
+> **Código:** [`04-agente-com-estado.py`](https://github.com/celsocrivelaro/senac-llm-code/blob/main/aula05-agentes/04-agente-com-estado.py) — o laço da Aula 03 e a versão desta nota, lado a lado.
 
 ---
 
@@ -188,7 +188,7 @@ Nenhuma dessas alterações torna o agente mais capaz. Tornam-no **observável**
 | Detecção de laço | `passos` com ferramenta e argumentos em campos distintos | nota 03 §6 |
 | Reancoragem do objetivo | `objetivo` fora do histórico | nota 03 §7 |
 | *Checkpoint* | o estado íntegro, serializável | nota 03 §9 |
-| *Compaction* | `historico` isolado e reescrevível | [nota 04](04-context-engineering-dinamica.md) |
+| *Compaction* | `historico` isolado e reescrevível | [nota 04](04-context-engineering-dinamica.md) · técnica na Aula 08 |
 
 Sete salvaguardas com um pré-requisito comum. É a razão pela qual esta nota precede as duas seguintes.
 

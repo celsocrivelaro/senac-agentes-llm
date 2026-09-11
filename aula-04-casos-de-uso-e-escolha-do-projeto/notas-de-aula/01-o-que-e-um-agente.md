@@ -500,4 +500,4 @@ O verificador não vem de graça do ambiente, como no caso do teste unitário. E
 - **McKinsey — The State of AI** ([2026](https://www.mckinsey.com/capabilities/tech-and-ai/our-insights/tech-forward/state-of-ai-trust-in-2026-shifting-to-the-agentic-era)) — onde a adoção se concentra, por função e por porte.
 - Aula 01, [nota 03 §1 e §3](../../aula-01-llms-e-agentes/notas-de-aula/03-agentes-de-ia.md) — o espectro de autonomia com que cada caso é lido, e a fronteira leitura/escrita.
 - [nota 02](02-os-casos-que-falharam.md) desta aula — a outra metade da história, e a mais instrutiva.
-- **A próxima aula** ([Aula 05 — Arquitetura de agentes](../../aula-05-arquitetura-de-agentes/notas-de-aula/01-padroes-de-arquitetura.md)) abre em código cada padrão que esta nota usou para ler os casos, e transforma o *feedback verificável* do §5 em condição de projeto.
+- **A próxima aula** ([Aula 05 — Arquitetura de agentes](../../aula-05-arquitetura-de-agentes/notas-de-aula/01-0-padroes-de-arquitetura.md)) abre em código cada padrão que esta nota usou para ler os casos, e transforma o *feedback verificável* do §5 em condição de projeto.

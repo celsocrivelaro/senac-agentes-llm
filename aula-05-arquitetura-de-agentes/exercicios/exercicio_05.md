@@ -29,7 +29,7 @@ na etapa adequada:
  │         │                                                      │
  │         ▼                                                      │
  │  ┌─────────────┐   dentro da política ──> REGRA EM CÓDIGO      │
- │  │  ROTEADOR   │   ambíguo ─────────────> AGENTE COM ESTADO    │
+ │  │  ROUTER     │   ambíguo ─────────────> AGENTE COM ESTADO    │
  │  │             │   acima da alçada ─────> HUMANO (pausa)       │
  │  └─────────────┘   nenhuma ─────────────> fila de revisão      │
  │         │                                                      │
@@ -132,7 +132,7 @@ Os oito itens constituem situações deliberadamente distintas:
 
 ## Requisitos
 
-### 1. A triagem — o roteador
+### 1. A triagem — o *Router*
 
 Cada despesa passa por uma triagem que devolve **uma rota**, em saída estruturada com `enum` (Aula 02, nota 02, §7):
 

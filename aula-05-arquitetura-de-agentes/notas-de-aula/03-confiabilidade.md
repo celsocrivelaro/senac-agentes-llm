@@ -19,9 +19,9 @@ Todo o conteúdo desta nota depende do objeto de estado da [nota 02](02-o-agente
 
 > **Nenhuma salvaguarda é gratuita.** Orçamento restritivo interrompe tarefa legítima. Detector agressivo interrompe agente em progresso lento. Confirmação em excesso suprime a autonomia que justificava o agente. Cada seção apresenta o custo junto com o mecanismo; a calibragem da dose é trabalho de engenharia, não aplicação de receita.
 
-> **Pré-requisitos:** notas [01](01-padroes-de-arquitetura.md) e [02](02-o-agente-e-o-estado.md) desta aula · Aula 01, [nota 03](../../aula-01-llms-e-agentes/notas-de-aula/03-agentes-de-ia.md) §3 e §4 · Aula 02, [nota 01](../../aula-02-escolha-e-configuracao-de-modelos/notas-de-aula/01-escolha-de-modelos.md) §8.2 e [nota 04](../../aula-02-escolha-e-configuracao-de-modelos/notas-de-aula/04-custo-latencia-e-decisao.md).
+> **Pré-requisitos:** notas [01](01-0-padroes-de-arquitetura.md) a [02](02-o-agente-e-o-estado.md) desta aula · Aula 01, [nota 03](../../aula-01-llms-e-agentes/notas-de-aula/03-agentes-de-ia.md) §3 e §4 · Aula 02, [nota 01](../../aula-02-escolha-e-configuracao-de-modelos/notas-de-aula/01-escolha-de-modelos.md) §8.2 e [nota 04](../../aula-02-escolha-e-configuracao-de-modelos/notas-de-aula/04-custo-latencia-e-decisao.md).
 >
-> **Código:** [`04-orcamento-e-terminacao.py`](https://github.com/celsocrivelaro/senac-llm-code/blob/main/aula05-agentes/04-orcamento-e-terminacao.py) e [`05-erros-e-laco.py`](https://github.com/celsocrivelaro/senac-llm-code/blob/main/aula05-agentes/05-erros-e-laco.py).
+> **Código:** [`05-orcamento-e-terminacao.py`](https://github.com/celsocrivelaro/senac-llm-code/blob/main/aula05-agentes/05-orcamento-e-terminacao.py) e [`06-erros-e-laco.py`](https://github.com/celsocrivelaro/senac-llm-code/blob/main/aula05-agentes/06-erros-e-laco.py).
 
 ---
 
