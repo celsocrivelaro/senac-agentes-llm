@@ -10,7 +10,7 @@ O exercício é decidir **qual informação, de onde, e cortada como** — no pa
 
 > **Não se escreve código aqui.** A entrega é um texto.
 >
-> Se você quiser sentir no código o que cada decisão cobra antes de decidir, o [enunciado.md](enunciado.md) é o par prático: lá você indexa um regulamento dado e mede o `recall@k` das três estratégias de corte.
+> Se você quiser sentir no código o que cada decisão cobra antes de decidir, o [exercicio_06.md](exercicio_06.md) é o par prático: lá você indexa um regulamento dado e mede o `recall@k` das três estratégias de corte.
 
 ---
 

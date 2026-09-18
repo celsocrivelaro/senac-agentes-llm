@@ -1,7 +1,7 @@
 # Exercício 6 (complementar) — O buscador do regulamento
 
 > **Este é o exercício complementar da aula.** O que vale nota é o
-> [06-trabalho.md](06-trabalho.md), em que você decide a base de conhecimento
+> [exercicio_06-trabalho.md](exercicio_06-trabalho.md), em que você decide a base de conhecimento
 > do seu próprio case. Aqui você implementa sobre um domínio já dado, para
 > sentir no código o que aquelas decisões cobram.
 
