@@ -1,4 +1,9 @@
-# Exercício 6 — O buscador do regulamento
+# Exercício 6 (complementar) — O buscador do regulamento
+
+> **Este é o exercício complementar da aula.** O que vale nota é o
+> [06-trabalho.md](06-trabalho.md), em que você decide a base de conhecimento
+> do seu próprio case. Aqui você implementa sobre um domínio já dado, para
+> sentir no código o que aquelas decisões cobram.
 
 ## Contexto
 
@@ -61,29 +66,28 @@ enche a janela da aula seguinte; `k` baixo perde a resposta.
 Declare o `k` escolhido e a razão — e reporte o `recall` em ao menos **dois
 valores de `k`**, para mostrar a sensibilidade.
 
-### 4. As quatro cegueiras, no seu corpus
+### 4. O RAG mínimo, e o limiar do portão
 
-Encontre, no **seu** domínio, um par de textos para cada cegueira:
+Monte o pipeline: `pergunta → busca → portão → contexto + LLM → resposta`,
+com o índice num banco de vetores.
 
-| Cegueira | O par |
-|---|---|
-| negação | duas frases opostas com vocabulário quase idêntico |
-| número | dois valores diferentes na mesma estrutura de frase |
-| entidade | dois identificadores do mesmo formato |
-| tempo | dois textos iguais em datas diferentes |
+E **calibre o portão**. O valor de 0,6 de distância do laboratório não barra
+nada — a nota 04 mostra por quê. Acrescente ao seu conjunto ao menos **três
+perguntas sem resposta no corpus** e escolha o limiar que barra essas três
+sem barrar as que têm resposta.
 
-Meça a similaridade de cada par, e **decida, para cada um, se o caso pede
-regra determinística em vez de vetor**. Valor e identificador se comparam com
-`==`; a decisão precisa estar no código.
+Reporte o limiar escolhido, quantas perguntas ele barra de cada lado, e o que
+acontece com uma pergunta sem resposta quando o portão está desligado.
 
 ### 5. A pergunta que falha
 
 Toda configuração tem uma. Ache a sua e diagnostique:
 
-- é **cegueira do vetor**?
 - é **chunking** — o trecho certo foi cortado ao meio, ou diluído num bloco
   grande?
-- ou é a **pergunta que está mal feita**?
+- é a **pergunta que está mal feita**?
+- ou é o **vetor**, que não representa o que a pergunta exige — número,
+  identificador, negação ou data?
 
 Metade da nota está aqui. O `recall` médio esconde exatamente isto.
 
@@ -111,16 +115,15 @@ RECALL@k
   estrutura            <n>%     <n>%
   ESCOLHIDA: <qual>   k=<n>   porque <razão>
 
-CEGUEIRAS
-  negação    "<a>" x "<b>"   similaridade <n>   -> <vetor|regra>
-  número     ...
-  entidade   ...
-  tempo      ...
+PORTAO
+  limiar escolhido: <n> de distancia
+  barra <n>/<n> das perguntas sem resposta
+  barra <n>/<n> das perguntas com resposta   <- tem que ser 0
 
 A PERGUNTA QUE FALHA
   <pergunta>
   esperado: <trecho>   recuperado: <trechos>
-  DIAGNÓSTICO: <cegueira | chunking | pergunta mal feita>
+  DIAGNÓSTICO: <chunking | pergunta mal feita | limitacao do vetor>
 
 CARIMBO
   modelo de embedding ... <qual>
@@ -144,7 +147,7 @@ No repositório do trabalho:
 - o indexador, as três estratégias e o medidor, com **parâmetros e
   justificativas no código**;
 - em `docs/`: o conjunto de perguntas com o trecho-resposta de cada uma, a
-  tabela de `recall@k`, a tabela das quatro cegueiras e o diagnóstico da
+  tabela de `recall@k`, o limiar do portão calibrado e o diagnóstico da
   pergunta que falha;
 - o carimbo com o modelo de embedding e a estratégia de corte.
 

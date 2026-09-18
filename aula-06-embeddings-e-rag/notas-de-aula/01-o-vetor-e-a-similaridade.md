@@ -1,4 +1,4 @@
-# IA Aplicada com LLMs — Aula 06: Embeddings e busca semântica — O vetor e a similaridade
+# IA Aplicada com LLMs — Aula 06: Embeddings e RAG — O vetor e a similaridade
 
 ## Introdução
 
@@ -14,7 +14,7 @@ O problema que a motiva vem da Aula 05. O agente construído lá consulta a pol�
 
 > **Pré-requisitos:** Aula 01, [nota 01 §6.1](../../aula-01-llms-e-agentes/notas-de-aula/01-redes-neurais-e-transformer.md) e [nota 02](../../aula-01-llms-e-agentes/notas-de-aula/02-llms-tokens-e-tokenizacao.md) · Aula 02, [nota 01 §5](../../aula-02-escolha-e-configuracao-de-modelos/notas-de-aula/01-escolha-de-modelos.md).
 >
-> **Código:** [`aula06-busca/`](https://github.com/celsocrivelaro/senac-llm-code/tree/main/aula06-busca) — os scripts `00-o-vetor.py` e `01-similaridade.py` correspondem a esta nota; cada um deles é autocontido e carrega a própria cópia do `embutir` e do `cosseno`.
+> **Código:** [`aula06-embeddings-e-rag/`](https://github.com/celsocrivelaro/senac-llm-code/tree/main/aula06-embeddings-e-rag) — os scripts `00-o-vetor.py` e `01-similaridade.py` correspondem a esta nota. O `gerar_matrix_embbeddings` vem do `embedding.py`, a única porta da aula para a API, e o `cosseno` do `similaridade.py`.
 
 ---
 
@@ -26,6 +26,7 @@ Ao final desta nota, o aluno deve ser capaz de:
 - **Calcular** similaridade de cosseno e justificar a escolha do cosseno em lugar da distância euclidiana.
 - **Implementar** uma busca por ranking sem biblioteca de busca.
 - **Demonstrar** que o significado de um embedding não está dentro do vetor, e sim na comparação entre dois.
+- **Definir** a norma de um vetor como o comprimento dele, e explicar por que o cosseno a descarta.
 - **Reconhecer** que a faixa de valores de cosseno entre textos reais não corresponde à intuição de 0 a 1.
 - **Distinguir similaridade de relevância** e identificar o caso em que o trecho mais similar não é o que responde.
 
@@ -56,16 +57,17 @@ REIMERS e GUREVYCH (2019) acrescentaram o passo que torna esses modelos utilizá
 ### 2. O vetor, na prática
 
 ```python
-from busca import embutir_um
+from embedding import gerar_vetor_embeddings
 
-vetor = embutir_um("O reembolso de refeições em viagem fica limitado a R$ 120,00.")
+REGRA = "O reembolso de refeições em viagem fica limitado a R$ 120,00."
+vetor = gerar_vetor_embeddings(REGRA)
 ```
 
 O resultado é um arranjo de números de ponto flutuante. O `00-o-vetor.py` imprime dimensão, norma e faixa de valores.
 
 O ponto didático dessa impressão é uma decepção útil: **nenhuma posição do vetor significa alguma coisa isoladamente**. Não existe "a dimensão 42 mede o quanto o texto fala de dinheiro". O que existe é a posição do vetor em relação a outros vetores, e é apenas isso que toda a aula explora.
 
-A dimensão é fixa por modelo e independe do comprimento do texto: uma frase de cinco palavras e um artigo de trezentas produzem vetores do mesmo tamanho. O comprimento afeta a **norma**, não a dimensão — e é por isso que a comparação usa cosseno, como a §4 detalha.
+A dimensão é fixa por modelo e independe do comprimento do texto: uma frase de cinco palavras e um artigo de trezentas produzem vetores do mesmo tamanho. O que pode variar é a **norma** — o comprimento do vetor —, e a §2.2 trata dela, porque é o que a comparação por cosseno descarta.
 
 #### 2.1 Um vetor não diz nada; dois dizem tudo
 
@@ -76,10 +78,10 @@ REGRA     = "O reembolso de refeições em viagem fica limitado a R$ 120,00."
 PARAFRASE = "Quanto posso gastar almoçando numa viagem a trabalho?"
 ALHEIO    = "O campeonato de futebol começa no próximo domingo às dezesseis horas."
 
-v_regra, v_parafrase, v_alheio = embutir([REGRA, PARAFRASE, ALHEIO])
+v_regra, v_parafrase, v_alheio = gerar_matrix_embbeddings([REGRA, PARAFRASE, ALHEIO])
 
-cosseno(v_regra, v_parafrase)   # ~0,82
-cosseno(v_regra, v_alheio)      # ~0,51
+cosseno(v_regra, v_parafrase)   # 0,8464
+cosseno(v_regra, v_alheio)      # 0,7292
 ```
 
 A regra e a paráfrase **quase não compartilham palavras** — *refeições* contra *almoçando*, *limitado* contra *gastar* — e ainda assim ficam próximas. É precisamente o que a busca por palavra-chave não faz, e é a razão de o embedding existir.
@@ -87,6 +89,52 @@ A regra e a paráfrase **quase não compartilham palavras** — *refeições* co
 O sentido não está **dentro** do vetor: está **entre** vetores, e só aparece quando há mais de um para comparar. Esse número é o único que a aula inteira usa.
 
 O segundo valor já levanta a pergunta da §5: dois textos sem relação alguma não dão zero, e o piso real fica bem acima disso.
+
+---
+
+#### 2.2 A norma, e por que ela sai da conta
+
+A **norma** de um vetor é o **comprimento** dele. Um vetor é uma lista de números, e uma lista de números é uma seta no espaço: a norma é a distância da origem até a ponta dessa seta.
+
+Em duas dimensões, dá para ver. O vetor `[3, 4]`:
+
+```
+   4 ┤        ● (3,4)
+     │      ╱
+     │    ╱        <- a seta. Qual o comprimento dela?
+     │  ╱
+   0 ┼────────────
+     0    3
+```
+
+É o teorema de Pitágoras: a seta é a hipotenusa de um triângulo de catetos 3 e 4.
+
+$$\|v\| = \sqrt{3^2 + 4^2} = \sqrt{25} = 5$$
+
+Em 1024 dimensões não há o que desenhar, mas a fórmula não muda — apenas ganha mais termos, e é exatamente o que `np.linalg.norm` calcula:
+
+$$\|v\| = \sqrt{v_1^2 + v_2^2 + \cdots + v_{1024}^2}$$
+
+**Por que isso importa aqui.** Um vetor carrega duas informações independentes, e a busca quer apenas uma delas:
+
+| | O que é | Interessa à busca? |
+|---|---|---|
+| **Direção** | para onde a seta aponta | **sim** — é o assunto do texto |
+| **Norma** | quanto ela mede | não |
+
+Duas setas podem apontar para o mesmo lado e ter tamanhos diferentes:
+
+```
+        ╱ ●   "O reembolso de refeições em viagem fica limitado a
+      ╱        R$ 120,00 por pessoa, exigida a nota fiscal, conforme
+    ╱          o Art. 4º §1º do regulamento vigente."
+  ╱ ●   "teto de refeição"
+╱
+```
+
+Os dois textos tratam da mesma coisa; um apenas tem mais palavras. Comparar por **distância** afastaria o segundo do primeiro por um motivo que nada tem a ver com significado. É esse o problema que a §3 resolve: o cosseno mede o **ângulo** e descarta o comprimento, dividindo cada vetor pela própria norma.
+
+> **E no laboratório, a norma é sempre 1.** O `mistral-embed` devolve vetores **já normalizados** — o `00-o-vetor.py` imprime `1.0000` para qualquer texto, e imprimiria para um artigo de trezentas palavras também. O que isso significa é que **a decisão de descartar o comprimento foi tomada rio acima**, pelo próprio modelo, em vez de na hora da comparação. Duas consequências: o cosseno e o produto escalar passam a ser a mesma operação, e a divisão pelas normas na fórmula da §3 está dividindo por 1. Ela continua no código porque nem todo modelo normaliza, e um código que assume isso quebra em silêncio ao trocar de modelo.
 
 ---
 
@@ -121,9 +169,9 @@ Uma multiplicação de matriz por vetor compara a pergunta com o corpus inteiro.
 
 ```python
 def ranquear(consulta_vec, matriz, rotulos, k=5):
-    escores = cosseno_lote(consulta_vec, matriz)
-    ordem = np.argsort(-escores)[:k]
-    return [(rotulos[i], float(escores[i])) for i in ordem]
+    scores = cosseno_lote(consulta_vec, matriz)
+    ordem = np.argsort(-scores)[:k]
+    return [(rotulos[i], float(scores[i])) for i in ordem]
 ```
 
 Não há biblioteca de busca envolvida. Embutir os textos, embutir a pergunta, ordenar por cosseno decrescente: **isso já é um buscador**, e é o buscador que o `01-similaridade.py` executa sobre dez frases.
@@ -136,17 +184,17 @@ O que ainda falta a essa função para virar um sistema é persistência — o �
 
 A intuição estabelecida pela fórmula é que o cosseno varia de $-1$ a $1$, e que textos sem relação ficam próximos de zero. **Essa intuição está errada para textos reais.**
 
-Frases em português compartilham estrutura sintática, vocabulário funcional e registro. Um modelo de embedding captura isso, e o resultado é que dois textos completamente alheios um ao outro raramente descem abaixo de 0,5. O `01-similaridade.py` inclui, entre as dez frases sobre política de reembolso, duas sobre previsão do tempo e futebol — e elas não chegam perto de zero.
+Frases em português compartilham estrutura sintática, vocabulário funcional e registro. Um modelo de embedding captura isso, e o resultado é que dois textos completamente alheios um ao outro raramente descem abaixo de **0,7**. O `01-similaridade.py` inclui, entre as dez frases sobre política de reembolso, duas sobre previsão do tempo e futebol — e elas não chegam perto de zero.
 
 A consequência é uma decisão de projeto, não uma curiosidade:
 
-> **Limiar absoluto escolhido por intuição não funciona.** "Aceito acima de 0,8" é um número sem lastro. O que funciona é o **ranking** — e, quando um corte for necessário, ele se calibra com dados, como a [nota 03](03-chunking-e-a-medida-da-busca.md) demonstra.
+> **Limiar absoluto escolhido por intuição não funciona.** "Aceito acima de 0,8" é um número sem lastro — e, nesta escala, cortaria fora quase tudo, inclusive o trecho certo. O que funciona é o **ranking** — e, quando um corte for necessário, ele se calibra com dados, como a [nota 02](02-chunking-e-a-medida-da-busca.md) demonstra.
 
 ---
 
 ### 6. Similaridade não é relevância
 
-Esta é a distinção que organiza o restante da aula, e ela aparece antes das cegueiras da [nota 02](02-o-que-o-embedding-nao-ve.md) porque não é um defeito do modelo: é uma propriedade do que se está medindo.
+Esta é a distinção que organiza o restante da aula, e ela não é um defeito do modelo: é uma propriedade do que se está medindo. Os defeitos propriamente ditos — o que o vetor comprovadamente **não representa** — são assunto da Aula 07.
 
 O buscador ordena por **similaridade**. O que se deseja é **relevância**. As duas coincidem com frequência suficiente para que a diferença passe despercebida — até o dia em que custa caro.
 
@@ -172,14 +220,15 @@ Duas consequências para o resto do curso:
 ### Exemplo 1 — Um vetor, e depois dois
 
 ```python
-vetor = embutir_um("O reembolso de refeições em viagem fica limitado a R$ 120,00.")
+REGRA = "O reembolso de refeições em viagem fica limitado a R$ 120,00."
+vetor = gerar_vetor_embeddings(REGRA)
 
 vetor.shape[0]              # dimensão: fixa por modelo
-np.linalg.norm(vetor)       # norma: varia com o texto
+np.linalg.norm(vetor)       # norma: o comprimento do vetor (§2.2)
 vetor[:8]                   # oito números sem significado individual
 ```
 
-A dimensão não muda ao trocar o texto por um artigo de trezentas palavras. A norma, sim. É a norma que o cosseno divide fora — e é por isso que um resumo e o texto resumido ficam próximos, apesar da diferença de tamanho.
+A dimensão não muda ao trocar o texto por um artigo de trezentas palavras. A norma é o comprimento do vetor, e é o que o cosseno divide fora — é por isso que um resumo e o texto resumido ficam próximos, apesar da diferença de tamanho. No laboratório essa divisão já veio feita: o `mistral-embed` normaliza, e a norma impressa é sempre `1.0000` (§2.2).
 
 Nada do que está acima é utilizável. O que é utilizável aparece com o segundo vetor:
 
@@ -188,11 +237,11 @@ A  "O reembolso de refeições em viagem fica limitado a R$ 120,00."
 B  "Quanto posso gastar almoçando numa viagem a trabalho?"
 C  "O campeonato de futebol começa no próximo domingo às dezesseis horas."
 
-cosseno(A, B) = 0,82      <- dizem a mesma coisa, sem compartilhar palavras
-cosseno(A, C) = 0,51      <- não têm relação nenhuma
+cosseno(A, B) = 0,8464    <- dizem a mesma coisa, sem compartilhar palavras
+cosseno(A, C) = 0,7292    <- não têm relação nenhuma
 ```
 
-*(Valores ilustrativos; o `00-o-vetor.py` produz os do modelo em uso.)*
+*(Valores medidos com `mistral-embed`; o `00-o-vetor.py` os reproduz.)*
 
 Dois números, e os dois ensinam. O primeiro é a razão de existir do embedding: A e B não compartilham quase nenhum termo e a busca por palavra-chave não os aproximaria. O segundo é a surpresa que a §5 trata: o piso não é zero.
 
@@ -201,17 +250,29 @@ Dois números, e os dois ensinam. O primeiro é a razão de existir do embedding
 Pergunta: *"Quanto posso gastar em uma refeição durante uma viagem?"*, contra dez frases das quais duas são alheias ao assunto.
 
 ```
-  0.8712  ████████████████████████████████████████████  refeições em viagem ... R$ 120,00
-  0.7284  ████████████████████████████████████         corridas de aplicativo ...
-  0.6903  ██████████████████████████████████           diária de hotel ...
-  ...
-  0.5518  ███████████████████████████                  previsão do tempo ...
-  0.5402  ███████████████████████████                  campeonato de futebol ...
+  0.8702  ███████████████████████████  refeições em viagem ... R$ 120,00
+  0.8019  ████████████████████████     diária de hotel ...
+  0.7919  ████████████████████████     despesas acima de R$ 500,00 ...
+  0.7890  ███████████████████████      bebida alcoólica não é reembolsável
+  0.7835  ███████████████████████      prazo de 30 dias ...
+  0.7765  ███████████████████████      multas e estacionamento ...
+  0.7697  ███████████████████████      material de escritório ...
+  0.7597  ██████████████████████       corridas de aplicativo ...
+  0.7488  ██████████████████████       previsão do tempo ...
+  0.7487  ██████████████████████       campeonato de futebol ...
 ```
 
-*(Os valores são ilustrativos; a execução do `01-similaridade.py` produz os do modelo em uso.)*
+*(Valores medidos com `mistral-embed`.)*
 
-A leitura que importa não é o primeiro colocado — é o **último**. A frase sobre futebol não tem relação alguma com a pergunta e ainda assim pontua acima de 0,5. A distância entre "o mais relevante" e "totalmente alheio" é de aproximadamente 0,33, e não de 0,87.
+A leitura que importa não é o primeiro colocado — é o **último**, e a **distância entre os dois**.
+
+A frase sobre futebol não tem relação alguma com a pergunta e pontua **0,7487**. A que responde pontua **0,8702**. A faixa inteira, do mais relevante ao completamente alheio, cabe em **0,12** — e não nos 0,87 que a intuição de "0 a 1" sugere.
+
+Duas consequências práticas saem daí:
+
+**Um limiar absoluto é inútil.** Qualquer corte entre 0,75 e 0,87 separa relevante de irrelevante *neste* conjunto, e nada garante que o mesmo valor sirva na próxima pergunta. O que ordena é o **ranking**.
+
+**As barras enganam quando começam em zero.** Desenhadas de 0 a 1, as dez ficam quase do mesmo tamanho — o que é fiel ao número e inútil para o olho. Ler esta escala exige olhar a diferença, não o comprimento.
 
 ---
 
