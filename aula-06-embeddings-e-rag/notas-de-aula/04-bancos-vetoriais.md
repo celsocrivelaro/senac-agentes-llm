@@ -4,13 +4,13 @@
 
 Até aqui os vetores moraram numa matriz de `numpy` que morre com o processo. A nota 02 defendeu essa escolha com número, e ela continua certa para 28 chunks.
 
-Esta nota apresenta a alternativa — o **banco vetorial** — e faz com ela o que a aula faz com tudo: mede antes de afirmar. O resultado da medição é desconfortável e vale adiantar: **no corpus desta aula, o banco é dez vezes mais lento que a matriz de numpy.** Entender por que ele ainda assim é a escolha certa em produção é o conteúdo da nota.
+Esta nota apresenta a alternativa — o **banco vetorial** — e o que ela cobra. Vale adiantar a parte desconfortável: **no corpus desta aula, o banco não traz ganho nenhum de velocidade.** Entender por que ele ainda assim é a escolha certa em produção é o conteúdo da nota.
 
-São cinco perguntas, nesta ordem: como funciona, quanto custa em tempo, como se insere, como se busca e como se lê o que volta.
+São quatro perguntas, nesta ordem: como funciona, quando compensa, como se insere e como se busca — mais a que costuma faltar, que é como se lê o que volta.
 
 > **Pré-requisitos:** notas [01](01-o-vetor-e-a-similaridade.md) e [02](02-chunking-e-a-medida-da-busca.md) desta aula.
 >
-> **Código:** [`05-banco-vetorial.py`](https://github.com/celsocrivelaro/senac-llm-code/blob/main/aula06-embeddings-e-rag/05-banco-vetorial.py). Todos os números desta nota saíram de uma execução dele. O `indice_chroma.py` embrulha o mesmo mecanismo com a interface do `IndiceMemoria`.
+> **Código:** [`05-banco-vetorial.py`](https://github.com/celsocrivelaro/senac-llm-code/blob/main/aula06-embeddings-e-rag/05-banco-vetorial.py). As distâncias desta nota saíram de uma execução dele. O `indice_chroma.py` embrulha o mesmo mecanismo com a interface do `IndiceMemoria`.
 
 ---
 
@@ -89,18 +89,9 @@ As opções usuais são **cosseno** (ângulo — o que esta aula usa), **produto
 
 ---
 
-### 3. Quais tempos
+### 3. Quando o banco compensa
 
-Aqui a aula mede em vez de afirmar. Mesma pergunta, mesmos 28 chunks, 200 repetições, sem contar a chamada de API:
-
-```
-  numpy, comparando com TODOS .....   0,040 ms
-  Chroma ..........................   0,472 ms
-```
-
-**O banco é dez vezes mais lento.** E não há defeito nenhum nisso: ele paga serialização, checagem de filtro e travessia de grafo para economizar 28 comparações que custam quase nada.
-
-O ganho está na escala, e vem exatamente de não comparar com todos:
+O ganho da busca aproximada está na **escala**, e vem exatamente de não comparar com todos:
 
 | | Complexidade | |
 |---|---|---|
@@ -117,7 +108,9 @@ Traduzindo em decisão:
 
 > **A pergunta não é "banco ou numpy". É quantos vetores você tem.**
 
-E, nesta aula, o argumento para adotar um banco **não é velocidade** — os números acima proíbem esse argumento. É **persistência**: o índice em numpy morre com o processo, e reconstruí-lo custa uma chamada de embedding sobre o corpus inteiro, toda vez. É a assimetria construir × consultar da nota 02, cobrada entre execuções.
+Em escala pequena o banco chega a **perder** para a matriz: ele paga serialização, checagem de filtro e travessia de grafo para economizar comparações que, em dezenas de vetores, custam quase nada.
+
+Por isso, nesta aula, o argumento para adotar um banco **não é velocidade**. É **persistência**: o índice em numpy morre com o processo, e reconstruí-lo custa uma chamada de embedding sobre o corpus inteiro, toda vez. É a assimetria construir × consultar da nota 02, cobrada entre execuções.
 
 ---
 

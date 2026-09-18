@@ -10,7 +10,7 @@ O que ela não faz é conferir o resultado. Se a resposta usou os trechos que vo
 
 > **Pré-requisitos:** notas [01](01-o-vetor-e-a-similaridade.md), [02](02-chunking-e-a-medida-da-busca.md), [03](03-o-router-por-embedding.md) e [04](04-bancos-vetoriais.md) desta aula · Aula 05, [nota 01-1](../../aula-05-arquitetura-de-agentes/notas-de-aula/01-1-sequencial.md) — *prompt chaining* com portão.
 >
-> **Código:** [`06-rag-simples.py`](https://github.com/celsocrivelaro/senac-llm-code/blob/main/aula06-embeddings-e-rag/06-rag-simples.py). A função está no `rag_simples.py`; o índice em banco de vetores, no `indice_chroma.py`; a chamada de geração, no `geracao.py`.
+> **Código:** [`06-rag-simples.py`](https://github.com/celsocrivelaro/senac-llm-code/blob/main/aula06-embeddings-e-rag/06-rag-simples.py). A função `rag_simples` mora no próprio script — é usada só ali. O índice em banco de vetores está no `indice_chroma.py`, e a chamada de geração no `geracao.py`.
 
 ---
 
@@ -49,7 +49,7 @@ Importa igualmente **classificar** a arquitetura. Pela taxonomia da Aula 05 (not
 
 A [nota 04](04-bancos-vetoriais.md) trocou a matriz de numpy por um banco de vetores e mediu o preço da troca. Três coisas de lá entram aqui sem reapresentação:
 
-- **o argumento**: a troca é por persistência, não por desempenho — em 28 vetores o banco é dez vezes mais lento;
+- **o argumento**: a troca é por persistência, não por desempenho — nesta escala o banco não traz ganho de velocidade nenhum;
 - **o formato do retorno**: o banco devolve **distância**, e baixo é bom;
 - **o limite**: o banco devolve os `k` mais próximos, sempre, e **nunca diz "não tenho isso"**.
 
