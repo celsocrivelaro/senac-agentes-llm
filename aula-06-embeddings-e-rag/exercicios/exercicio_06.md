@@ -146,7 +146,7 @@ No repositório do trabalho:
 
 - o indexador, as três estratégias e o medidor, com **parâmetros e
   justificativas no código**;
-- em `docs/`: o conjunto de perguntas com o trecho-resposta de cada uma, a
+- em `exercicios/aula06-buscador-do-regulamento.md`: o conjunto de perguntas com o trecho-resposta de cada uma, a
   tabela de `recall@k`, o limiar do portão calibrado e o diagnóstico da
   pergunta que falha;
 - o carimbo com o modelo de embedding e a estratégia de corte.

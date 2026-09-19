@@ -77,11 +77,11 @@ A [nota 02](../notas-de-aula/02-chunking-e-a-medida-da-busca.md) mediu três est
 
 ## Entrega
 
-Um documento em `docs/base-de-conhecimento-v1.md`, no repositório do trabalho.
+Um documento em `exercicios/aula06-base-de-conhecimento.md`, no repositório do trabalho.
 
 Texto corrido, com as quatro perguntas como seções. Tabelas onde couberem. **Duas a quatro páginas** — se passar muito disso, provavelmente há descrição de fonte onde deveria haver decisão.
 
-O `v1` é proposital, pelo mesmo motivo da arquitetura da Aula 05: estas escolhas vão mudar quando encontrarem o corpus real, e a **Parte 2 do trabalho** pede a versão que sobreviveu, com o que mudou e por quê.
+Estas escolhas vão mudar quando encontrarem o corpus real — é esperado, e é o mesmo que aconteceu com a arquitetura da Aula 05. A **Parte 2 do trabalho** pede a versão que sobreviveu, com o que mudou e por quê, então vale versionar este documento em vez de sobrescrevê-lo.
 
 ---
 
