@@ -114,9 +114,9 @@ A tabela de decisão da [nota 01-6](../notas-de-aula/01-6-qual-padrao-usar.md) �
 
 ## Entrega
 
-Um documento em `docs/arquitetura-v1.md`, no repositório do trabalho.
+Um documento em `exercicios/aula-05-arquitetura.md`, no repositório do trabalho.
 
-O `v1` é proposital: esta arquitetura vai mudar quando encontrar o código, e a **Parte 2 do trabalho** pede a versão que sobreviveu, com o que mudou e por quê. Manter as duas lado a lado é o que torna a mudança visível.
+Esta arquitetura vai mudar quando encontrar o código, e é para isso que ela existe. A **Parte 2 do trabalho** pede `docs/arquitetura.md` com a versão que sobreviveu, e o que mudou e por quê — manter as duas lado a lado é o que torna a mudança visível.
 
 ## Dicas
 

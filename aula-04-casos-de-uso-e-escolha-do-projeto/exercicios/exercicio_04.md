@@ -110,12 +110,14 @@ No repositório do grupo, até a próxima aula:
 
 ```
 README.md          nomes do grupo e o problema em uma frase
-docs/
-  case.md          as três seções deste exercício
-  fontes.md        os casos da indústria consultados, com link
+exercicios/
+  aula-04-case.md      as três seções deste exercício
+  aula-04-fontes.md    os casos da indústria consultados, com link
 ```
 
-Markdown, versionado. Nada de `.docx` nem `.pdf` — a pesquisa do case vive em `docs/` e precisa de `git diff`, como o enunciado do trabalho exige.
+Markdown, versionado. Nada de `.docx` nem `.pdf` — a pesquisa do case precisa de `git diff`, como o enunciado do trabalho exige.
+
+> **Onde isto reaparece:** a Parte 1 do trabalho pede `docs/case.md` e `docs/fontes.md`. O que você escreve aqui é o rascunho deles — na entrega, consolidado em `docs/`.
 
 E a regra que vale a partir daqui: **o tema pode ser refinado até a entrega da Parte 2. Trocado, não.** Refinar é mudar escopo, ferramenta, nível de autonomia ou fonte de dados — e é esperado. Começar de novo depois disso não dá tempo.
 
