@@ -1,115 +1,198 @@
-# Exercício 8 (complementar) — O que não merece memória
+# Exercício 8 (complementar, de código) — A memória do case
 
-> **Este é um dos dois exercícios complementares da aula 08.** O que vale
-> nota é o [enunciado.md](exercicio_08.md), que é de projeto. Este trabalha sobre
-> uma execução já dada e exercita uma decisão específica — **o que NÃO
-> entra** —, que o exercício de código
-> ([08-complementar-codigo.md](exercicio_08-complementar-codigo.md)) cobra no requisito
-> 4 e que o de entrega cobra na Parte 2.
+> **Este é o exercício complementar da aula 08.** O que vale nota é o
+> [enunciado.md](exercicio_08.md), que é de projeto e alimenta a Parte 2 do
+> trabalho. Este implementa, no repositório do case, as decisões que aquele
+> obriga a tomar.
 
 ## Contexto
 
-A taxonomia usual da memória de agentes tem três categorias: episódica,
-semântica e procedural. Ela está incompleta, e a categoria que falta é a que
-mais afeta o resultado: **não guardar**.
+O Exercício 7 entregou um sistema que consulta documentos. Ele não aprende
+nada: a execução de amanhã começa exatamente onde a de hoje começou.
 
-A maior parte do que uma execução produz é ruído — latência, contagem de
-tokens, número de passos, tentativas descartadas. Guardar isso não é apenas
-inútil: o ruído **compete por espaço na janela** com o que seria útil, e
-memória preenchida com ruído é pior que memória vazia.
+Este exercício acrescenta memória entre execuções — e com ela um problema
+novo, que a Aula 11 vai ter de resolver: **o sistema deixa de ser
+reprodutível**. A mesma entrada, no mesmo modelo, com os mesmos parâmetros,
+produz saída diferente amanhã, porque a memória mudou.
 
-Classificar é fácil quando a informação é claramente um fato ou claramente
-uma métrica. O exercício existe pelos casos em que não é.
+> **Questão a ser respondida ao final:** o que o sistema **não** guarda —
+> e por quê?
 
-## Parte 1 — Classificar as dez
+## Objetivo
 
-Uma execução do agente de prestação de contas produziu as dez informações
-abaixo. Classifique **cada uma** em `episódica`, `semântica`, `procedural` ou
-`não guardar`.
+1. implementar **as três memórias** nas estruturas adequadas;
+2. escolher e defender uma **política de escrita**;
+3. resolver a **contradição** entre fatos verdadeiros em datas diferentes;
+4. implementar o **esquecimento seletivo**.
 
-| # | Informação |
+## Requisitos
+
+### 1. A fronteira com o checkpoint
+
+Antes de implementar, declare a diferença no case do trabalho:
+
+| | checkpoint (Aula 05) | memória (Aula 08) |
+|---|---|---|
+| escopo | uma execução | todas |
+| propósito | **retomar** | **lembrar** |
+| forma | estado íntegro | fragmento selecionado |
+| leitura | uma vez, no início | por relevância, a cada volta |
+
+Serializar o estado de todas as execuções **não produz memória**: produz
+arquivo morto. Demonstre isso com número — quantos tokens ocuparia o arquivo
+morto contra quantos ocupa a memória recuperada por relevância.
+
+### 2. As três memórias, nas estruturas certas
+
+| Tipo | O que guarda | Estrutura |
+|---|---|---|
+| **episódica** | o que aconteceu em execuções passadas | índice por similaridade |
+| **semântica** | fatos sobre entidades do domínio | chave-valor |
+| **procedural** | como fazer algo | texto no *system prompt* |
+
+Cada uma na estrutura adequada, e a justificativa no código. Buscar um fato
+semântico por similaridade é caro e impreciso quando uma chave resolve.
+
+### 3. A política de escrita
+
+Três opções, e cada uma tem preço:
+
+| Política | Preço |
 |---|---|
-| 0 | O funcionário F-088 viajou a Lisboa em março e em agosto de 2026. |
-| 1 | Em 12/03/2026 a despesa D-4102 foi aprovada por estar dentro do teto. |
-| 2 | A consulta ao histórico levou 240 ms. |
-| 3 | Quando o recibo diverge do valor declarado, devolver antes de analisar o mérito. |
-| 4 | O id do funcionário tem o formato F seguido de três dígitos. |
-| 5 | A resposta da API veio com 1.820 tokens de entrada. |
-| 6 | F-091 já teve uma despesa de transporte reprovada por falta de justificativa. |
-| 7 | O modelo tentou consultar F-88 antes de acertar F-088. |
-| 8 | O teto de refeição em viagem internacional é de R$ 260,00. |
-| 9 | O agente concluiu a análise no terceiro passo. |
+| o **agente** decide o que guardar | guarda demais, e guarda errado |
+| o **código** extrai por regra | perde o que a regra não previu |
+| o **humano** corrige | não escala |
 
-**Para cada item, justifique em uma linha.** A justificativa das classificadas
-como `não guardar` é a parte que importa: indique **qual pergunta futura** essa
-informação responderia — e por que essa pergunta nunca é feita.
+Escolha uma — ou uma combinação — e declare o **volume de escrita por
+execução**: quantos registros, e de que tamanho. O que esse volume custa em
+dinheiro e em armazenamento é assunto da Aula 13.
 
-> Não classifique por formato. "Levou 240 ms" e "custa R$ 260,00" são os dois
-> números, e não têm o mesmo destino.
+### 4. O que NÃO entra
 
-## Parte 2 — A que gera divergência
+A parte mais importante do exercício, e a que vale mais nota.
 
-O item **7** é o que divide a sala, e é o mais instrutivo dos dez.
+Liste explicitamente o que o sistema **não** guarda:
 
-A tentativa fracassada de consultar `F-88` é ruído de **uma** execução: nunca
-mais alguém vai perguntar o que o modelo tentou naquela terça-feira. Mas a
-**generalização** dela — *"identificadores de funcionário têm o formato F
-seguido de três dígitos"* — é memória procedural legítima, e é o item 4.
+- **dado sensível** — identificador pessoal, credencial, valor que não
+  precisa persistir;
+- **conteúdo que veio de fora sem verificação** — e esta linha é a que a Aula
+  14 vai cobrar: memória é durável, e o que entra nela **sai muitas vezes**;
+- **o que é derivável** — se pode ser recalculado, guardar é dívida.
 
-Responda:
+### 5. A escrita é escrita
 
-1. Qual a diferença entre **registrar o incidente** e **extrair a regra**?
-2. Quem faz essa extração no seu desenho — o agente, o código ou o humano? (As
-   três políticas estão no `03-quem-escreve.py`.)
-3. Escreva **mais dois pares** incidente → regra, do seu próprio domínio. Um
-   deles deve ser um par em que a regra extraída seria **errada** se derivada
-   de uma única ocorrência.
+Gravar memória tem efeito no mundo, e portanto exige **chave de idempotência
+derivada do conteúdo**, com `ja_existia` no retorno. É a mesma regra da Aula
+05, aplicada a um lugar em que quase ninguém a aplica.
 
-O item 3 é a armadilha: a memória procedural é a mais valiosa e a mais
-perigosa, porque uma instrução ruim aprendida se aplica a **todas** as
-execuções seguintes, sem que ninguém a revise.
+`uuid4()` a cada chamada não é chave de idempotência.
 
-## Parte 3 — O mesmo, no case do trabalho
+### 6. A contradição
 
-Tome **uma** execução real (ou plausível) do agente do trabalho e liste
-tudo o que ela produz — sem filtrar, inclusive o que obviamente é lixo. Mire
-em doze a quinze itens.
+Introduza no domínio do case **dois fatos verdadeiros em datas diferentes** que
+respondam à mesma pergunta — uma política que mudou, um valor reajustado, uma
+regra revogada.
 
-Depois:
+Verifique o que a busca por similaridade faz com eles: os dois são igualmente
+similares à pergunta, porque **o vetor não tem noção de anterioridade** — a
+cegueira de tempo, plantada na Aula 06.
 
-1. Classifique nas quatro categorias.
-2. Calcule a **proporção de `não guardar`**. Proporção menor que metade indica
-   filtragem durante a listagem: volte e inclua o que foi descartado.
-3. Para as que sobraram, indique **em qual das três estruturas** cada uma seria
-   gravada, e **por qual chave ou consulta** ela voltaria. Informação cuja
-   recuperação posterior não se sabe fazer é, na prática, `não guardar`.
+E resolva **em código**: carimbo de tempo obrigatório em todo fato, e regra de
+desempate determinística. Delegar isso ao modelo é o antipadrão.
 
-O critério do item 3 é o que fecha o exercício: **não existe "guardar por via
-das dúvidas"**. Ou há uma pergunta futura que a informação responde, ou ela é
-ruído com aparência de dado.
+### 7. O esquecimento seletivo
 
-## Entrega
+Implemente a operação de remoção de um registro específico, e demonstre que
+ela funciona: grave, verifique que o comportamento mudou, remova, verifique
+que voltou.
 
-No repositório do trabalho, em `exercicios/aula-08-o-que-nao-guardar.md`:
+Três razões para ela existir, e a terceira só aparece na Aula 14:
 
-- a tabela das dez, classificada, com a justificativa de uma linha em cada;
-- os dois pares incidente → regra da Parte 2, incluindo o par em que a
-  generalização seria errada;
-- a lista da sua própria execução, com a proporção de `não guardar` e, para
-  cada item guardado, a estrutura e a chave ou consulta que o recupera.
+- **privacidade** — o titular pede a remoção;
+- **custo** — o crescimento é monotônico;
+- **recuperação de incidente** — sem ela, um envenenamento de memória é
+  permanente, e cada execução futura repete o comportamento injetado.
 
-> **Onde isto reaparece:** o requisito 4 do [enunciado.md](exercicio_08.md) — *o
-> que NÃO entra* — pede essa lista de exclusão aplicada ao agente do case. Este
-> exercício é o rascunho dela.
+### 8. A não reprodutibilidade
+
+Execute **a mesma entrada duas vezes, com memórias diferentes**, e reporte a
+diferença.
+
+Isso é o que a Aula 11 vai chamar de terceira fonte de não determinismo — e é
+a pior das três, porque não é acidente: é **consequência de projeto**.
+
+### 9. O carimbo
+
+Esta aula acrescenta **o estado da memória**. Duas execuções com memórias
+diferentes não são comparáveis, e tratá-las como comparáveis produz números
+que variam sem que nada tenha sido alterado.
+
+## O que deve sair na tela
+
+```
+FRONTEIRA
+  arquivo morto (n execuções serializadas) ... <n> tokens
+  memória recuperada por relevância .......... <n> tokens
+
+AS TRÊS MEMÓRIAS
+  episódica  <n> registros   consulta: <n> ms
+  semântica  <n> chaves      consulta: <n> ms
+  procedural <n> tokens no system prompt
+
+POLÍTICA DE ESCRITA: <qual>
+  volume por execução: <n> registros, <n> tokens
+  o que NÃO entra: <lista>
+
+IDEMPOTÊNCIA
+  1ª gravação -> <id>  ja_existia=false
+  2ª gravação -> <id>  ja_existia=true
+
+CONTRADIÇÃO
+  fato A [<data>]: <texto>   similaridade <n>
+  fato B [<data>]: <texto>   similaridade <n>
+  desempate por carimbo: <qual venceu>
+
+ESQUECIMENTO
+  antes da remoção: <comportamento>
+  depois:           <comportamento>
+
+NÃO REPRODUTIBILIDADE
+  execução com memória vazia .... <resposta>
+  execução com memória cheia .... <resposta>
+```
+
+## Desafios opcionais
+
+**A.** Meça a **degradação com o crescimento**: encha a memória com centenas
+de registros e verifique o que acontece com a precisão da recuperação e com a
+latência da consulta. Proponha a política de retenção que decorre da
+medição.
+
+**B.** Faça a memória **procedural** ser escrita pelo próprio sistema a partir
+de erros observados — e depois explique, em uma frase, por que essa
+capacidade é exatamente o que a Aula 14 vai tratar como vetor de ataque.
+
+## O que fica registrado
+
+Este exercício não é avaliado isoladamente. O produto dele entra na Parte 2
+do trabalho:
+
+- as três memórias, a política de escrita, o desempate e o esquecimento, com
+  **parâmetros e justificativas no código**;
+- em `exercicios/aula-08-memoria-do-case.md`: a tabela da fronteira com o
+  checkpoint, a política de escrita com o volume declarado, **a lista do que
+  não entra**, e o registro da não reprodutibilidade;
+- o carimbo com o estado da memória.
+
+> **Onde isto é cobrado:** §4 da
+> [Parte 2 do trabalho](../../../trabalho/02-segunda-entrega.md), que pede
+> `docs/memoria.md`. O texto produzido aqui é o rascunho dele.
 
 ## Dicas
 
-- Comece pelas que são obviamente ruído. Elas calibram o critério para as
-  duvidosas.
-- Um teste rápido para `não guardar`: tente escrever a pergunta que a
-  informação responderia, na voz de quem usa o sistema. Se a pergunta soar
-  absurda — *"quantos milissegundos a consulta de março levou?"* —, a
-  informação é ruído.
-- Informação que muda a cada execução e não é sobre o **domínio** é quase
-  sempre ruído de execução. A exceção são as escritas executadas, que precisam
-  ser lembradas justamente para não se repetirem.
+- Comece pelo requisito 4 — o que **não** guardar. É mais fácil decidir o que
+  guardar depois de ter a lista de exclusão.
+- A contradição do requisito 6 é fácil de encontrar em qualquer domínio real:
+  procure uma regra que mudou de valor.
+- Se o seu esquecimento seletivo exige reconstruir o índice inteiro, ele não
+  serve para recuperação de incidente — e a Aula 14 vai cobrar isso.
