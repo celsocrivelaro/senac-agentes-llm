@@ -1,165 +1,48 @@
-# Exercício 8 — A recuperação e a memória do seu agente
+# Exercício 8 — A memória do seu agente
 
 ## Contexto
 
 O Exercício 6 decidiu de onde o agente do trabalho tira o que sabe, e o
-Exercício 7 o fez responder citando a fonte. Os dois pressupuseram uma coisa
-que ninguém decidiu: que a recuperação é **por similaridade**. Há outras
-quatro formas, e a aula 07 mediu o preço de escolher a errada.
-
-E há uma segunda lacuna, maior: o agente do trabalho **não lembra de nada**.
-Cada execução começa do zero, repete as mesmas consultas e comete o mesmo
-erro que cometeu ontem.
+Exercício 7 o fez responder citando a fonte. Ele consulta documentos, e não
+aprende nada: **o agente não lembra de nada**. Cada execução começa do zero,
+repete as mesmas consultas e comete o mesmo erro que cometeu ontem.
 
 Este exercício não constrói peça nenhuma. **O grupo decide quais peças o
 agente do trabalho precisa** — e a decisão precede a construção, porque
 construir a peça errada custa a semana inteira.
 
-São três decisões, e as três são de projeto:
+São duas decisões, e as duas são de projeto:
 
 | | A decisão | A pergunta que ela responde |
 |---|---|---|
-| **1** | como o agente **recupera conhecimento** | das cinco formas — regex, consulta estruturada, busca textual, vetorial e grafo — quais o case usa, e por que não as outras |
-| **2** | como o agente **lembra** | o que é curto prazo, o que é longo prazo, e o que cada nível guarda no domínio do case |
-| **3** | como o agente **esquece** | contradição, decaimento e remoção: quando cada uma dispara, e como se verifica que funcionou |
+| **1** | como o agente **lembra** | o que é curto prazo, o que é longo prazo, e o que cada nível guarda no domínio do case |
+| **2** | como o agente **esquece** | contradição, decaimento e remoção: quando cada uma dispara, e como se verifica que funcionou |
 
 > **Não se escreve código aqui.** A entrega é um texto, e ele é o rascunho
-> direto de `docs/rag.md` e `docs/memoria.md`, que a **Parte 2 do trabalho**
-> cobra nos §3 e §4.
+> direto de `docs/memoria.md`, que a **Parte 2 do trabalho** cobra no §4.
 >
 > O par prático é o [08-complementar.md](exercicio_08-complementar.md): lá o grupo
 > implementa, no repositório do case, as decisões que este documento obriga a
 > tomar.
 
-> **Questão a ser respondida ao final:** quantas das perguntas do seu case
-> realmente precisam de busca vetorial — e o que responde as outras?
+> **Questão a ser respondida ao final:** o que o seu agente **não** guarda —
+> e o que ele perde, quando perde.
 
 ## Objetivo
 
-1. **Classificar** as perguntas do case pelo formato da resposta, e
-   **selecionar** a forma de recuperação de cada classe.
-2. **Declarar** a fronteira entre memória de curto prazo e de longo prazo no
+1. **Declarar** a fronteira entre memória de curto prazo e de longo prazo no
    domínio do case.
-3. **Especificar** as três causas de esquecimento, e demonstrar que a remoção
+2. **Especificar** as três causas de esquecimento, e demonstrar que a remoção
    alcança todas as estruturas.
 
-Onde houver medição, ela vem do que os exercícios complementares desta aula e
-da 07 já produziram.
+Onde houver medição, ela vem do que os exercícios complementares desta aula
+já produziram.
 
 ---
 
-## Decisão 1 — Como o agente recupera conhecimento
+## Decisão 1 — Como o agente lembra
 
-### 1.1 Classificar as perguntas antes de escolher a ferramenta
-
-Retome o conjunto de dez perguntas do Exercício 6 — o mesmo que mede
-`recall@k`. Classifique **cada uma** pelo formato da resposta, na tabela da
-[nota 01 da aula 07](../../aula-07-rag-e-documentos/notas-de-aula/01-as-formas-de-recuperar.md):
-
-| A resposta é um… | Exemplo genérico | Recuperação adequada |
-|---|---|---|
-| **registro** | *"quem aprovou a D-4471?"* | consulta estruturada |
-| **termo** | *"onde aparece 'força maior'?"* | busca textual |
-| **assunto** | *"posso reembolsar almoço em viagem?"* | busca vetorial |
-| **relação** | *"que artigos alteram o teto de refeição?"* | grafo |
-| **agregação** | *"quais os temas recorrentes?"* | grafo, ou pré-cálculo |
-
-Entregue a contagem: **quantas das dez caíram em cada linha.**
-
-> Se as dez caíram em "assunto", o conjunto provavelmente foi escrito para o
-> índice que já existia, e não para o que os usuários perguntam. Acrescente
-> perguntas vindas de quem usa o sistema e refaça a contagem.
-
-### 1.2 Decidir cada uma das cinco formas
-
-Para cada forma abaixo, a resposta é **usa** ou **não usa**, e as duas
-precisam de justificativa. "Não usa" é resposta legítima e frequente — o que
-não é legítimo é não ter decidido.
-
-#### Expressão regular
-
-O degrau mais barato da escada, e o que costuma ser esquecido por parecer
-pouco sofisticado. Declare quais campos do domínio têm **formato fixo** —
-identificador, CNPJ, data, código de produto — e portanto são extraídos da
-pergunta por zero chamadas ao modelo.
-
-Se nenhum campo do case tem formato fixo, o `não usa` aqui é a resposta certa,
-e ela precisa dizer isso: a redação das perguntas varia demais, e a extração
-passa a ser trabalho do modelo com saída estruturada.
-
-#### Consulta estruturada
-
-O teste de um minuto: **se um `SELECT` responde a pergunta, não há RAG a
-construir.** Declare quais perguntas do §1.1 caem aqui e de onde vêm os
-parâmetros — expressão regular quando o campo tem formato fixo, ou modelo com
-saída estruturada quando a redação varia.
-
-Se usar, declare também a defesa contra *text-to-SQL*: a aplicação escreve a
-consulta e o modelo preenche os parâmetros, nunca o contrário.
-
-#### Busca textual
-
-Ganha do vetor em identificador, nome próprio raro e citação exata. Declare
-se o corpus do case tem esses elementos e se a busca textual já está
-disponível na infraestrutura atual — `tsvector` mais índice GIN no
-PostgreSQL, FTS5 no SQLite. Subir um serviço dedicado é decisão separada, e
-mais cara.
-
-Se usar junto com a vetorial, declare **como funde os dois resultados**.
-Somar escores não funciona: o cosseno vive entre −1 e 1 e o BM25 não tem
-teto.
-
-#### Busca vetorial
-
-Já existe, desde o Exercício 6. O que se pede aqui é o **recorte**: para
-quais das dez perguntas ela é a ferramenta certa, e para quais foi usada por
-inércia.
-
-Declare também quais das quatro cegueiras da
-[nota 02](../../aula-07-rag-e-documentos/notas-de-aula/02-o-que-o-embedding-nao-ve.md)
-afetam o seu corpus, medidas com o par de controle. Um par por cegueira,
-tirado do seu domínio, e o cosseno de cada um.
-
-#### Grafo
-
-A pergunta que identifica a necessidade: **existe no domínio uma pergunta
-cuja resposta é um caminho?** Uma regra que excetua outra, um documento que
-remete a um terceiro, uma aprovação que depende de uma cadeia de delegações.
-
-Se existir, há duas saídas, e a escolha depende de uma única propriedade:
-
-| A profundidade da cadeia é… | A solução |
-|---|---|
-| conhecida e rasa | um campo de referência e um `JOIN` |
-| desconhecida de antemão | banco de grafo, com caminho de comprimento variável |
-
-Se optar pelo grafo, declare o **modelo**: quais são os nós, quais são as
-arestas e o que cada tipo de aresta significa. E declare o custo de
-construção, que é onde o grafo se paga ou não — extrair as relações é o
-trabalho caro, e mantê-las sincronizadas com o corpus é o trabalho
-recorrente.
-
-### 1.3 A escada, aplicada ao case
-
-Feche a Decisão 1 com a tabela, uma linha por forma:
-
-| Forma | Usa? | Para quais perguntas | Custo declarado | Por quê |
-|---|---|---|---|---|
-| regex | | | | |
-| consulta estruturada | | | | |
-| busca textual | | | | |
-| busca vetorial | | | | |
-| grafo | | | | |
-
-A regra que ordena a tabela é a cascata do roteador da aula 05: **começa-se
-no degrau mais barato que resolve**, e só se sobe quando o de baixo tem
-limite conhecido e demonstrado.
-
----
-
-## Decisão 2 — Como o agente lembra
-
-### 2.1 Os dois níveis, separados
+### 1.1 Os dois níveis, separados
 
 A literatura divide a memória de um agente em dois níveis antes de qualquer
 taxonomia mais fina, e confundi-los produz sistemas que serializam tudo e não
@@ -179,7 +62,7 @@ esquerda costuma ser esquecida porque parece óbvia, e não é: o que exatamente
 precisa estar no checkpoint para que a execução seja retomável sem repetir
 efeito colateral?
 
-### 2.2 O curto prazo: o orçamento da janela
+### 1.2 O curto prazo: o orçamento da janela
 
 A memória de longo prazo é **mais uma fonte** competindo pela janela, ao lado
 do system prompt, do objetivo, da trajetória e dos trechos recuperados. São
@@ -197,7 +80,7 @@ o bastante para responder a três perguntas:
 - uma aprovação humana pode chegar **horas depois**, de outro processo?
 - um estado defeituoso pode ser **carregado e reproduzido** para depuração?
 
-### 2.3 O longo prazo: as três memórias no case
+### 1.3 O longo prazo: as três memórias no case
 
 Uma linha por tipo, com conteúdo do seu domínio — não do exemplo da aula:
 
@@ -211,7 +94,7 @@ A estrutura de cada uma decorre do padrão de acesso, e não da preferência:
 recuperar um fato semântico por similaridade é mais caro e menos exato que
 resolvê-lo por chave.
 
-### 2.4 Quem escreve, e o que não entra
+### 1.4 Quem escreve, e o que não entra
 
 Declare a política de escrita — o agente decide, o código extrai por regra,
 ou o humano corrige — com o **volume por execução**: quantos registros, de
@@ -227,7 +110,7 @@ E declare **o que o sistema não guarda**, que é a parte que vale mais:
 
 ---
 
-## Decisão 3 — Como o agente esquece
+## Decisão 2 — Como o agente esquece
 
 Esta é a parte que quase nenhum projeto especifica, e é a que separa um
 sistema operável de um que acumula até quebrar.
@@ -241,7 +124,7 @@ ocorre e no que acontece com o dado:
 | **decaimento** | o fato envelheceu | sim, ou é rebaixado | em rotina |
 | **remoção** | o titular solicitou | sim, obrigatoriamente | sob demanda |
 
-### 3.1 Contradição — o fato que mudou
+### 2.1 Contradição — o fato que mudou
 
 Identifique no domínio **dois fatos verdadeiros em datas diferentes** que
 respondam à mesma pergunta: uma política reajustada, uma regra revogada, um
@@ -261,7 +144,7 @@ Declare também que o **descarte é registrado**. Um agente que ignora
 silenciosamente um fato contraditório é indistinguível, no log, de um que
 nunca o recuperou.
 
-### 3.2 Decaimento — o fato que envelheceu sem ser contradito
+### 2.2 Decaimento — o fato que envelheceu sem ser contradito
 
 Declare o **corte**, em dias, e a justificativa dele no domínio. O valor
 adequado depende da taxa de mudança dos fatos armazenados: cinco meses pode
@@ -271,7 +154,7 @@ E declare o efeito: o fato antigo é **removido** ou apenas **rebaixado** na
 ordenação? As duas são defensáveis, e têm consequências diferentes para a
 terceira causa.
 
-### 3.3 Remoção — o titular solicitou
+### 2.3 Remoção — o titular solicitou
 
 O requisito é de **cobertura**: o dado precisa sair de todas as estruturas em
 que foi gravado, e não apenas das que vieram à lembrança.
@@ -296,13 +179,13 @@ apenas afirma tê-la cumprido.
 > reconstrução completa é, na prática, permanente até a próxima janela de
 > manutenção.
 
-### 3.4 O preço: o sistema deixou de ser reprodutível
+### 2.4 O preço: o sistema deixou de ser reprodutível
 
 A mesma entrada, no mesmo modelo, com os mesmos parâmetros, produz saída
 diferente amanhã — porque a memória mudou.
 
 Isto não é defeito a corrigir. É consequência de projeto, e foi escolhida
-deliberadamente na Decisão 2. Registre-a, porque a aula 11 vai ter
+deliberadamente na Decisão 1. Registre-a, porque a aula 11 vai ter
 de conviver com ela: um conjunto de avaliação que roda sobre um sistema com
 memória mede duas coisas ao mesmo tempo, e separá-las é trabalho.
 
@@ -310,47 +193,34 @@ memória mede duas coisas ao mesmo tempo, e separá-las é trabalho.
 
 ## O que entregar
 
-Um documento, no repositório do trabalho, em
-`docs/projeto-recuperacao-e-memoria.md`. Ele é o rascunho consolidado de
-`docs/rag.md` e `docs/memoria.md`, que a Parte 2 cobra separados.
+Um documento, no repositório do trabalho, em `docs/memoria.md`. É o rascunho
+direto do que a Parte 2 cobra no §4.
 
-Cinco itens obrigatórios:
+Quatro itens obrigatórios:
 
-1. **A contagem do §1.1** — as dez perguntas classificadas, com o total por
-   linha.
-2. **A tabela de decisão do §1.3** — as cinco formas, com `usa`/`não usa` e a
-   justificativa de cada uma.
-3. **A tabela dos dois níveis do §2.1**, preenchida com o domínio do case.
-4. **A tabela das três memórias do §2.3**, com a estrutura e o padrão de
-   acesso de cada uma.
-5. **A especificação das três causas de esquecimento**, com a lista de
-   estruturas do §3.3 e o procedimento de verificação.
+1. **A tabela dos dois níveis do §1.1**, preenchida com o domínio do case —
+   incluindo o que exatamente vai para o checkpoint.
+2. **O orçamento da janela do §1.2**, com o teto de cada uma das cinco fontes
+   e o que é descartado primeiro quando o total estoura.
+3. **A tabela das três memórias do §1.3**, com a estrutura e o padrão de
+   acesso de cada uma, mais a lista do §1.4 do que **não** entra.
+4. **A especificação das três causas de esquecimento** — contradição,
+   decaimento e remoção —, com a lista de estruturas do §2.3 e o
+   procedimento de verificação.
 
 Extensão sugerida: três a cinco páginas. O que se avalia é a **justificativa
-de cada decisão**, e não o número de tecnologias adotadas — um documento que
-decide "não usa" em três das cinco formas, com razão declarada, vale mais que
-um que adota todas sem medir.
-
-## Critérios de avaliação
-
-| Peso | Item |
-|---|---|
-| alto | a contagem do §1.1 é feita sobre perguntas reais, e não sobre o índice existente |
-| alto | cada `não usa` da tabela do §1.3 tem justificativa, e não omissão |
-| alto | a lista de estruturas do §3.3 inclui pelo menos uma fora das três memórias |
-| médio | o orçamento da janela do §2.2 declara o que é descartado primeiro |
-| médio | a estrutura de cada memória decorre do padrão de acesso declarado |
-| médio | os dois fatos contraditórios do §3.1 vêm do domínio, e não do exemplo da aula |
+de cada decisão** — um documento que declara o que o sistema não guarda, com
+a razão, vale mais que um que enumera tudo o que guarda.
 
 ## Dicas
 
-- Comece pela Decisão 3. Decidir o que o sistema esquece torna a Decisão 2
+- Comece pela Decisão 2. Decidir o que o sistema esquece torna a Decisão 1
   mais fácil, porque a lista de exclusão restringe a de inclusão.
-- A pergunta de caminho do §1.2 costuma existir e não ser percebida.
-  Procure no domínio um "salvo o disposto em", um "exceto quando" ou um
-  "conforme definido em" — cada um deles é uma aresta.
-- Se o `não usa` do grafo for a resposta, ela precisa vir com a alternativa:
-  qual pergunta de relação o case tem, e como ela é respondida sem grafo.
-- Os exercícios complementares desta aula e da 07 produzem as medições que
-  este documento cita. Fazê-los antes reduz o trabalho aqui a escrever
-  decisões, em vez de tomá-las sem dado.
+- A contradição do §2.1 é fácil de encontrar em qualquer domínio real:
+  procure uma regra que mudou de valor.
+- A lista de estruturas do §2.3 é a parte que mais rende. Se ela tiver apenas
+  as três memórias, provavelmente está incompleta — o checkpoint e o log
+  guardam identificador e não costumam entrar na conta.
+- Os exercícios complementares desta aula produzem as medições que este
+  documento cita. Fazê-los antes reduz o trabalho aqui a escrever decisões,
+  em vez de tomá-las sem dado.
