@@ -8,7 +8,7 @@ O agente aqui é **o do seu trabalho**. Não é um exemplo, não é um domínio 
 
 > **Escrever código é opcional.** Se ajudar a pensar, escreva. O que se avalia é a arquitetura.
 >
-> Se você quiser sentir no código o que cada padrão cobra antes de escolher, o [exercicio_05.md](exercicio_05.md) implementa uma arquitetura já desenhada, num domínio dado.
+> Se você quiser sentir no código o que cada padrão cobra antes de escolher, o [enunciado.md](exercicio_05.md) implementa uma arquitetura já desenhada, num domínio dado.
 
 ## O que fazer
 

@@ -51,6 +51,6 @@ O modelo consegue simular a primeira e **não tem como verificar a segunda**: el
 
 > **O portão não melhora a resposta. Ele impede que uma resposta errada seja produzida.** São coisas diferentes, e a segunda vale mais: o custo de parar no portão é uma chamada; o de não parar é duas chamadas e uma resposta errada entregue ao cliente.
 
-E repare no que a etapa 2 recebe: **os dados do sistema, não os do cliente**. O que o cliente escreveu serviu para localizar o pedido, e só.
+O que a etapa 2 recebe é decisivo: **os dados do sistema, não os do cliente**. O que o cliente escreveu serviu para localizar o pedido, e só.
 
 Implementação em [`00-sequencial.py`](https://github.com/celsocrivelaro/senac-llm-code/blob/main/aula05-agentes/00-sequencial.py), que roda cinco mensagens — três passam, duas são barradas por motivos diferentes — e imprime, para cada barrada, **o que a etapa 2 teria escrito sem o portão**.

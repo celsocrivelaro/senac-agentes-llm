@@ -2,7 +2,7 @@
 
 ## Introdução
 
-A nota 02 da Aula 03 encerrou com uma promessa: naquela nota, o que se monta na chamada; na aula de agentes, o que se faz com a janela **ao longo da trajetória**. Esta nota cumpre a promessa e trata da terceira limitação enunciada na abertura da aula: o laço **não sabe esquecer**.
+A nota 02 da Aula 03 encerrou com uma promessa: naquela nota, o que se monta na chamada; na aula de agentes, o que se faz com a janela **ao longo da trajetória**. Esta nota trata da terceira limitação enunciada na abertura da aula: o laço **não sabe esquecer**.
 
 > **A cada volta, o histórico íntegro é reenviado. Nada é removido.**
 
@@ -10,9 +10,9 @@ Numa trajetória de três passos, a propriedade é irrelevante. Numa de trinta, 
 
 > **O que esta nota faz, e o que ela não faz.** Aqui está o **problema** — a aritmética do crescimento, a distinção entre curadoria estática e dinâmica, e a única tática que se aplica antes de qualquer outra: encurtar o que as ferramentas devolvem.
 >
-> As **técnicas de compressão** — *tool clearing*, *compaction* reativa e periódica, e o conjunto mínimo que um resumo nunca pode perder — são tratadas na **Aula 08** (nota 02), quando ela for publicada. Não é adiamento por falta de tempo: lá elas ficam ao lado da política de escrita da memória, que responde à **mesma pergunta** — o que guardar, o que descartar, e o que não se pode perder em hipótese alguma.
+> As **técnicas de compressão** — *tool clearing*, *compaction* reativa e periódica, e o conjunto mínimo que um resumo nunca pode perder — são tratadas na **Aula 08**, [nota 03](../../aula-08-memoria/notas-de-aula/03-escrever-e-ler.md). Não é adiamento por falta de tempo: lá elas ficam ao lado da política de escrita da memória, que responde à **mesma pergunta** — o que guardar, o que descartar, e o que não se pode perder em hipótese alguma.
 
-> **Pré-requisitos:** notas [02](02-o-agente-e-o-estado.md) e [03](03-confiabilidade.md) desta aula · Aula 03, [nota 02](../../aula-03-prompt-engineering/notas-de-aula/02-context-engineering.md) integralmente · Aula 02, [nota 01](../../aula-02-escolha-e-configuracao-de-modelos/notas-de-aula/01-escolha-de-modelos.md) §4.
+> **Pré-requisitos:** notas [01 da Aula 08](../../aula-08-memoria/notas-de-aula/01-o-agente-e-o-estado.md) e [02](02-confiabilidade.md) desta aula · Aula 03, [nota 02](../../aula-03-prompt-engineering/notas-de-aula/02-context-engineering.md) integralmente · Aula 02, [nota 01](../../aula-02-escolha-e-configuracao-de-modelos/notas-de-aula/01-escolha-de-modelos.md) §4.
 >
 > **Código:** [`07-compaction.py`](https://github.com/celsocrivelaro/senac-llm-code/blob/main/aula05-agentes/07-compaction.py) — trajetória longa com e sem *compaction*, com a contagem de tokens por passo.
 
@@ -92,7 +92,7 @@ O terceiro efeito é o menos intuitivo e o mais relevante: o desempenho do agent
 
 A curadoria estática é uma decisão tomada uma vez, na redação do código. A dinâmica é o tratamento aplicado à janela **durante** a execução, sem conhecimento prévio do número de passos nem do conteúdo devolvido por cada ferramenta.
 
-Sua implementação depende da [nota 02](02-o-agente-e-o-estado.md): reescrever o histórico exige que ele seja **campo do estado**, e não a estrutura em que o agente reside. Um agente cujo estado é `mensagens[]` não pode comprimir o histórico sem se apagar.
+Sua implementação depende da [nota 01 da Aula 08](../../aula-08-memoria/notas-de-aula/01-o-agente-e-o-estado.md): reescrever o histórico exige que ele seja **campo do estado**, e não a estrutura em que o agente reside. Um agente cujo estado é `mensagens[]` não pode comprimir o histórico sem se apagar.
 
 ---
 
@@ -144,9 +144,9 @@ A coluna da direita é o mapa desta nota: **a linha 0 e a linha 4 se resolvem aq
 | Pendência (Aula 03, nota 04, §9) | Situação |
 |---|---|
 | ~~outros padrões de arquitetura~~ | **encerrada** — [nota 01](01-0-padroes-de-arquitetura.md) e a série [01-1](01-1-sequencial.md) a [01-6](01-6-qual-padrao-usar.md) |
-| ~~estado, no interior de uma execução~~ | **encerrada** — [nota 02](02-o-agente-e-o-estado.md) |
+| ~~estado, no interior de uma execução~~ | **encerrada** — [nota 01 da Aula 08](../../aula-08-memoria/notas-de-aula/01-o-agente-e-o-estado.md) |
 | ~~múltiplas ferramentas e a escolha entre elas~~ | **encerrada** — nota 02, §6 |
-| ~~confiabilidade: retentativa, laço, orçamento, checkpoint~~ | **encerrada** — [nota 03](03-confiabilidade.md) |
+| ~~confiabilidade: retentativa, laço, orçamento, terminação~~ | **encerrada** — [nota 02](02-confiabilidade.md) |
 | ~~context engineering dinâmica~~ | **encerrada** — esta nota |
 | **memória entre execuções** | aula de memória |
 | **MCP** | aula de MCP |
@@ -197,4 +197,4 @@ ANTHROPIC. **Building effective agents**. 2024. (Seção sobre agentes autônomo
 
 LIU, N. F. et al. **Lost in the middle**: how language models use long contexts. arXiv:2307.03172, 2023. (Fundamenta a reancoragem do objetivo.)
 
-**Material da disciplina.** Aula 03, [nota 02](../../aula-03-prompt-engineering/notas-de-aula/02-context-engineering.md) — context engineering estática, cuja promessa esta nota cumpre; [nota 03](../../aula-03-prompt-engineering/notas-de-aula/03-prompt-como-codigo.md) — versionamento, aplicável ao prompt de *compaction*; [nota 04](../../aula-03-prompt-engineering/notas-de-aula/04-tool-calling.md) §7 — projeto de ferramenta, origem da tática zero. Aula 02, [nota 01](../../aula-02-escolha-e-configuracao-de-modelos/notas-de-aula/01-escolha-de-modelos.md) §4 — janela, custo quadrático da atenção e *lost in the middle*; [nota 04](../../aula-02-escolha-e-configuracao-de-modelos/notas-de-aula/04-custo-latencia-e-decisao.md) §5 — latência e tamanho da entrada.
+**Material da disciplina.** Aula 03, [nota 02](../../aula-03-prompt-engineering/notas-de-aula/02-context-engineering.md) — context engineering estática, que esta nota estende à trajetória; [nota 03](../../aula-03-prompt-engineering/notas-de-aula/03-prompt-como-codigo.md) — versionamento, aplicável ao prompt de *compaction*; [nota 04](../../aula-03-prompt-engineering/notas-de-aula/04-tool-calling.md) §7 — projeto de ferramenta, origem da tática zero. Aula 02, [nota 01](../../aula-02-escolha-e-configuracao-de-modelos/notas-de-aula/01-escolha-de-modelos.md) §4 — janela, custo quadrático da atenção e *lost in the middle*; [nota 04](../../aula-02-escolha-e-configuracao-de-modelos/notas-de-aula/04-custo-latencia-e-decisao.md) §5 — latência e tamanho da entrada.

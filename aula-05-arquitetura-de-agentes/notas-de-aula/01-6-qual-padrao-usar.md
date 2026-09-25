@@ -17,7 +17,7 @@ Antes da tabela, o critério que a organiza. Os padrões se distinguem por **que
    └──────────── custo calculável ─────────────┘ └──── custo desconhecido: EXIGE TETO ────┘
 ```
 
-A fronteira não está onde a intuição sugere. **No *Router* o modelo já decide** — mas decide entre rotas que você escreveu, e por isso o custo continua sendo `1 + rota`. A conta só deixa de fechar quando o modelo passa a decidir **quantas vezes ele mesmo será chamado**: do orquestrador em diante.
+A fronteira não está onde a intuição sugere. **No *Router* o modelo já decide** — mas decide entre rotas escritas pela aplicação, e por isso o custo continua sendo `1 + rota`. A conta só deixa de fechar quando o modelo passa a decidir **quantas vezes ele mesmo será chamado**: do orquestrador em diante.
 
 ---
 
@@ -34,7 +34,7 @@ Ela é lida de cima para baixo, interrompendo-se **no primeiro padrão que resol
 | **Voting** | o código; a maioria decide | erro caro, resposta discreta | N (3–5) | tarefa aberta, sem maioria possível |
 | **Orquestrador-trabalhador** | **o modelo, em execução** | decomposição desconhecida | variável — **exige teto** | as subtarefas são enumeráveis |
 | **Avaliador-otimizador** | **o avaliador**, a cada rodada | qualidade com critério explícito | 2 por rodada | sem critério escrito |
-| **Agente** ([nota 02](02-o-agente-e-o-estado.md)) | **o modelo, a cada passo** | sequência imprevisível com feedback do ambiente | desconhecido — **exige orçamento** | o fluxograma existe |
+| **Agente** ([nota 01 da Aula 08](../../aula-08-memoria/notas-de-aula/01-o-agente-e-o-estado.md)) | **o modelo, a cada passo** | sequência imprevisível com feedback do ambiente | desconhecido — **exige orçamento** | o fluxograma existe |
 
 A segunda coluna é a que ordena a tabela — e é o eixo desenhado na §1. A linha do **orquestrador** é onde a conta deixa de fechar de antemão.
 
@@ -59,7 +59,7 @@ A analogia serve para lembrar o papel. **Ela não serve para escolher** — para
 
 **O fluxograma existe?** Se sim, escreva-o em Python. Nenhum padrão desta série é necessário — e a [nota 01](01-0-padroes-de-arquitetura.md) trata disso.
 
-**Você consegue escrever `for parte in partes` sem chamar o modelo antes?** Se sim, é *sectioning*. Se não, é orquestrador, e ele precisa de teto.
+**É possível escrever `for parte in partes` sem chamar o modelo antes?** Se sim, é *sectioning*. Se não, é orquestrador, e ele precisa de teto.
 
 **O critério de qualidade é executável?** Se sim, o avaliador é um teste — não um LLM, e não uma pessoa.
 
@@ -81,7 +81,7 @@ Os padrões não são mutuamente exclusivos. Sistemas reais os encaixam, cada pe
                         [ AVALIADOR-OTIMIZADOR ]      (revisão do texto final)
 ```
 
-O desenho tem uma propriedade que nenhum padrão isolado tem: **a autonomia cara fica confinada ao caminho estreito em que é necessária**, e o volume trafega por código determinístico. É esta composição que o exercício desta aula pede que você desenhe para o **seu** case — não esta, necessariamente, mas uma que você consiga defender do mesmo jeito.
+O desenho tem uma propriedade que nenhum padrão isolado tem: **a autonomia cara fica confinada ao caminho estreito em que é necessária**, e o volume trafega por código determinístico. É esta composição que o exercício desta aula pede para o case **do trabalho** — não esta, necessariamente, mas uma que seja defensável do mesmo jeito.
 
 > **Princípio de projeto:** autonomia é recurso escasso, e o trabalho de arquitetura consiste em gastá-la apenas onde ela produz retorno.
 

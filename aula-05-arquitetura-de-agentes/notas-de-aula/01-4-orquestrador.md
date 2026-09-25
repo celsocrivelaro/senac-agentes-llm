@@ -14,7 +14,7 @@ O padrão é a combinação dos dois anteriores, com a decisão transferida para
 
 | | Quem decide o fluxo | Quantos caminhos executam |
 |---|---|---|
-| ***Router*** | o modelo **classifica**, entre rotas que você escreveu | **um**; os outros são descartados |
+| ***Router*** | o modelo **classifica**, entre rotas escritas pela aplicação | **um**; os outros são descartados |
 | **Paralelização** | ninguém — as seções estão no código | **N fixo**, conhecido antes de rodar |
 | **Orquestrador** | **o modelo, em tempo de execução** | **N desconhecido** até o plano existir |
 

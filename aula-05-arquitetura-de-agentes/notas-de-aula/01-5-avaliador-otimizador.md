@@ -58,9 +58,9 @@ O caso mais claro é o agente de programação:
                                           ao gerador COMO CRÍTICA
 ```
 
-Nenhuma chamada de modelo foi gasta na avaliação, e o *feedback* é exato em vez de aproximado — é o erro real, com a linha e a exceção. É a mesma lição da [nota 03](03-confiabilidade.md) §4: **o retorno de erro é prompt**, e um erro bem escrito ensina o modelo a se corrigir.
+Nenhuma chamada de modelo foi gasta na avaliação, e o *feedback* é exato em vez de aproximado — é o erro real, com a linha e a exceção. É a mesma lição da [nota 02](02-confiabilidade.md) §4: **o retorno de erro é prompt**, e um erro bem escrito ensina o modelo a se corrigir.
 
-**O terceiro modo já tem nome nesta disciplina.** O humano que aprova não é um caso à parte: é o `Termino.HUMANO` da [nota 03](03-confiabilidade.md) §2 — uma das quatro formas de terminar, com o estado gravado e a decisão devolvida ao chamador. A **Aula 13** converte isso de conveniência em requisito, porque a aprovação pode chegar horas depois e o sistema precisa sobreviver à espera.
+**O terceiro modo já tem nome nesta disciplina.** O humano que aprova não é um caso à parte: é o `Termino.HUMANO` da [nota 02](02-confiabilidade.md) §2 — uma das quatro formas de terminar, com o estado gravado e a decisão devolvida ao chamador. A **Aula 13** converte isso de conveniência em requisito, porque a aprovação pode chegar horas depois e o sistema precisa sobreviver à espera.
 
 ### O que o laço NÃO faz
 

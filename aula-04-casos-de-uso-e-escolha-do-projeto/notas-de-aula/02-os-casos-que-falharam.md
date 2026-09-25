@@ -249,4 +249,4 @@ Passe pelos três casos:
 - **TheAgentCompany** — [arXiv 2412.14161](https://arxiv.org/abs/2412.14161), NeurIPS 2025. **A fonte revisada por pares desta aula**; leia pelo menos a seção de resultados.
 - **Gartner** — [*agent washing* e a previsão de cancelamentos](https://www.gartner.com/en/newsroom/press-releases/2025-06-25-gartner-predicts-over-40-percent-of-agentic-ai-projects-will-be-canceled-by-end-of-2027).
 - Aula 01, [nota 03 §3 e §4](../../aula-01-llms-e-agentes/notas-de-aula/03-agentes-de-ia.md) — o projeto de ferramentas e a tabela de modos de falha que organiza esta nota.
-- **A próxima aula** ([Aula 05 — Arquitetura de agentes](../../aula-05-arquitetura-de-agentes/notas-de-aula/03-confiabilidade.md)) implementa, uma por uma, as salvaguardas que faltaram nestes três casos.
+- **A próxima aula** ([Aula 05 — Arquitetura de agentes](../../aula-05-arquitetura-de-agentes/notas-de-aula/02-confiabilidade.md)) implementa, uma por uma, as salvaguardas que faltaram nestes três casos.

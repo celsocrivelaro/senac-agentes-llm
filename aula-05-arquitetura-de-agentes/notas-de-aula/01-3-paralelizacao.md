@@ -88,7 +88,7 @@ Duas leituras possíveis desse resultado, e a escolha entre elas é de projeto:
 
 Num domínio em que abrir chamado indevido custa pouco, a primeira. Numa auditoria de código, num parecer jurídico ou num apoio a diagnóstico — os casos em que o *voting* de fato se paga —, a segunda: ali o consenso não é desempate, é **evidência de que a resposta é segura**, e a falta dele é o achado mais valioso da execução.
 
-Repare também no que varia entre as três chamadas: **temperatura e modelo**. É o que a orquestração em código permite e o parâmetro `n` do provedor não — lá as N amostras saem do mesmo prompt no mesmo modelo.
+O que varia entre as três chamadas é outra coisa: **temperatura e modelo**. É o que a orquestração em código permite e o parâmetro `n` do provedor não — lá as N amostras saem do mesmo prompt no mesmo modelo.
 
 | Usar quando | **Não** usar quando |
 |---|---|

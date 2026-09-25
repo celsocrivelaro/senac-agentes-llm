@@ -1,18 +1,22 @@
-# IA Aplicada com LLMs — Aula 05: Arquitetura de agentes — O agente e o estado
+# IA Aplicada com LLMs — Aula 08: Memória — O agente e o estado
 
 ## Introdução
 
-As [notas de padrões](01-6-qual-padrao-usar.md) apresentaram cinco arquiteturas em defesa da tese de que, na maioria dos casos, a solução adequada é um *workflow*. Esta nota trata do caso restante — aquele em que a autonomia se justifica. Aí o problema deixa de ser a escolha da arquitetura e passa a ser o controle da arquitetura escolhida.
+As [notas de padrões da Aula 05](../../aula-05-arquitetura-de-agentes/notas-de-aula/01-6-qual-padrao-usar.md) apresentaram cinco arquiteturas em defesa da tese de que, na maioria dos casos, a solução adequada é um *workflow*. Esta nota trata do caso restante — aquele em que a autonomia se justifica. Aí o problema deixa de ser a escolha da arquitetura e passa a ser o controle da arquitetura escolhida.
 
-É a nota mais curta da aula e a mais consequente, porque contém uma única alteração de código, aparentemente burocrática, da qual dependem **todas** as salvaguardas das notas 03 e 04:
+> **Por que esta nota abre a aula de memória.** A Aula 05 declarou o **estado mínimo** que as salvaguardas dela exigiam — seis campos, na abertura da [nota 02](../../aula-05-arquitetura-de-agentes/notas-de-aula/02-confiabilidade.md) — e parou ali. O objeto inteiro fica aqui porque é aqui que ele encontra a pergunta que o justifica: **o que, deste objeto, sobrevive entre execuções?**
+>
+> *Checkpoint* é propriedade do estado, e é o assunto da **§8** desta nota: o estado gravado em disco, e o que isso destrava. Memória é o que vem depois dele, na [nota 02](02-checkpoint-nao-e-memoria.md). Nenhuma das duas é formulável antes de o objeto existir.
+
+É a nota mais curta da aula e a mais consequente, porque contém uma única alteração de código, aparentemente burocrática, da qual dependem **todas** as salvaguardas da Aula 05 e tudo o que vem a seguir:
 
 > **A lista de mensagens não pode ser a estrutura de estado do agente.**
 
 Enquanto o for, não é possível impor orçamento, detectar laço, salvar *checkpoint* ou comprimir contexto. Não por dificuldade de implementação: a informação necessária **não está representada**.
 
-> **Pré-requisitos:** [nota 01](01-0-padroes-de-arquitetura.md) e a série de padrões ([01-1](01-1-sequencial.md) a [01-6](01-6-qual-padrao-usar.md)) · Aula 03, [nota 04](../../aula-03-prompt-engineering/notas-de-aula/04-tool-calling.md) §5 e §6 · Aula 01, [nota 03](../../aula-01-llms-e-agentes/notas-de-aula/03-agentes-de-ia.md) §1.2 e §3.
+> **Pré-requisitos:** [nota 01](../../aula-05-arquitetura-de-agentes/notas-de-aula/01-0-padroes-de-arquitetura.md) e a série de padrões ([01-1](../../aula-05-arquitetura-de-agentes/notas-de-aula/01-1-sequencial.md) a [01-6](../../aula-05-arquitetura-de-agentes/notas-de-aula/01-6-qual-padrao-usar.md)) · Aula 03, [nota 04](../../aula-03-prompt-engineering/notas-de-aula/04-tool-calling.md) §5 e §6 · Aula 01, [nota 03](../../aula-01-llms-e-agentes/notas-de-aula/03-agentes-de-ia.md) §1.2 e §3.
 >
-> **Código:** [`04-agente-com-estado.py`](https://github.com/celsocrivelaro/senac-llm-code/blob/main/aula05-agentes/04-agente-com-estado.py) — o laço da Aula 03 e a versão desta nota, lado a lado.
+> **Código:** [`04-agente-com-estado.py`](https://github.com/celsocrivelaro/senac-llm-code/blob/main/aula05-agentes/04-agente-com-estado.py) — o laço da Aula 03 e a versão desta nota, lado a lado — e [`00-o-checkpoint.py`](https://github.com/celsocrivelaro/senac-llm-code/blob/main/aula08-memoria/00-o-checkpoint.py), que grava o arquivo da §8, o imprime por extenso e retoma a execução a partir dele.
 
 ---
 
@@ -25,6 +29,7 @@ Ao final desta nota, o aluno deve ser capaz de:
 - **Modelar** a execução como objeto de estado explícito, e **derivar** dele a lista de mensagens.
 - **Expor dinamicamente** apenas o subconjunto de ferramentas pertinente à fase corrente.
 - **Posicionar** a confirmação humana como forma de terminação, e não como `input()` no interior do laço.
+- **Serializar** o estado em *checkpoint*, **retomar** a execução a partir dele sem repetir passos, e **justificar** por que a persistência ocorre depois da execução e nunca antes.
 
 ---
 
@@ -95,7 +100,7 @@ class Passo:
     resultado: dict | None = None
     erro: str | None = None
     tokens: int = 0
-    resumo: str | None = None          # preenchido pelo tool clearing (nota 04)
+    resumo: str | None = None          # tool clearing (Aula 05, nota 03)
     limpo: bool = False
 
 @dataclass
@@ -117,7 +122,7 @@ Três decisões de projeto não são evidentes:
 
 | Decisão | Justificativa |
 |---|---|
-| **`objetivo` é campo próprio**, e não a primeira mensagem | é a única informação que precisa estar disponível durante toda a execução — para reancoragem (nota 03, §7) e para sobreviver à *compaction* (nota 04). Armazenado como `mensagens[1]`, pode ser comprimido junto com o restante |
+| **`objetivo` é campo próprio**, e não a primeira mensagem | é a única informação que precisa estar disponível durante toda a execução — para reancoragem (Aula 05, nota 02 §7) e para sobreviver à *compaction* (Aula 05, nota 03). Armazenado como `mensagens[1]`, pode ser comprimido junto com o restante |
 | **`passos` é lista de objetos**, e não de dicionários de mensagem | ferramenta, argumentos e erro em **campos**, não em texto. É o que converte a detecção de laço em comparação de tuplas, em vez de análise sintática |
 | **`termino` é obrigatório ao final** | um agente que encerrou sem registrar a causa não é depurável em produção |
 
@@ -147,7 +152,7 @@ def rodar(objetivo: str, orcamento: Orcamento) -> Estado:
     estado = Estado(objetivo=objetivo, ferramentas_ativas=list(FERRAMENTAS))
 
     while True:
-        if orcamento.excedido(estado):                  # nota 03, §1
+        if orcamento.excedido(estado):                  # Aula 05, nota 02 §1
             estado.termino = Termino.ORCAMENTO
             return estado
 
@@ -163,7 +168,7 @@ def rodar(objetivo: str, orcamento: Orcamento) -> Estado:
 
         estado.historico.append(msg)
         for chamada in msg.tool_calls:
-            passo = executar(chamada, estado)           # nota 03, §3
+            passo = executar(chamada, estado)           # Aula 05, nota 02 §3
             estado.registrar(passo)
             estado.historico.append(mensagem_de_tool(passo, chamada.id))
 ```
@@ -172,7 +177,7 @@ Três diferenças em relação ao original, nenhuma cosmética:
 
 1. **A função devolve `Estado`, não `str`.** O chamador recebe a resposta *e* a trajetória, o custo e a causa do término. Devolver apenas a cadeia de caracteres descarta tudo o que serve ao diagnóstico.
 2. **`while True` com saídas nomeadas**, em lugar de `for passo in range(max_passos)`. O `for` codificava uma única condição de parada; as outras três não são expressáveis nele.
-3. **`historico` é campo do estado** e, por isso, pode ser reescrito (*compaction*, nota 04) sem conhecimento do restante do agente.
+3. **`historico` é campo do estado** e, por isso, pode ser reescrito (*compaction*, Aula 05, nota 03) sem conhecimento do restante do agente.
 
 Nenhuma dessas alterações torna o agente mais capaz. Tornam-no **observável**, que é a pré-condição de todo o restante.
 
@@ -182,13 +187,13 @@ Nenhuma dessas alterações torna o agente mais capaz. Tornam-no **observável**
 
 | Salvaguarda | Requer | Localização |
 |---|---|---|
-| Orçamento em quatro moedas | `tokens_gastos`, `custo_estimado`, `n_passos`, instante inicial | [nota 03](03-confiabilidade.md) §1 |
-| Motivo de término | `termino` | nota 03 §2 |
-| Erro recuperável × fatal | `Passo.erro` por passo | nota 03 §3 |
-| Detecção de laço | `passos` com ferramenta e argumentos em campos distintos | nota 03 §6 |
-| Reancoragem do objetivo | `objetivo` fora do histórico | nota 03 §7 |
-| *Checkpoint* | o estado íntegro, serializável | nota 03 §9 |
-| *Compaction* | `historico` isolado e reescrevível | [nota 04](04-context-engineering-dinamica.md) · técnica na Aula 08 |
+| Orçamento em quatro moedas | `tokens_gastos`, `custo_estimado`, `n_passos`, instante inicial | [nota 02 da Aula 05](../../aula-05-arquitetura-de-agentes/notas-de-aula/02-confiabilidade.md) §1 |
+| Motivo de término | `termino` | Aula 05, nota 02 §2 |
+| Erro recuperável × fatal | `Passo.erro` por passo | Aula 05, nota 02 §3 |
+| Detecção de laço | `passos` com ferramenta e argumentos em campos distintos | Aula 05, nota 02 §6 |
+| Reancoragem do objetivo | `objetivo` fora do histórico | Aula 05, nota 02 §7 |
+| *Checkpoint* | o estado íntegro, serializável | **§8 desta nota** |
+| *Compaction* | `historico` isolado e reescrevível | [nota 03 da Aula 05](../../aula-05-arquitetura-de-agentes/notas-de-aula/03-context-engineering-dinamica.md) · técnica na Aula 08 |
 
 Sete salvaguardas com um pré-requisito comum. É a razão pela qual esta nota precede as duas seguintes.
 
@@ -237,7 +242,7 @@ def executar(chamada, estado: Estado) -> Passo:
     if nome in EXIGE_CONFIRMACAO:
         estado.termino = Termino.HUMANO
         estado.pendencia = {"ferramenta": nome, "argumentos": argumentos}
-        salvar_checkpoint(estado)              # nota 03, §9
+        salvar_checkpoint(estado)              # §8
         raise PausaParaHumano(estado)
 
     return Passo(indice=estado.n_passos, ferramenta=nome, argumentos=argumentos,
@@ -247,6 +252,55 @@ def executar(chamada, estado: Estado) -> Passo:
 O agente **interrompe a execução**, persiste o estado e devolve o controle. A aprovação ocorre posteriormente — em outro processo, outra interface, outro dia — e a execução é retomada a partir do *checkpoint*, sem repetição de passos já executados. Isso só é possível porque o estado é serializável: com o estado contido em `mensagens[]` na memória do processo, a retomada posterior não é uma opção, e sim uma reescrita.
 
 Há um custo a registrar: **cada ponto de confirmação suprime parte da autonomia que justificava o agente**. Um agente que solicita confirmação a cada passo é um assistente de digitação de custo elevado. A confirmação se posiciona onde o erro é irreversível, e em nenhum outro ponto.
+
+---
+
+### 8. O *checkpoint*
+
+A §7 terminou com uma chamada a `salvar_checkpoint(estado)` e seguiu adiante. Esta seção abre o arquivo que essa chamada grava.
+
+*Checkpoint* é o estado **serializado em disco**, um arquivo por execução, nomeado pelo identificador dela. A implementação cabe em quatro linhas, e é essa desproporção — quatro linhas destravando três capacidades distintas — que a torna fácil de subestimar:
+
+```python
+CHECKPOINTS = Path(__file__).parent / "checkpoints"
+
+def salvar_checkpoint(estado: Estado) -> None:
+    CHECKPOINTS.mkdir(exist_ok=True)
+    (CHECKPOINTS / f"{estado.execucao_id}.json").write_text(
+        json.dumps(asdict(estado), ensure_ascii=False, indent=2))
+```
+
+Na nomenclatura da literatura, o que essas quatro linhas persistem é a **memória de curto prazo** do agente — o estado da execução corrente, e nada além dela. A [nota 02](02-checkpoint-nao-e-memoria.md), §2, situa o termo.
+
+O `asdict` só é possível porque o estado é uma `dataclass` (§3). Com a execução representada em `mensagens[]`, não há o que serializar: o que existe é uma lista de textos, sem `termino`, sem `pendencia`, sem `passos` com argumentos separados.
+
+#### 8.1 O que ele destrava
+
+| Capacidade | O que o arquivo permite |
+|---|---|
+| **Confirmação assíncrona** | o processo encerra; a aprovação chega horas depois, de outro processo, e a execução prossegue do ponto de suspensão |
+| **Retomada após queda** | o processo caiu no passo 9 de uma trajetória cara; a retomada não repete os 9 passos **nem seus efeitos colaterais** |
+| **Depuração por reprodução** | carregar o estado de uma execução malsucedida e prosseguir a partir dele, com registro detalhado ativo |
+
+A primeira é a que sustenta a §7. Sem o arquivo, "aprovar" significaria reexecutar a tarefa do zero — e a aprovação do humano recairia sobre uma execução **diferente** daquela que ele analisou.
+
+#### 8.2 A armadilha: depois de executar, nunca antes
+
+Se o *checkpoint* registrar a **intenção** e o processo encerrar entre o registro e a execução, a retomada reexecuta a ação. Quando a ação é escrita, ela ocorre duas vezes.
+
+> A ordem correta é **executar, depois persistir**. A fresta que ainda assim resta — o processo cai entre a execução e o registro — é fechada pela **chave de idempotência**: o identificador da escrita é derivado do seu conteúdo, e não da tentativa, de modo que a reexecução encontra o registro anterior em vez de criar um segundo. As duas salvaguardas operam em conjunto, e nenhuma é suficiente isoladamente.
+
+O campo `pendencia` é a exceção aparente: ele registra uma escrita que **ainda não ocorreu**. A exceção é segura porque a ação está bloqueada aguardando aprovação, e não em curso — o que o arquivo registra não é "executei", e sim "parei aqui, aguardando".
+
+#### 8.3 O que ele não resolve
+
+O arquivo descreve **uma** execução, íntegra, e serve para retomá-la. Diante de uma tarefa nova, a pergunta muda:
+
+> *"o que já se aprendeu nas execuções anteriores que ajude nesta?"*
+
+O *checkpoint* não responde — não por estar incompleto, mas porque **não há por onde perguntar a ele**. Serializar todas as execuções não altera isso: multiplica o arquivo sem criar a consulta.
+
+É a pergunta que abre a [nota 02](02-checkpoint-nao-e-memoria.md), e a fronteira entre esta aula e a anterior.
 
 ---
 
@@ -317,7 +371,23 @@ def retomar(execucao_id: str, aprovado: bool) -> Estado:
     return continuar(estado)
 ```
 
-Quatro linhas de serialização separam "o agente pausou" de "o agente encerrou". Note-se o que **não** consta do trecho: nenhum passo é reexecutado — os três primeiros já estão em `estado.passos`, com resultado.
+Quatro linhas de serialização separam "o agente pausou" de "o agente encerrou". Note-se o que **não** consta do trecho: nenhum passo é reexecutado — os já executados estão em `estado.passos`, com resultado.
+
+O [`00-o-checkpoint.py`](https://github.com/celsocrivelaro/senac-llm-code/blob/main/aula08-memoria/00-o-checkpoint.py) executa essa sequência e imprime o arquivo entre as duas metades. A execução para no passo 2 com `termino: HUMANO` e a pendência registrada, grava, e retoma:
+
+```
+  carregado de exec-0a1f.json: 2 passos já executados,
+  1150 tokens já gastos, e uma pendência aguardando.
+
+  aprovado -> executa o passo 2, e só ele:
+      registrar_parecer({'despesa': 'D-4102', 'veredito': 'aprovado'})
+          -> {'parecer': 'P-0993'}
+
+  término: CONCLUIDO
+  passos:  2 antes + 1 agora = 3
+```
+
+Os 1.150 tokens dos dois primeiros passos não são gastos de novo, e — o que importa mais — nenhuma consulta é repetida e nenhuma escrita é duplicada.
 
 ---
 

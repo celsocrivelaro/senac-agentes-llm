@@ -21,12 +21,12 @@ Um padrão, nesta aula, não é um diagrama nem uma biblioteca. É a resposta a 
 | | A pergunta |
 |---|---|
 | **Quem decide o fluxo** | o seu código, ou o modelo em tempo de execução? |
-| **Quantas chamadas custa** | você sabe o número antes de rodar, ou não? |
+| **Quantas chamadas custa** | o número é conhecido antes de rodar, ou não? |
 | **Quando *não* usar** | qual é a condição em que ele é a escolha errada? |
 
 A terceira é a que a literatura de mercado costuma omitir, e é a que esta série trata como obrigatória: **um padrão apresentado sem a condição de não uso é propaganda, não engenharia.**
 
-Todos os cinco são **workflows** — o caminho está no código. O agente propriamente dito, em que o caminho é decidido pelo modelo a cada passo, é objeto da [nota 02](02-o-agente-e-o-estado.md).
+Todos os cinco são **workflows** — o caminho está no código. O agente propriamente dito, em que o caminho é decidido pelo modelo a cada passo, é objeto da [nota 01 da Aula 08](../../aula-08-memoria/notas-de-aula/01-o-agente-e-o-estado.md).
 
 ### O que vem nesta série
 
@@ -95,7 +95,7 @@ O espectro de autonomia em seis níveis da Aula 01 (nota 03, §1.4) não detalho
 | **Agente** | **desconhecido** | **não** | apenas por propriedade | **apenas com log de trajetória** |
 | Multiagente | desconhecido × agentes | não | difícil | muito difícil |
 
-A última coluna é a mais onerosa na prática: num agente a trajetória difere a cada execução e, sem log estruturado, resta uma saída incorreta sem indício de causa. É a razão pela qual a [nota 03](03-confiabilidade.md) insiste no registro do estado.
+A última coluna é a mais onerosa na prática: num agente a trajetória difere a cada execução e, sem log estruturado, resta uma saída incorreta sem indício de causa. É a razão pela qual a [nota 02](02-confiabilidade.md) insiste no registro do estado.
 
 > **A regra da Aula 01, agora com fundamento:** adotar a menor autonomia que resolve o problema. Não por conservadorismo — cada nível acima custa mais dinheiro, mais latência e mais tempo de diagnóstico quando algo falha.
 

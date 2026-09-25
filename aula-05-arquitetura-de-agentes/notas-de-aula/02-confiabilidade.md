@@ -9,17 +9,34 @@ A Aula 01 (nota 03, §4) apresentou uma tabela com oito modos de falha de agente
 | **Laço** | repetição indefinida da mesma chamada | §6 |
 | **Deriva de objetivo** | afastamento do pedido em trajetória longa | §7 |
 | **Alucinação de argumento** | invenção de identificador plausível e inexistente | §3 e §4 |
-| **Ferramenta errada** | seleção de escrita onde caberia leitura | [nota 02](02-o-agente-e-o-estado.md) §6 |
-| **Contexto estourado** | a trajetória excede a janela | [nota 04](04-context-engineering-dinamica.md) |
+| **Ferramenta errada** | seleção de escrita onde caberia leitura | §3 e a restrição por arquitetura, abaixo |
+| **Contexto estourado** | a trajetória excede a janela | [nota 03](03-context-engineering-dinamica.md) |
 | **Erro em cascata** | uma observação incorreta contamina o restante | §3 e §8 |
 | **Custo descontrolado** | consumo em ordem de grandeza acima do previsto | §1 |
 | **Silêncio** | falha sem causa identificável | §2 e §10 |
 
-Todo o conteúdo desta nota depende do objeto de estado da [nota 02](02-o-agente-e-o-estado.md). A dependência não é conceitual: os campos empregados aqui **não existem** no laço da Aula 03.
+### O estado mínimo que esta nota exige
+
+Todo o conteúdo daqui depende de uma coisa que o laço da Aula 03 **não tem**: um objeto que carregue a execução. A dependência não é conceitual — os campos usados abaixo simplesmente não existem numa lista de mensagens.
+
+```python
+@dataclass
+class Estado:
+    objetivo: str                    # imutável: a âncora contra deriva (§7)
+    passos: list[Passo]              # a trajetória — o que permite detectar laço (§6)
+    tokens_gastos: int               # e o orçamento (§1)
+    termino: Termino | None          # POR QUE parou (§2)
+    motivo: str | None               # qual teto, qual erro
+    historico: list[dict]            # o que o modelo vê — DERIVADO, e reescrevível
+```
+
+Seis campos. A linha que muda tudo é a última: **`mensagens[]` é formato de transporte, não é o estado do agente.** O histórico passa a ser um campo *derivado* — e é por ser derivado que ele pode ser reescrito sem que o agente se apague, que é o que a [nota 03](03-context-engineering-dinamica.md) explora.
+
+> **O tratamento completo deste objeto é da [Aula 08](../../aula-08-memoria/notas-de-aula/01-o-agente-e-o-estado.md)**, onde ele é construído campo a campo e comparado com a memória. Aqui basta saber que ele existe e o que cada campo sustenta — a coluna "tratada em" da tabela acima aponta para as seções.
 
 > **Nenhuma salvaguarda é gratuita.** Orçamento restritivo interrompe tarefa legítima. Detector agressivo interrompe agente em progresso lento. Confirmação em excesso suprime a autonomia que justificava o agente. Cada seção apresenta o custo junto com o mecanismo; a calibragem da dose é trabalho de engenharia, não aplicação de receita.
 
-> **Pré-requisitos:** notas [01](01-0-padroes-de-arquitetura.md) a [02](02-o-agente-e-o-estado.md) desta aula · Aula 01, [nota 03](../../aula-01-llms-e-agentes/notas-de-aula/03-agentes-de-ia.md) §3 e §4 · Aula 02, [nota 01](../../aula-02-escolha-e-configuracao-de-modelos/notas-de-aula/01-escolha-de-modelos.md) §8.2 e [nota 04](../../aula-02-escolha-e-configuracao-de-modelos/notas-de-aula/04-custo-latencia-e-decisao.md).
+> **Pré-requisitos:** a série de padrões desta aula, [01-0](01-0-padroes-de-arquitetura.md) a [01-6](01-6-qual-padrao-usar.md) · Aula 01, [nota 03](../../aula-01-llms-e-agentes/notas-de-aula/03-agentes-de-ia.md) §3 e §4 · Aula 02, [nota 01](../../aula-02-escolha-e-configuracao-de-modelos/notas-de-aula/01-escolha-de-modelos.md) §8.2 e [nota 04](../../aula-02-escolha-e-configuracao-de-modelos/notas-de-aula/04-custo-latencia-e-decisao.md).
 >
 > **Código:** [`05-orcamento-e-terminacao.py`](https://github.com/celsocrivelaro/senac-llm-code/blob/main/aula05-agentes/05-orcamento-e-terminacao.py) e [`06-erros-e-laco.py`](https://github.com/celsocrivelaro/senac-llm-code/blob/main/aula05-agentes/06-erros-e-laco.py).
 
@@ -35,7 +52,7 @@ Ao final desta nota, o aluno deve ser capaz de:
 - **Redigir** um retorno de erro que induza correção pelo modelo, em vez de repetição da falha.
 - **Distinguir** o que admite retentativa automática do que só o modelo resolve.
 - **Detectar** laço por repetição de chamada e por ausência de progresso.
-- **Proteger** ferramentas de escrita com chave de idempotência e **retomar** a execução a partir de *checkpoint*.
+- **Proteger** ferramentas de escrita com chave de idempotência derivada do conteúdo.
 
 ---
 
@@ -289,7 +306,7 @@ if estado.n_passos and estado.n_passos % REANCORAR_A_CADA == 0:
                  "content": f"Lembrete do objetivo: {estado.objetivo}"})
 ```
 
-O custo é de algumas dezenas de tokens a cada cinco passos, o que a torna a intervenção de melhor relação custo-benefício desta nota. Só é viável porque `objetivo` é campo do estado, e não mensagem passível de ser absorvida pela *compaction* ([nota 02](02-o-agente-e-o-estado.md) §3).
+O custo é de algumas dezenas de tokens a cada cinco passos, o que a torna a intervenção de melhor relação custo-benefício desta nota. Só é viável porque `objetivo` é campo do estado, e não mensagem passível de ser absorvida pela *compaction* ([nota 01 da Aula 08](../../aula-08-memoria/notas-de-aula/01-o-agente-e-o-estado.md) §3).
 
 ---
 
@@ -298,7 +315,6 @@ O custo é de algumas dezenas de tokens a cada cinco passos, o que a torna a int
 A Aula 01 (nota 03, §3) já prescrevia chave de idempotência em ferramenta de escrita, como prudência. Passa a ser necessidade por um motivo específico desta nota: **as salvaguardas introduzidas aqui aumentam a probabilidade de repetição de escrita.**
 
 - a **retentativa** de rede reenvia requisição cujo efeito já ocorreu — o que se perdeu foi a resposta;
-- o **checkpoint** (§9) retoma de um estado persistido, e o último passo pode ter executado sem ter sido registrado;
 - a **detecção de laço**, ao injetar observação e permitir a continuação, pode induzir o agente a repetir a ação que supôs malsucedida.
 
 ```python
@@ -319,21 +335,7 @@ O retorno inclui `ja_existia: True`. Trata-se de informação destinada ao **mod
 
 ---
 
-### 9. Checkpoint
-
-A implementação consta da [nota 02, exemplo 4](02-o-agente-e-o-estado.md) — quatro linhas de serialização sobre o estado. O mecanismo viabiliza:
-
-1. **Confirmação humana assíncrona** — o agente suspende a execução, persiste o estado e devolve o controle; a aprovação ocorre horas depois e a execução prossegue do ponto de suspensão.
-2. **Retomada após queda** — o processo encerrou no passo 9 de uma trajetória custosa; a retomada não repete os 9 passos nem seus efeitos colaterais.
-3. **Depuração por reprodução** — carregar o estado de uma execução malsucedida e prosseguir a partir dele, com registro detalhado ativo.
-
-A armadilha: **persistir depois de executar, nunca antes**. Se o *checkpoint* registrar a intenção e o processo encerrar entre o registro e a execução, a retomada reexecuta a ação. É a idempotência da §8 que fecha essa lacuna — as duas salvaguardas operam em conjunto, e nenhuma é suficiente isoladamente.
-
-> Persistir estado **entre execuções distintas** — o agente recuperar o que ocorreu na semana anterior — é objeto da aula de memória. O *checkpoint* opera no interior de uma única execução.
-
----
-
-### 10. O trace como subproduto
+### 9. O trace como subproduto
 
 Cabe registrar o que foi construído sem que constituísse requisito. Para detectar laço, foi necessário armazenar ferramenta e argumentos de cada passo. Para o orçamento, tokens e custo. Para o término, o motivo. O conjunto constitui, por execução, um registro estruturado do que o agente executou, quanto consumiu, o que falhou e por que encerrou.
 

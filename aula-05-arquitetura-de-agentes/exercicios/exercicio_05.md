@@ -8,7 +8,7 @@ O domínio é novo de propósito: um lote de despesas a conferir contra uma pol�
 
 > **Questão a ser respondida ao final:** quantos dos 8 itens exigiram chamada ao modelo — e quantos você esperava que exigissem?
 
-> **Este exercício é o par prático do [exercicio_05-trabalho.md](exercicio_05-trabalho.md).** Lá você desenha a arquitetura do seu case; aqui você implementa uma arquitetura já desenhada, para sentir no código o que cada padrão cobra.
+> **Este exercício é o par prático do [05-trabalho.md](exercicio_05-trabalho.md).** Lá você desenha a arquitetura do seu case; aqui você implementa uma arquitetura já desenhada, para sentir no código o que cada padrão cobra.
 
 ## Objetivo
 
@@ -189,7 +189,7 @@ CONTA
 
 **A.** Rode o lote inteiro **sem** o portão e sem a regra, mandando os 8 itens ao agente. Compare as duas execuções em chamadas, e olhe o parecer da `D-4475` na versão sem portão.
 
-**B.** Persista o *checkpoint* entre execuções: rode, interrompa no item 5, rode de novo e verifique que ele **retoma**. É o gancho da aula de memória.
+**B.** Faça o agente registrar, para cada item do lote, **qual das quatro terminações** ocorreu e por quê — e produza a tabela das quatro, como a do script 05. Persistir esse estado em disco, para retomar depois, é assunto da Aula 08.
 
 ## Entrega
 

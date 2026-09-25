@@ -25,7 +25,7 @@
 |---|---|
 | **Eficiência** | a entrada simples vai para o modelo pequeno — ou para código, sem modelo nenhum; só a difícil chega ao modelo grande. É a comparação que a Aula 02 fez entre `mistral-small` e `mistral-large`, agora decidida em tempo de execução |
 | **Especialização** | com mais de um agente especializado, é o *Router* que decide qual deles assume. É o embrião da coordenação da Aula 12 |
-| **Uso de ferramenta** | identifica se a requisição precisa de consulta a banco, de busca, ou de nenhuma das duas — o que a Aula 09 retoma quando as ferramentas passam a vir de terceiros |
+| **Uso de ferramenta** | identifica se a requisição precisa de consulta a banco, de busca, ou de nenhuma das duas — o que a Aula 10 retoma quando as ferramentas passam a vir de terceiros |
 
 ### As três formas de rotear
 
@@ -37,7 +37,7 @@ O classificador do desenho acima não precisa ser um LLM. São três implementa�
 | **Embedding / similaridade** | converte a entrada em vetor e compara com exemplos de cada categoria | uma chamada barata, sem geração de texto — **é a Aula 06** |
 | **Semântico (LLM)** | um modelo leve devolve a classificação, como `{"rota": "reclamacao"}` | uma chamada de geração. Lida com o caso que as duas anteriores não previram |
 
-**Elas se combinam, e é assim que o laboratório desta aula funciona:** a regra resolve a consulta de status pura, e só o que sobra vai ao modelo. A forma do meio ainda não está disponível ao aluno — ela depende de embeddings, que é a aula seguinte, e é por isso que aparece aqui nomeada e não implementada.
+**Elas se combinam, e é assim que o laboratório desta aula funciona:** a regra resolve a consulta de status pura, e só o que sobra vai ao modelo. A forma do meio ainda não está disponível ao aluno — ela depende de embeddings, que é a aula seguinte, e é por isso que aparece aqui nomeada e não implementada. A [nota 04 da Aula 06](../../aula-06-embeddings-e-rag/notas-de-aula/03-o-router-por-embedding.md) a implementa sobre estas mesmas rotas — e mostra a cegueira que ela traz junto.
 
 Tecnicamente, a terceira forma é **saída estruturada com enumeração** — o mecanismo da Aula 02 (nota 02, §7) determinando o fluxo do programa:
 
