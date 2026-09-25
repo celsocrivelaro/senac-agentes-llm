@@ -1,26 +1,35 @@
-# Exercício 8 — O projeto de recuperação e de memória
+# Exercício 8 — A recuperação e a memória do seu agente
 
 ## Contexto
 
-Os exercícios das aulas 06, 07 e 08 construíram peças: um índice, um pipeline
-que cita e recusa, três memórias. Cada um resolveu um problema técnico
-isolado.
+O Exercício 6 decidiu de onde o agente do trabalho tira o que sabe, e o
+Exercício 7 o fez responder citando a fonte. Os dois pressupuseram uma coisa
+que ninguém decidiu: que a recuperação é **por similaridade**. Há outras
+quatro formas, e a aula 07 mediu o preço de escolher a errada.
 
-Este exercício não constrói peça nenhuma. Ele decide **quais peças o case
-precisa** — e a decisão precede a construção, porque construir a peça errada
-custa a semana inteira.
+E há uma segunda lacuna, maior: o agente do trabalho **não lembra de nada**.
+Cada execução começa do zero, repete as mesmas consultas e comete o mesmo
+erro que cometeu ontem.
 
-São duas decisões, e as duas são de projeto:
+Este exercício não constrói peça nenhuma. **O grupo decide quais peças o
+agente do trabalho precisa** — e a decisão precede a construção, porque
+construir a peça errada custa a semana inteira.
 
-1. **Como o sistema recupera conhecimento.** Há cinco formas de recuperar, e
-   quatro delas não envolvem *embedding*. A aula 07 mediu o preço de escolher
-   a errada.
-2. **Como o agente lembra, e como esquece.** Memória é acúmulo, e acúmulo sem
-   política de saída é dívida que cresce sozinha.
+São três decisões, e as três são de projeto:
 
-O produto é um documento de projeto, e ele é o rascunho direto de
-`docs/rag.md` e `docs/memoria.md`, que a **Parte 2 do trabalho** cobra nos
-§3 e §4.
+| | A decisão | A pergunta que ela responde |
+|---|---|---|
+| **1** | como o agente **recupera conhecimento** | das cinco formas — regex, consulta estruturada, busca textual, vetorial e grafo — quais o case usa, e por que não as outras |
+| **2** | como o agente **lembra** | o que é curto prazo, o que é longo prazo, e o que cada nível guarda no domínio do case |
+| **3** | como o agente **esquece** | contradição, decaimento e remoção: quando cada uma dispara, e como se verifica que funcionou |
+
+> **Não se escreve código aqui.** A entrega é um texto, e ele é o rascunho
+> direto de `docs/rag.md` e `docs/memoria.md`, que a **Parte 2 do trabalho**
+> cobra nos §3 e §4.
+>
+> O par prático é o [08-complementar.md](exercicio_08-complementar.md): lá o grupo
+> implementa, no repositório do case, as decisões que este documento obriga a
+> tomar.
 
 > **Questão a ser respondida ao final:** quantas das perguntas do seu case
 > realmente precisam de busca vetorial — e o que responde as outras?
@@ -34,12 +43,12 @@ O produto é um documento de projeto, e ele é o rascunho direto de
 3. **Especificar** as três causas de esquecimento, e demonstrar que a remoção
    alcança todas as estruturas.
 
-Não há código obrigatório. Onde houver medição, ela vem do que os exercícios
-complementares já produziram.
+Onde houver medição, ela vem do que os exercícios complementares desta aula e
+da 07 já produziram.
 
 ---
 
-## Parte 1 — As extensões do RAG
+## Decisão 1 — Como o agente recupera conhecimento
 
 ### 1.1 Classificar as perguntas antes de escolher a ferramenta
 
@@ -61,11 +70,22 @@ Entregue a contagem: **quantas das dez caíram em cada linha.**
 > índice que já existia, e não para o que os usuários perguntam. Acrescente
 > perguntas vindas de quem usa o sistema e refaça a contagem.
 
-### 1.2 Decidir cada uma das quatro extensões
+### 1.2 Decidir cada uma das cinco formas
 
 Para cada forma abaixo, a resposta é **usa** ou **não usa**, e as duas
 precisam de justificativa. "Não usa" é resposta legítima e frequente — o que
 não é legítimo é não ter decidido.
+
+#### Expressão regular
+
+O degrau mais barato da escada, e o que costuma ser esquecido por parecer
+pouco sofisticado. Declare quais campos do domínio têm **formato fixo** —
+identificador, CNPJ, data, código de produto — e portanto são extraídos da
+pergunta por zero chamadas ao modelo.
+
+Se nenhum campo do case tem formato fixo, o `não usa` aqui é a resposta certa,
+e ela precisa dizer isso: a redação das perguntas varia demais, e a extração
+passa a ser trabalho do modelo com saída estruturada.
 
 #### Consulta estruturada
 
@@ -121,7 +141,7 @@ recorrente.
 
 ### 1.3 A escada, aplicada ao case
 
-Feche a Parte 1 com a tabela de decisão, uma linha por forma:
+Feche a Decisão 1 com a tabela, uma linha por forma:
 
 | Forma | Usa? | Para quais perguntas | Custo declarado | Por quê |
 |---|---|---|---|---|
@@ -137,7 +157,7 @@ limite conhecido e demonstrado.
 
 ---
 
-## Parte 2 — A memória do agente principal
+## Decisão 2 — Como o agente lembra
 
 ### 2.1 Os dois níveis, separados
 
@@ -207,7 +227,7 @@ E declare **o que o sistema não guarda**, que é a parte que vale mais:
 
 ---
 
-## Parte 3 — Como o agente perde a memória
+## Decisão 3 — Como o agente esquece
 
 Esta é a parte que quase nenhum projeto especifica, e é a que separa um
 sistema operável de um que acumula até quebrar.
@@ -282,7 +302,7 @@ A mesma entrada, no mesmo modelo, com os mesmos parâmetros, produz saída
 diferente amanhã — porque a memória mudou.
 
 Isto não é defeito a corrigir. É consequência de projeto, e foi escolhida
-deliberadamente ao construir a Parte 2. Registre-a, porque a aula 11 vai ter
+deliberadamente na Decisão 2. Registre-a, porque a aula 11 vai ter
 de conviver com ela: um conjunto de avaliação que roda sobre um sistema com
 memória mede duas coisas ao mesmo tempo, e separá-las é trabalho.
 
@@ -324,8 +344,8 @@ um que adota todas sem medir.
 
 ## Dicas
 
-- Comece pela Parte 3. Decidir o que o sistema esquece torna a Parte 2 mais
-  fácil, porque a lista de exclusão restringe a de inclusão.
+- Comece pela Decisão 3. Decidir o que o sistema esquece torna a Decisão 2
+  mais fácil, porque a lista de exclusão restringe a de inclusão.
 - A pergunta de caminho do §1.2 costuma existir e não ser percebida.
   Procure no domínio um "salvo o disposto em", um "exceto quando" ou um
   "conforme definido em" — cada um deles é uma aresta.

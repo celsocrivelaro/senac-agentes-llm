@@ -61,7 +61,7 @@ O que falta entre as duas é **recuperação**, e recuperar exige decidir o que 
 
 | | Aula 07 | Aula 08 |
 |---|---|---|
-| O que é indexado | documentos | trajetórias do próprio agente |
+| O que é indexado | documentos | **episódios** do próprio agente |
 | Quem escreveu | terceiros | o agente, em execuções anteriores |
 | Muda com o tempo | raramente | **continuamente** |
 | Contradição é | anomalia do corpus | funcionamento normal |
@@ -169,7 +169,7 @@ Três necessidades permanecem independentemente do tamanho da janela:
 | Necessidade | Por que a janela não atende |
 |---|---|
 | Persistência por dias e semanas | a sessão termina, e com ela o conteúdo da janela |
-| Aprendizado entre sessões | o que foi aprendido na execução anterior não está na requisição atual |
+| Aprendizado entre sessões | o que foi aprendido na sessão anterior não está na requisição atual |
 | Acesso seletivo | o agente precisa do fragmento relevante, não de tudo o que já ocorreu |
 
 A terceira é a da §1.1, com outro nome: recuperar tudo é indistinguível de não recuperar nada. E a Aula 05 ([nota 03](../../aula-05-arquitetura-de-agentes/notas-de-aula/03-context-engineering-dinamica.md), §1) acrescenta o argumento de custo — o consumo acumulado cresce com o quadrado do número de passos, e a qualidade cai antes de a janela acabar.
