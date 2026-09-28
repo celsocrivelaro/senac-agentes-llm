@@ -25,7 +25,7 @@
 |---|---|
 | **Eficiência** | a entrada simples vai para o modelo pequeno — ou para código, sem modelo nenhum; só a difícil chega ao modelo grande. É a comparação que a Aula 02 fez entre `mistral-small` e `mistral-large`, agora decidida em tempo de execução |
 | **Especialização** | com mais de um agente especializado, é o *Router* que decide qual deles assume. É o embrião da coordenação da Aula 12 |
-| **Uso de ferramenta** | identifica se a requisição precisa de consulta a banco, de busca, ou de nenhuma das duas — o que a Aula 10 retoma quando as ferramentas passam a vir de terceiros |
+| **Uso de ferramenta** | identifica se a requisição precisa de consulta a banco, de busca, ou de nenhuma das duas — o que a Aula 09 retoma quando as ferramentas passam a vir de terceiros |
 
 ### As três formas de rotear
 

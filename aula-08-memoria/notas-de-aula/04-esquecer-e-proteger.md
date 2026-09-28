@@ -206,7 +206,7 @@ A lista da Aula 03 (nota 04, §9), ao fim desta aula:
 | ~~confiabilidade~~ | encerrada — Aula 05 |
 | ~~context engineering dinâmica~~ | encerrada — Aula 05 |
 | ~~memória entre execuções~~ | **encerrada — esta aula** |
-| **MCP** | Aula 10 |
+| **MCP** | Aula 09 |
 | **multiagente** (coordenação) | Aula 12 |
 
 E uma pendência nova, criada por esta aula: **memória torna o agente não reprodutível**. A mesma entrada, no mesmo modelo, com os mesmos parâmetros, produz saída diferente amanhã — porque a memória mudou. É a primeira vez no curso em que isso ocorre, e é um problema de avaliação, não de implementação: a Aula 11 parte dele.

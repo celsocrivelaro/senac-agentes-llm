@@ -214,7 +214,7 @@ Nenhuma das quatro é curiosidade de laboratório. Cada uma tem data marcada no 
 | **Negação** | Aula 06, [nota 03](../../aula-06-embeddings-e-rag/notas-de-aula/03-o-router-por-embedding.md) · modo de falha 1 desta aula · Aula 08, nota 02 | o router manda "chegou" e "não chegou" para a mesma rota · o corpus menciona o assunto apenas para **excluí-lo** · a memória recupera episódios de aprovação quando se pergunta por reprovação |
 | **Número** | [modo de falha 4](04-o-pipeline-e-os-quatro-modos-de-falha.md), desta aula | duas versões do mesmo artigo, diferindo só na magnitude do teto |
 | **Tempo** | [modo de falha 4](04-o-pipeline-e-os-quatro-modos-de-falha.md) · Aula 08, nota 04 | qual das duas versões é a vigente, e o desempate por carimbo |
-| **Entidade** | Aula 10, nota 03 §2 | identificadores de ferramentas MCP de mesmo formato se confundem — a nota de lá a chama de *"uma cegueira conhecida, em lugar novo"* |
+| **Entidade** | Aula 09, nota 03 §2 | identificadores de ferramentas MCP de mesmo formato se confundem — a nota de lá a chama de *"uma cegueira conhecida, em lugar novo"* |
 
 Vale registrar a que a tabela torna visível: **a negação já cobrou o preço dela antes de existir RAG**. A [nota 03 da Aula 06](../../aula-06-embeddings-e-rag/notas-de-aula/03-o-router-por-embedding.md) roteou mensagens por embedding, e o par que difere em uma palavra caiu na mesma rota — sem que nenhum modelo tivesse escrito nada. As cegueiras não são um problema de geração de texto; são um problema de **representação**, e aparecem em qualquer sistema que decida por proximidade.
 
