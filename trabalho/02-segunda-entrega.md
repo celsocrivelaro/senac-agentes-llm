@@ -230,11 +230,15 @@ Declarem: que documentos entram, de onde vêm, quem os mantém e **com que frequ
 
 **O documento revogado.** Ponham no corpus, de propósito, um documento obsoleto que responda a uma das perguntas do conjunto, e reportem o que acontece. Se o sistema não tem como saber que aquele documento não vale mais, isso é um achado — e a solução não é técnica de recuperação, é **curadoria**.
 
-### 4.3 O corte, e as dez perguntas
+### 4.3 As dez perguntas, e o corte
 
-**O conjunto de perguntas.** No mínimo **dez**, cada uma com o trecho do corpus que a responde identificado. Duas exigências de composição: ao menos duas perguntas cuja resposta depende de uma **exceção**, e ao menos uma cuja resposta **não está no corpus** — esta é a mais informativa das dez, e é ela que exercita a recusa do contrato de saída (§1.2).
+**O conjunto de perguntas** vale para qualquer forma de recuperação, e é o que alimenta a classificação do §4.1.
+
+No mínimo **dez**, cada uma com o trecho do corpus que a responde identificado. Duas exigências de composição: ao menos duas perguntas cuja resposta depende de uma **exceção**, e ao menos uma cuja resposta **não está no corpus** — esta é a que exercita a recusa do contrato de saída (§1.2).
 
 > Este conjunto é o primeiro *dataset* de avaliação do trabalho. Escrevam-no como se fosse durar o semestre, porque vai.
+
+**O corte e o `k` valem apenas se o sistema usa busca vetorial.** As duas decisões existem por causa dela: o documento precisa ser partido em trechos para ser indexado, e o resultado da busca é um ranking do qual se tira um número fixo de itens. Se as formas escolhidas no §4.1 forem consulta estruturada, busca textual ou grafo, não há corte nem `k` — e basta dizer isso.
 
 **A estratégia de corte.** Por caracteres, com sobreposição, por estrutura do documento, ou outra. Declarem a escolhida e **por que ela serve ao seu corpus**: um regulamento com artigos numerados pede corte por estrutura; uma transcrição corrida, não.
 
@@ -567,7 +571,8 @@ docs/
   modelos.md         a análise de modelos
   prompts.md         o item 1
   arquitetura.md     o item 2
-  rag.md             formas usadas, as dez perguntas, corte, k, o corpus revogado
+  rag.md             formas usadas, as dez perguntas, o corpus revogado
+                     e, se houver busca vetorial, o corte e o k
   memoria.md         a fronteira, as três memórias, a política, a conversa
   grafo.md           o desenho, os padrões, o estado, o que o framework não deu
   humano.md          os pontos de parada, o critério, o prazo, a idempotência
