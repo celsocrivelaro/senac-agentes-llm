@@ -4,11 +4,9 @@
 
 ## Contexto
 
-Esta entrega avalia **a qualidade de uma construção**, e cada frente acrescenta uma peça ao sistema **e cobra uma evidência por ela**. A decisão de corte, declarada com a razão. A taxa de recusa indevida do portão. As linhas que vocês tiveram de escrever porque o framework não cobria. O log das duas aprovações provando que a segunda não criou nada.
+Nesta entrega o agente vira um sistema completo: um **grafo** de nós e arestas, com estado declarado, contrato de entrada e saída, pontos onde para e espera uma pessoa, conhecimento de domínio consultável e memória do que já aconteceu.
 
-> **A regra desta parte:** nenhuma decisão de projeto é aceita como preferência. Toda escolha vem com a medida que a sustenta — e, quando a medida contraria a escolha óbvia, **é a medida que vale**.
-
-O sistema que sai daqui é um agente completo: ele é um **grafo** de nós e arestas, com estado declarado, contrato de entrada e saída, pontos onde para e espera uma pessoa, conhecimento de domínio consultável e memória do que já aconteceu.
+Cada frente acrescenta uma dessas peças, e cada peça vem acompanhada da decisão de projeto que a explica: por que esta forma de recuperar, por que este corte, por que o grafo tem esta topologia, onde o sistema para e espera alguém.
 
 > **MCP saiu desta entrega.** Publicar a integração como servidor passou para a **Parte 3**, junto com multiagente — é lá que ela encontra o problema que a justifica, que é mais de um agente consumindo a mesma ferramenta. A integração com software tradicional continua valendo aqui, como ferramenta do agente.
 
@@ -28,7 +26,7 @@ Os exercícios das Aulas 06 a 08 foram feitos **no repositório deste trabalho**
 
 **Um grupo que fez os exercícios chega nesta entrega com a maior parte do trabalho pronta.** O que falta é o que nenhum exercício isolado cobra: a integração das peças em **um sistema só**, os dois documentos de projeto — o plano de prompt e a arquitetura —, e o complemento do case.
 
-**Um grupo que não os fez** entrega o mesmo, e o enunciado abaixo é autossuficiente. Só vai levar cinco vezes mais tempo.
+O enunciado abaixo é autossuficiente: quem não fez os exercícios encontra aqui tudo o que precisa.
 
 ---
 
@@ -59,12 +57,6 @@ Em `docs/case.md`, junto do que já existe. Vocês passaram semanas **dentro** d
 Esta seção é onde isso entra: o case **completado** com o que o domínio ensinou.
 
 **O que vocês sabem do domínio, e que não é óbvio.** O vocabulário que ninguém de fora entende. A regra que todo mundo da área conhece e nenhum documento registra. A exceção que aparece em um caso a cada vinte e que decide a arquitetura. O passo do processo que parecia um e são três.
-
-**A linha de base do ganho prometido.** O ganho que vocês anunciaram se apoia num número de partida — quanto a tarefa custa, demora ou erra sem o sistema. Declarem o número que vale hoje. Não é preciso medir nada de novo para esta entrega; se ele mudou, basta registrar o valor atual e por que ele é esse.
-
-> **Esta é também a última janela para ajustar o rumo.** A visão geral permite refinar o tema até aqui, e a Parte 3 vai cobrar a conta do que foi prometido.
->
-> E a primeira pergunta **não** admite resposta vazia: um grupo que passou semanas no domínio e não tem nada a acrescentar sobre ele ou não entrou no domínio, ou não percebeu que entrou.
 
 ---
 
@@ -106,7 +98,7 @@ Não um exemplo: **um conjunto**, em `docs/io.md`, com o principal repetido no `
 | **a recusa** | a saída com suficiência negativa, e o que o sistema diz no lugar da resposta |
 | **uma das três do §1.4** | entrada incompleta, ambígua ou fora do escopo |
 
-Cada exemplo traz **as três coisas**, e a terceira é a que falta na maioria das entregas:
+Cada exemplo traz três coisas:
 
 1. **a entrada exata**, o texto como a pessoa digitou — com os erros de digitação, se houver;
 2. **a saída completa**, o objeto inteiro e não um trecho — incluindo os campos vazios;
@@ -124,7 +116,7 @@ Três situações, cada uma com um exemplo real de execução:
 | entrada **ambígua** | desambigua perguntando, ou escolhe e **declara a escolha** |
 | entrada **fora do escopo** | recusa, e diz o que ele faz |
 
-Um sistema que responde confiantemente às três não está sendo robusto — está escondendo o problema.
+Nas três, responder como se a entrada estivesse completa produz uma saída que parece boa e não é — e é por isso que elas são tratadas no contrato, e não no improviso.
 
 ---
 
@@ -140,17 +132,17 @@ Uma linha por etapa em que o modelo é chamado — e o sistema de vocês tem vá
 |---|---|---|---|---|
 | *ex: análise do relato* | few-shot com 3 exemplos | a classe depende de convenção do domínio que não está no modelo | JSON com `classe`, `confianca`, `justificativa` | 12 casos rotulados, ≥10 acertos |
 
-As quatro colunas depois do nome da etapa valem ponto separadamente, e a terceira é a que os grupos escrevem mal:
+As quatro colunas depois do nome da etapa:
 
 **A técnica, nomeada.** Zero-shot, few-shot, cadeia de pensamento, decomposição, autoconsistência. O nome importa porque ele carrega a razão: quem escreve "few-shot" precisa dizer por que exemplos resolvem, e quem escreve "cadeia de pensamento" precisa dizer que passos de inferência existem ali.
 
-**O contrato de saída, exato.** Formato, campos obrigatórios, valores válidos quando enumeráveis, e **o que é proibido aparecer**. Um contrato que diz "JSON" não é contrato.
+**O contrato de saída, exato.** Formato, campos obrigatórios, valores válidos quando enumeráveis, e **o que é proibido aparecer**. Dizer apenas "JSON" deixa de fora tudo o que o consumidor precisa saber para tratar a resposta.
 
-**Como a etapa é testada.** Cada etapa precisa de uma forma de saber que ela funciona, e essa forma tem denominador. "Testamos manualmente" não é teste. Estes testes são o embrião do conjunto de avaliação que a Aula 11 vai cobrar de verdade.
+**Como a etapa é testada.** A forma de saber que aquela etapa funciona — quantos casos, com que critério de acerto. Estes testes são o embrião do conjunto de avaliação que a Parte 3 retoma.
 
 ### 2.2 Os prompts em arquivo
 
-Um arquivo por prompt, versionados. **Prompt embutido no meio do código não é aceito a partir desta entrega** — é a regra que a visão geral anuncia, e ela existe porque um prompt que só existe dentro de uma f-string não tem histórico, não tem versão e não pode ser comparado com a execução da semana passada.
+Um arquivo por prompt, versionados. A partir desta entrega os prompts vivem **em arquivo**, e não dentro do código: um prompt que só existe dentro de uma f-string não tem histórico, não tem versão, e não há como comparar o comportamento de hoje com o da semana passada.
 
 Eles ficam em **`src/prompts/`**, junto do código, pela razão que os define: são **carregados em tempo de execução**. Um prompt é recurso do pacote, como um schema ou um arquivo de configuração — não é artefato de leitura, e não é documentação. Se hoje estiverem em outro lugar, mover é um `git mv`, e o histórico vai junto.
 
@@ -188,7 +180,7 @@ O texto responde, sobre o sistema como ele está hoje:
 | **o término** | a taxonomia completa dos motivos pelos quais uma execução acaba |
 | **o humano** | onde ele entra, **qual perfil de pessoa** é chamado, e o que acontece se ele não responder |
 
-A última linha é a que mais some das entregas. Um sistema que suspende esperando aprovação e não define o que fazer com o silêncio tem um estado sem saída.
+A última linha merece atenção: um sistema que suspende esperando aprovação e não define o que fazer com o silêncio fica num estado sem saída.
 
 ### 3.3 A defesa do nível de autonomia
 
@@ -230,7 +222,7 @@ A tabela abaixo é um **cardápio, não uma lista de obrigações**. Ela existe 
 
 A pergunta *"o seu RAG é vetorial ou é banco de dados?"* precisa ter resposta direta, e **"os dois" é a resposta mais comum nos sistemas que funcionam**.
 
-> Se as dez perguntas caíram todas em "assunto", o conjunto foi escrito para o índice que já existia, e não para o que os usuários perguntam. Acrescentem perguntas vindas de quem usa o sistema e refaçam a classificação.
+> Vale conferir se a classificação concentrou tudo em "assunto". Quando isso acontece, costuma ser porque as perguntas foram escritas a partir do índice, e não a partir do que os usuários perguntam — e perguntas vindas de quem usa o sistema mudam o resultado.
 
 O tratamento completo das cinco formas — incluindo quando um banco de grafo se paga e quando um `JOIN` basta — está na [nota 01 da Aula 07](../aula-07-rag-e-documentos/notas-de-aula/01-as-formas-de-recuperar.md).
 
@@ -326,7 +318,7 @@ Três opções, e cada uma tem preço:
 
 Escolham uma — ou uma combinação — e declarem o **volume de escrita por execução**: quantos registros, de que tamanho. O que esse volume custa em dinheiro e em armazenamento é assunto da Parte 3, e é bom que o número já exista.
 
-**A escrita de memória é escrita.** Ela tem efeito no mundo, e portanto exige chave de idempotência derivada do conteúdo, com `ja_existia` no retorno. `uuid4()` a cada chamada não é chave de idempotência.
+**A escrita de memória é escrita.** Ela tem efeito no mundo, e portanto exige chave de idempotência **derivada do conteúdo**, com `ja_existia` no retorno. É a derivação que permite reconhecer a repetição: o mesmo conteúdo produz a mesma chave.
 
 ### 5.4 Como o agente perde a memória
 
@@ -346,7 +338,7 @@ Para a **remoção**, o requisito é de **cobertura**: o dado precisa sair de to
 - o **log**, se ele registra os argumentos das chamadas de ferramenta;
 - a memória **procedural**, quando uma regra aprendida a partir do erro de um titular menciona esse titular.
 
-**Demonstrem que funciona, e a verificação é independente da remoção**: gravem, verifiquem que o comportamento mudou, removam, verifiquem que voltou — e então varram as estruturas procurando o identificador. Uma remoção que se declara concluída sem varredura não cumpre a obrigação; apenas afirma tê-la cumprido.
+A verificação é independente da remoção: gravem, verifiquem que o comportamento mudou, removam, verifiquem que voltou — e então varram as estruturas procurando o identificador.
 
 As três razões para o esquecimento existir:
 
@@ -386,7 +378,7 @@ Em `docs/arquitetura.md`, o grafo desenhado **em ASCII**, pela mesma razão do �
 - **cada aresta**: incondicional ou condicional, e **quem decide** a condição;
 - **os términos**: por onde a execução pode acabar, e não só o caminho feliz.
 
-Um grafo em que todas as arestas são incondicionais não é um grafo — é uma sequência, e provavelmente o case não precisava de framework.
+São as arestas condicionais que distinguem um grafo de uma sequência: é nelas que a execução escolhe caminho.
 
 ### 6.2 Os padrões, nomeados e justificados
 
@@ -526,7 +518,7 @@ Isso **só funciona porque existe um checkpointer**: a pausa é um checkpoint gr
 
 ### 8.4 O que acontece se ninguém responder
 
-Um prazo, e o que ocorre quando ele vence: a execução expira, é escalada, ou segue por um caminho padrão declarado. **Seguir em frente silenciosamente não é opção** — é o ponto de parada virando enfeite.
+Um prazo, e o que ocorre quando ele vence: a execução expira, é escalada, ou segue por um caminho padrão declarado. O caminho precisa estar escrito — um ponto de parada que segue adiante sozinho, em silêncio, deixa de cumprir a função que tinha.
 
 ### 8.5 Aprovar duas vezes
 
@@ -547,7 +539,7 @@ Demonstrem que a ação **não acontece duas vezes** se a aprovação chegar rep
 | 5 | a pergunta **fora do corpus** | o sistema recusa, e recusa dizendo algo útil | §1.2 |
 | 6 | a ação que **para e espera** | o grafo pausa, a pessoa aprova editando, e a segunda aprovação não duplica nada | §8.2, §8.5 |
 
-Os casos 5 e 6 são os que os grupos esquecem, e são os que provam as frentes desta entrega. Um log de seis execuções em que as seis dão certo pelo caminho feliz não demonstra nada.
+Os casos 5 e 6 mostram o sistema **fora do caminho feliz** — a recusa e a pausa para aprovação —, e é por isso que estão na lista.
 
 ---
 
@@ -563,33 +555,7 @@ Cinco exigências, e nenhuma delas é sobre o código em si.
 
 **`docs/`** — toda a pesquisa e documentação, em Markdown, versionada. O `case.md` **complementado**, o `prompts.md`, o `arquitetura.md` — que carrega o grafo, a tabela de padrões, a tabela de campos do estado e os pontos de parada — e os resultados de medição de cada frente. O histórico dessa pasta é o que mostra **quando o grupo mudou de ideia sobre o próprio case, e por quê**.
 
-**`src/prompts/`** — os prompts em arquivo, versionados, junto do código que os carrega. Prompt embutido no código não é aceito.
-
----
-
-## Como esta parte será avaliada
-
-Em ordem de peso:
-
-| O que se avalia | O que se espera |
-|---|---|
-| **RAG como memória consultável** | as dez perguntas escritas e classificadas · **as formas usadas, cada uma com o que ela responde no case** · corpus declarado e curado, com o documento revogado · **o corte e o `k` declarados, com a razão** · **a recuperação integrada ao laço**, e não um pipeline paralelo |
-| **Memória entre execuções** | a fronteira com checkpoint e RAG declarada no case · as três memórias nas estruturas certas · política de escrita com volume declarado · o esquecimento demonstrado · **a gestão da conversa: thread, onde grava, o que sai quando a janela enche** |
-| **O grafo, desenhado e defendido** | o desenho em ASCII, com nós, arestas e términos · os padrões da Aula 05 **nomeados e justificados** · o degrau de decisão de cada bifurcação justificado · **as listas de nós e arestas extraídas do grafo que o `src/` executa**, batendo com o desenho · as peças que o framework **não** deu · a decisão que virou parâmetro |
-| **O estado, e os reducers** | a tabela de campos com quem escreve e quem lê · o reducer de cada campo acumulado, justificado · **a execução que demonstra o que acontece sem ele** · as duas listas do que não está no estado |
-| **Human-in-the-loop** | os pontos de parada marcados no diagrama, com critério · o que a pessoa vê, com a ação e a consequência · **aprovar editando** funcionando · o prazo e o que acontece quando vence · **a segunda aprovação que não duplica nada** |
-| **Entrada e saída** | **a entrada é texto livre** · contrato de saída validado, com fonte e suficiência · **os três exemplos documentados**, cada um com entrada exata, saída inteira e o que ler nela · cada exemplo amarrado a commit, data e log · as três entradas que não dão para atender |
-| **O plano de prompt engineering** | uma linha por etapa, com técnica **nomeada e justificada** · contrato de saída exato · como cada etapa é testada, com denominador · prompts em arquivo, versionados · a regra da frase aplicada em ao menos um prompt |
-| **A arquitetura documentada** | diagrama com quem decide onde · as seis perguntas respondidas · **o nível de autonomia defendido contra o de baixo, apontando a decisão no diagrama** |
-| **O complemento do case** | **o domínio escrito** — vocabulário, regra tácita, exceção que decide arquitetura · o escopo declarado como está hoje · **o verificador descrito com o sistema rodando** · a linha de base do ganho prometido |
-| **A entrega como projeto** | roda do zero em <5 min · o `README` diz **como usar**, com exemplo real · `docs/` completo e versionado · nenhuma chave no repositório |
-| **Os seis casos** | executados, com log · os casos 5 e 6 presentes e demonstrando o que devem |
-
-E o que **não** conta: quantidade de código, número de ferramentas, número de documentos no corpus, sofisticação visual.
-
-**Resultados negativos bem medidos contam a favor**, e vale repetir porque os grupos não acreditam: "o corte por estrutura não serviu ao nosso corpus, e aqui está por quê", "o paralelismo do grafo não reduziu o tempo, porque o provedor serializa" são entregas boas. Medição que contraria a expectativa é o produto mais valioso de uma engenharia honesta.
-
----
+**`src/prompts/`** — os prompts em arquivo, versionados, junto do código que os carrega.
 
 ## Entrega
 
