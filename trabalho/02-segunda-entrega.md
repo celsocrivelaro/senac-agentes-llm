@@ -39,7 +39,7 @@ Doze itens. Os do meio são as frentes que constroem o agente:
 0. **O complemento do case** — o que vocês aprenderam do domínio e que falta para alguém entender o sistema
 1. **O plano de prompt engineering**, documentado e versionado
 2. **A arquitetura do agente**, documentada e defendida
-3. **RAG** como memória consultável — com as dez perguntas classificadas pela **forma de recuperar**
+3. **RAG** como memória consultável — com a forma de recuperar **escolhida e justificada**
 4. **Memória** entre execuções
 5. **O grafo**, desenhado e implementado em LangGraph — com os padrões da Aula 05 nomeados
 6. **O estado** que atravessa o grafo, com os reducers justificados
@@ -147,13 +147,13 @@ A defesa é feita **com o sistema rodando**, e não em hipótese. Aponte, **no d
 
 Não é um chatbot sobre PDFs. É **o conhecimento de domínio que os agentes precisam para decidir** — e a diferença aparece no §3.7.
 
-### 3.1 A forma de recuperar, escolhida antes do índice
+### 3.1 As formas de recuperar, e as que o seu case usa
 
-**Nada em "RAG" diz que a recuperação é vetorial.** São cinco formas, e quatro delas não envolvem *embedding*. Escolher a errada produz um problema que nenhum ajuste de *chunking* conserta, porque o defeito nunca esteve no corte.
+**Nada em "RAG" diz que a recuperação é vetorial.** Existem cinco formas, e quatro delas não envolvem *embedding*. Escolher a errada produz um problema que nenhum ajuste de *chunking* conserta, porque o defeito nunca esteve no corte.
 
-Antes de decidir o corte, classifiquem **cada uma** das dez perguntas do §3.3 pelo formato da resposta, e entreguem a **contagem por linha**:
+A tabela abaixo é um **cardápio, não uma lista de obrigações**. Ela existe para vocês reconhecerem o que cada pergunta do seu case pede:
 
-| A resposta é um… | Recuperação adequada |
+| A resposta é um… | Forma adequada |
 |---|---|
 | **registro** — *"quem aprovou a D-4471?"* | consulta estruturada |
 | **termo** — *"onde aparece 'força maior'?"* | busca textual |
@@ -161,11 +161,25 @@ Antes de decidir o corte, classifiquem **cada uma** das dez perguntas do §3.3 p
 | **relação** — *"que artigos alteram o teto de refeição?"* | grafo |
 | **agregação** — *"quais os temas recorrentes?"* | grafo, ou pré-cálculo |
 
-**Só "assunto" pede *embedding*.** Para cada pergunta que caiu nas outras quatro linhas, digam o que a responde: um `SELECT`, um índice invertido, um `JOIN`. Não é preciso implementar — é preciso ter decidido.
+**O que se entrega são duas coisas:**
 
-E **digam com o que cada forma foi implementada**, por nome: qual banco vetorial, qual modelo de embedding e de quantas dimensões, qual banco relacional ou índice textual, qual biblioteca. Uma linha por forma usada, em `docs/rag.md`. A pergunta *"o seu RAG é vetorial ou é banco de dados?"* precisa ter resposta direta — e **"os dois" é a resposta mais comum nos sistemas que funcionam**.
+**1. A classificação.** Para cada uma das dez perguntas do §3.3, qual forma a responde. É esse exercício que revela de quais formas o seu case precisa — e não o contrário.
 
-> Se as dez caíram em "assunto", o conjunto foi escrito para o índice que já existia, e não para o que os usuários perguntam. Acrescentem perguntas vindas de quem usa o sistema e refaçam a contagem.
+**2. A escolha, com justificativa por linha.** De posse da classificação, digam **quais formas vocês implementaram e quais não implementaram**, uma linha por forma, em `docs/rag.md`:
+
+| Forma | Implementada? | Com o quê | Por quê |
+|---|---|---|---|
+| consulta estruturada | | *qual banco, qual tabela* | |
+| busca textual | | *qual índice, qual biblioteca* | |
+| busca vetorial | | *qual banco vetorial, qual modelo de embedding, quantas dimensões* | |
+| grafo | | | |
+| agregação / pré-cálculo | | | |
+
+**Implementar uma só é resultado legítimo**, e é o mais comum. O que não é aceito é a linha em branco: **toda forma precisa de justificativa, inclusive a recusada** — e a recusa boa aponta para a classificação (*"nenhuma das dez perguntas pede relação"*) ou para o custo (*"duas pedem, e um `JOIN` resolve as duas"*).
+
+A pergunta *"o seu RAG é vetorial ou é banco de dados?"* precisa ter resposta direta, e **"os dois" é a resposta mais comum nos sistemas que funcionam**.
+
+> Se as dez perguntas caíram todas em "assunto", o conjunto foi escrito para o índice que já existia, e não para o que os usuários perguntam. Acrescentem perguntas vindas de quem usa o sistema e refaçam a classificação.
 
 O tratamento completo das cinco formas — incluindo quando um banco de grafo se paga e quando um `JOIN` basta — está na [nota 01 da Aula 07](../aula-07-rag-e-documentos/notas-de-aula/01-as-formas-de-recuperar.md).
 
@@ -683,7 +697,7 @@ Em ordem de peso:
 
 | O que se avalia | O que se espera |
 |---|---|
-| **RAG que funciona e que recusa** | corpus declarado e curado · três cortes medidos com `recall@k` · o corte e o `k` escolhidos **com número** · citação **verificada em código** · o limiar medido, com os dois erros reportados · `recall` e fidelidade separados |
+| **RAG que funciona e que recusa** | as dez perguntas classificadas · **as formas escolhidas e as recusadas, cada uma justificada** · corpus declarado e curado · três cortes medidos com `recall@k` · o corte e o `k` escolhidos **com número** · citação **verificada em código** · o limiar medido, com os dois erros reportados · `recall` e fidelidade separados |
 | **Memória, e o que ela não guarda** | a fronteira com checkpoint e RAG declarada no case · as três memórias nas estruturas certas · política de escrita com volume declarado · **a lista do que não entra** · a contradição resolvida em código · o esquecimento demonstrado |
 | **O grafo, desenhado e defendido** | o desenho em ASCII, com nós, arestas e términos · os padrões da Aula 05 nomeados, com **ao menos um recusado** · o degrau de decisão de cada bifurcação justificado · **as listas de nós e arestas extraídas do grafo que o `src/` executa**, batendo com o desenho · as peças que o framework **não** deu · a decisão que virou parâmetro |
 | **O estado, e os reducers** | a tabela de campos com quem escreve e quem lê · o reducer de cada campo acumulado, justificado · **a execução que demonstra o que acontece sem ele** · as duas listas do que não está no estado |
