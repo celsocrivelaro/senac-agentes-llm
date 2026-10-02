@@ -1,199 +1,181 @@
-# Exercício 10 — A integração do case vira servidor
+# Exercício 10 — Um servidor MCP de CNPJ e CEP, e o cliente que o consome
 
 ## Contexto
 
-A Parte 1 do trabalho pediu uma integração com software tradicional, admitindo
-que fosse *mock*. A **Parte 3** exige que essa integração seja reescrita como
-**servidor MCP**, com o ganho a demonstrar declarado no enunciado do trabalho: a
-ferramenta deixa de ser código acoplado a um agente e passa a ser um serviço que
-**os vários agentes do sistema** consomem — e que qualquer agente de fora
-consumiria.
+A aula mostrou os dois lados do protocolo: o **servidor**, que publica
+ferramentas para quem quiser consumi-las, e o **cliente**, que abre a sessão,
+descobre o que o servidor oferece e faz as chamadas. Neste exercício você
+escreve os dois, sobre uma API pública e real: a
+[BrasilAPI](https://brasilapi.com.br/docs).
 
-Ela chega lá, e não na Parte 2, porque é a arquitetura multiagente que cria o
-critério da aula: MCP paga quando há **mais de um dono**.
+O servidor embrulha duas consultas da BrasilAPI — **CNPJ** e **CEP** — como
+ferramentas MCP. O cliente recebe um CNPJ e **encadeia** as duas: consulta a
+empresa, extrai o CEP dela da resposta e, com ele, consulta o endereço e as
+coordenadas.
 
-Este exercício é o ensaio dessa entrega, e acrescenta a ela a parte que o
-enunciado do trabalho não cobra: **a conta**. A Aula 10 estabeleceu que MCP tem
-preço, que ele é pago na escolha de ferramenta, e que a decisão de adotá-lo se
-justifica pelo número de consumidores — não pelo protocolo ser novo.
+```
+                       ┌──────────────────────────┐        ┌───────────────┐
+   CNPJ ──► cliente ──►│ servidor MCP             │──────► │  BrasilAPI    │
+            MCP        │  ├ consultar_cnpj(cnpj)  │  HTTP  │  /cnpj/v1     │
+              ▲        │  └ consultar_cep(cep)    │        │  /cep/v2      │
+              │        └──────────────────────────┘        └───────────────┘
+              │
+              └── 1. consultar_cnpj  →  razão social, CEP
+                  2. consultar_cep   →  endereço, latitude, longitude
+```
 
-> **Questão a ser respondida ao final:** quantas ferramentas ficam declaradas
-> depois de conectados os servidores do seu sistema, e quantas delas foram
-> desativadas por causa desse número?
+> **Questão a ser respondida ao final:** o cliente que você escreveu conhece a
+> BrasilAPI? O que precisaria mudar nele se o servidor trocasse a BrasilAPI por
+> outra fonte de dados?
 
 ## Objetivo
 
-Implementar, no repositório do trabalho:
+Implementar:
 
-1. um **servidor MCP** que exponha ao menos **uma ferramenta** e **um recurso**;
-2. o **agente do case** consumindo esse servidor, sem alteração do laço;
-3. um **script de contagem** das ferramentas declaradas, antes e depois;
-4. a **decisão de adoção**, item a item, para as demais integrações do sistema.
+1. um **servidor MCP** com as ferramentas `consultar_cnpj` e `consultar_cep`;
+2. um **cliente MCP** que receba um CNPJ, chame `consultar_cnpj`, use o CEP da
+   empresa para chamar `consultar_cep` e apresente o resultado.
 
-```
-   ANTES                              DEPOIS
-   ┌──────────────┐                   ┌──────────────┐   ┌──────────────┐
-   │ agente       │                   │ agente       │   │ servidor MCP │
-   │  ├ laço      │                   │  ├ laço      │◀─▶│  ├ tool      │
-   │  ├ estado    │                   │  ├ estado    │   │  └ resource  │
-   │  └ ferramenta│  código acoplado  │  └ (cliente) │   └──────────────┘
-   └──────────────┘                   └──────────────┘    consumível por
-                                                          qualquer agente
-```
+## As duas consultas da BrasilAPI
+
+| Ferramenta | Endpoint | Campos que interessam |
+|---|---|---|
+| `consultar_cnpj` | `GET https://brasilapi.com.br/api/cnpj/v1/{cnpj}` | `cnpj`, `razao_social`, `cep`, `logradouro`, `numero`, `complemento`, `bairro`, `municipio`, `uf` |
+| `consultar_cep` | `GET https://brasilapi.com.br/api/cep/v2/{cep}` | `cep`, `street`, `neighborhood`, `city`, `state`, `location.coordinates.latitude`, `location.coordinates.longitude` |
+
+Documentação: [CNPJ](https://brasilapi.com.br/docs#tag/CNPJ) e
+[CEP](https://brasilapi.com.br/docs#tag/CEP). Os dois endpoints recebem **só
+dígitos**: 14 para o CNPJ e 8 para o CEP. Não exigem chave.
+
+Duas observações sobre o que volta:
+
+- a resposta do CNPJ traz o CEP **sem hífen** (`"01311902"`), pronto para a
+  segunda consulta;
+- as coordenadas do CEP **nem sempre existem**: para alguns CEPs,
+  `location.coordinates` vem vazio. O cliente precisa lidar com isso.
 
 ## Requisitos
 
 ### 1. O servidor
 
-Escolha **uma** das integrações do seu case — a que a Parte 1 implementou, ou
-outra do mesmo sistema. Publique-a como servidor MCP, com:
+Escreva o servidor com o FastMCP, como o `00-servidor.py` da aula, rodando
+**sozinho**, num terminal próprio, por Streamable HTTP.
 
-- **ao menos uma ferramenta**, e ela deve ser a operação que o **modelo** decide
-  invocar durante o laço;
-- **ao menos um recurso**, e ele deve ser conteúdo que a **aplicação** decide
-  incluir no contexto.
-
-A separação entre os dois é o critério do §2 da nota 01, e a escolha precisa
-estar justificada em comentário no código: *por que esta operação é ferramenta e
-aquela é recurso?* Publicar como ferramenta algo que a aplicação sempre precisa
-incluir é o defeito que o exercício procura.
+- **Duas ferramentas**, `consultar_cnpj(cnpj)` e `consultar_cep(cep)`, cada uma
+  fazendo a chamada HTTP correspondente à BrasilAPI.
+- **Normalize a entrada**: aceite `19.131.243/0001-97` e `01311-902`, e mande à
+  API só os dígitos.
+- **Devolva só o que interessa**, e não o JSON inteiro da BrasilAPI. A resposta
+  do CNPJ tem dezenas de campos (sócios, CNAEs, regime tributário…), e tudo o
+  que a ferramenta devolve é texto que o cliente — ou um modelo — vai ter de
+  carregar. Justifique, em comentário, os campos que você manteve.
 
 ### 2. A descrição, tratada como prompt público
 
 Cada ferramenta precisa de uma descrição que responda três coisas:
 
 - o que a ferramenta faz;
-- o **formato exato** de cada argumento, com os valores válidos quando forem
-  enumeráveis;
-- **o que ela não faz** — a parte mais esquecida, e a que mais evita chamada
-  indevida.
+- o **formato exato** do argumento — quantos dígitos, se aceita pontuação;
+- **o que ela não faz** — por exemplo, `consultar_cnpj` não devolve
+  coordenadas, e `consultar_cep` não busca por nome de rua.
 
-Registre, em `exercicios/aula-10-servidor-mcp.md`, **duas versões** da descrição de uma das ferramentas: a
-primeira que você escreveu e a versão corrigida depois de observar o modelo
-escolher errado. A diferença entre as duas, com o número de chamadas de cada
-uma, é item de avaliação.
+O seu cliente não lê a descrição; um agente leria. Escreva-a para ele.
 
 ### 3. O erro, classificado
 
 Toda ferramenta do servidor deve distinguir:
 
-| Natureza | Como volta |
-|---|---|
-| erro de **domínio** (argumento inválido, registro inexistente) | como **conteúdo**, com o que errou, qual era o certo e o que fazer agora |
-| erro de **protocolo ou infraestrutura** | como falha, tratada pelo código do cliente |
+| Natureza | Exemplo | Como volta |
+|---|---|---|
+| erro de **domínio** | CNPJ com 13 dígitos; CNPJ ou CEP inexistente (a BrasilAPI responde 404) | como **conteúdo**, dizendo o que errou, qual era o formato certo e o que fazer agora |
+| erro de **infraestrutura** | BrasilAPI fora do ar, *timeout*, resposta 5xx | como **falha**, tratada pelo código do cliente |
 
-Um erro de domínio devolvido como falha de protocolo desaparece do contexto do
-modelo, e ele repete o mesmo argumento até o orçamento acabar.
+Defina um *timeout* para a chamada HTTP. Sem ele, uma BrasilAPI lenta prende o
+servidor, e o cliente junto.
 
-### 4. A escrita, idempotente
+### 4. O cliente
 
-Se o servidor expõe alguma operação com efeito no mundo, ela precisa de **chave
-de idempotência derivada do conteúdo** e de `ja_existia` no retorno. A razão
-mudou em relação à Aula 05: aqui a proteção é contra clientes que **você não
-escreveu e não controla**.
+Escreva o cliente com o `ClientSession` do SDK, como o `02-agente-com-mcp.py`.
+Ele deve:
 
-`uuid4()` a cada chamada não é chave de idempotência.
+1. receber o CNPJ pela linha de comando:
+   `python cliente_cnpj.py 19.131.243/0001-97`;
+2. abrir a sessão e **listar as ferramentas** do servidor, falhando com mensagem
+   clara se `consultar_cnpj` ou `consultar_cep` não estiverem lá;
+3. chamar `consultar_cnpj` e extrair da resposta a razão social e o CEP;
+4. chamar `consultar_cep` **com o CEP da empresa**;
+5. apresentar o resultado no formato da seção seguinte. O **endereço** sai da
+   resposta do CEP — rua, bairro, cidade e UF —, e não da do CNPJ: é a segunda
+   consulta que justifica existir.
 
-### 5. O agente, sem reescrita
+O encadeamento é do **cliente**: o servidor não sabe que as duas ferramentas
+são usadas juntas, e não deve saber. `consultar_cep` precisa continuar servindo
+a quem só tem um CEP na mão.
 
-Conecte o agente do case ao servidor. Demonstre, com `git diff` no relatório de
-entrega, que **o laço, o objeto de estado, o orçamento, o motivo de término e o
-detector de laço não mudaram**. Se algum deles mudou, explique por quê — pode ser
-uma decisão legítima, mas precisa ser deliberada.
+Quando a primeira consulta devolver erro de domínio, o cliente **não** faz a
+segunda: mostra o erro e termina.
 
-### 6. A medição
+### 5. O carimbo
 
-Escreva um script que imprima, para a configuração atual do seu sistema:
-
-- número de ferramentas ativas;
-- quantas delas o agente efetivamente chamou, no conjunto de tarefas do case;
-- as famílias de nomes próximos entre servidores diferentes.
-
-Rode-o em duas configurações: com **todos** os servidores que o seu sistema
-poderia usar, e com o conjunto que você decidiu **manter ativo**. A diferença
-entre os dois números é o resultado do exercício.
-
-### 7. A decisão de adoção, para o resto do sistema
-
-Liste todas as integrações do seu case em uma tabela:
-
-| Integração | Consumidores | Sobrecarga / valor do trabalho | Vira MCP? | Por quê |
-|---|---|---|---|---|
-
-**Pelo menos uma delas deve ser recusada**, e a recusa precisa estar justificada
-pelo critério da aula: MCP paga quando há mais de um dono, e não paga quando a
-operação é de alta frequência e baixa complexidade. Um sistema em que tudo vira
-MCP indica que o critério não foi aplicado.
-
-### 8. O carimbo
-
-O versionamento da Aula 03 continua valendo, e esta aula acrescenta dois campos:
-**a revisão da especificação do protocolo** e **a versão do servidor consumido**.
-
-A razão é diferente das anteriores. Nos casos da Aula 06 e da Aula 08, quem muda
-o carimbo é quem roda o experimento. Num servidor de terceiro, **quem muda é
-outra pessoa** — sem aviso, e sem que o resultado deixe de ser sintaticamente
-válido.
-
-Fixe a versão do servidor consumido, como se fixa qualquer dependência.
+Registre, no cabeçalho do servidor, a **revisão da especificação do protocolo**
+e a **versão do SDK** (`mcp`) usadas. Num servidor de terceiro, quem muda esses
+números é outra pessoa — sem aviso, e sem que a resposta deixe de ser
+sintaticamente válida.
 
 ## O que deve sair na tela
 
 ```
-SERVIDOR: <nome>
-  ferramentas ..... <n>   (<lista>)
-  recursos ........ <n>   (<lista de URIs>)
-  revisão do protocolo: <AAAA-MM-DD>   versão do servidor: <x.y.z>
+$ python cliente_cnpj.py 19.131.243/0001-97
 
-AGENTE
-  linhas alteradas no laço ............ 0
-  linhas alteradas no estado .......... 0
-  linhas alteradas no orçamento ....... 0
+SERVIDOR: <nome>   (ferramentas: consultar_cnpj, consultar_cep)
 
-FERRAMENTAS DECLARADAS
-  configuração    ferram.   chamadas no conjunto de tarefas
-  todos              <n>      <n>
-  ativos             <n>      <n>
-  desativadas        <n>
-
-FAMÍLIAS DE NOME PRÓXIMO
-  <prefixo>_*   <ferramentas que colidem>
-
-DECISÃO DE ADOÇÃO
-  <integração> ... MCP      (<n> consumidores)
-  <integração> ... função   (1 consumidor, alta frequência)
+CNPJ ............ 19.131.243/0001-97
+Razão social .... OPEN KNOWLEDGE BRASIL
+CEP ............. 01311-902
+Endereço ........ Avenida Paulista 37 — Bela Vista, São Paulo/SP
+Lat / Long ...... -23.5475 / -46.63611
 ```
+
+Quando o CEP não tiver coordenadas:
+
+```
+Lat / Long ...... não disponível para este CEP
+```
+
+Quando o CNPJ for inválido ou não existir, a mensagem de erro de domínio que o
+**servidor** devolveu, e nenhuma linha de endereço.
+
+Teste com pelo menos três CNPJs: um válido com coordenadas, um com formato
+inválido e um com formato válido que não exista.
 
 ## Desafios opcionais
 
-**A.** Implemente a variante por **execução de código** sobre o mesmo servidor:
-o agente descobre a função de que precisa e escreve o código que a chama, em vez
-de receber todas as declarações. Reporte quantos registros deixaram de
-atravessar o modelo no mesmo conjunto de tarefas, e descreva em uma frase o
-risco que essa variante introduz.
+**A. O mesmo servidor, consumido por um agente.** Conecte um agente — o laço do
+`02-agente-com-mcp.py`, trocando o servidor da aula pelo seu — ao seu
+servidor e pergunte *"onde fica a empresa do CNPJ 19.131.243/0001-97?"*. Agora
+quem decide encadear as duas ferramentas é o **modelo**, guiado só pelas
+descrições. Ele fez as duas chamadas? Na ordem certa? Registre quantas chamadas
+foram feitas e compare com o seu cliente, que faz sempre exatamente duas.
 
-**B.** Conecte o agente a um servidor MCP público de terceiro e conte quantas
-ferramentas ele sozinho acrescenta. Descreva o que você precisaria verificar
-antes de usá-lo num sistema real.
+**B. Um recurso.** Exponha como **recurso** algo que a aplicação sempre
+precisa e que não depende de pergunta nenhuma — por exemplo, a lista de UFs com
+o nome por extenso, para o cliente escrever *São Paulo (SP)*. Justifique por que
+aquilo é recurso, e não ferramenta.
 
 ## Entrega
 
-No repositório do trabalho:
-
-- o servidor, o cliente e o script de medição, com **parâmetros e justificativas
-  no código** — sem relatório à parte;
-- em `exercicios/aula-10-servidor-mcp.md`: as duas versões da descrição, a tabela de decisão de adoção e o
-  carimbo com os dois campos novos;
-- o `git diff` que evidencia o requisito 5.
-
-> **Onde isto reaparece:** a **Parte 3 do trabalho** pede `docs/mcp.md`. O que você escreve aqui é o rascunho dele — na entrega, consolidado em `docs/`.
+- o servidor e o cliente, com **parâmetros e justificativas no código** — sem
+  relatório à parte;
+- a saída do cliente para os três CNPJs de teste, colada no fim do arquivo do
+  cliente, em comentário;
+- a resposta à questão do início, em comentário no cabeçalho do cliente.
 
 ## Dicas
 
-- A ferramenta que você já tem provavelmente vira servidor com pouco mais que um
-  decorador. O trabalho do exercício **não é** esse; é a descrição, o erro, a
-  idempotência e a conta.
-- Conte as declarações **antes** de decidir o que desativar. A ordem inversa
-  produz uma decisão que não se consegue defender.
-- Se todas as suas integrações passarem no critério de adoção, releia o
-  critério.
+- `requests` e `httpx` já estão no `requirements.txt` da disciplina. A
+  BrasilAPI responde em JSON; `resposta.json()` resolve.
+- A BrasilAPI tem limite de requisições. Durante o desenvolvimento, teste com
+  poucos CNPJs, e não num laço.
+- Formate o CNPJ e o CEP com pontuação **só na hora de imprimir**. Entre o
+  cliente e o servidor, e entre o servidor e a API, circulam só dígitos.
+- Se o cliente tiver uma linha com `brasilapi.com.br`, releia o Requisito 4.
