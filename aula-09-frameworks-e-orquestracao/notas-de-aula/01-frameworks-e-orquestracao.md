@@ -10,7 +10,7 @@ O resto da nota acompanha o laboratório na ordem em que ele roda: as duas peça
 
 > **Pré-requisitos:** Aula 05, [nota 01](../../aula-08-memoria/notas-de-aula/01-o-agente-e-o-estado.md) — o estado e o laço · [nota 02](../../aula-05-arquitetura-de-agentes/notas-de-aula/02-confiabilidade.md) — orçamento, término e classificação de erro · Aula 08, as três memórias.
 >
-> **Código:** [`aula09-framework/`](https://github.com/celsocrivelaro/senac-llm-code/tree/main/aula09-framework) — quinze arquivos, numerados na ordem desta nota.
+> **Código:** [`aula09-framework/`](https://github.com/celsocrivelaro/senac-llm-code/tree/main/aula09-framework) — catorze arquivos, numerados na ordem desta nota.
 
 ---
 
