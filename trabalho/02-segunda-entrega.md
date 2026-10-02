@@ -22,7 +22,7 @@ Os exercícios das Aulas 06 a 08 foram feitos **no repositório deste trabalho**
 |---|---|---|
 | **06** — o buscador | conjunto de perguntas com resposta conhecida · três estratégias de corte medidas com `recall@k` · as quatro cegueiras no seu corpus | o corpus **do case**, curado e declarado · a decisão de corte defendida como decisão de projeto |
 | **07** — a resposta que cita e recusa *(complementar)* | pipeline completo · citação verificada em código · o portão com limiar medido · `recall` e fidelidade separados | a recuperação **integrada ao laço do agente**, e não um pipeline paralelo |
-| **08** — a memória do seu agente | os dois níveis de memória com o orçamento da janela · as três memórias nas estruturas certas · o que **não** entra · as três causas de esquecimento, com a cobertura da remoção | a **implementação** do que o projeto decidiu, e as medições que o sustentam |
+| **08** — a memória do seu agente | os dois níveis de memória · as três memórias nas estruturas certas · o que **não** entra · as três causas de esquecimento, com a cobertura da remoção | a **implementação** do que o projeto decidiu, e as medições que o sustentam |
 | **08** — a memória do case *(complementar, de código)* | as três memórias nas estruturas certas · política de escrita · desempate por carimbo de tempo · esquecimento seletivo | a fronteira com o checkpoint **e com o RAG**, declarada no seu domínio |
 | **09** — o laboratório do framework | os padrões da Aula 05 como grafo · estado com reducer · checkpointer e `interrupt` rodando | **o seu** grafo: os padrões escolhidos e recusados, o estado do seu domínio, e o ponto de parada no seu caso |
 
@@ -129,7 +129,7 @@ O texto responde, sobre o sistema como ele está hoje:
 | **as ferramentas** | quais são, o que fazem, leitura ou escrita, reversível ou não |
 | **o laço** | o que acontece a cada volta, e o que faz a volta seguinte existir |
 | **o estado** | o que é um objeto explícito, e o que ficou na lista de mensagens |
-| **o orçamento** | os tetos de passos, de tokens, de tempo e — se houver custo — de dinheiro |
+| **o orçamento** | os tetos de **passos** e de **tempo**: o que impede uma execução de não acabar. A conta em tokens e em dinheiro é da Parte 3 |
 | **o término** | a taxonomia completa dos motivos pelos quais uma execução acaba |
 | **o humano** | onde ele entra, **qual perfil de pessoa** é chamado, e o que acontece se ele não responder |
 
@@ -278,9 +278,12 @@ Antes da taxonomia fina, a divisão que organiza tudo o mais:
 Declarem o que ocupa cada célula **no seu case**. A coluna da esquerda é a
 que costuma ser tratada como óbvia: digam o que exatamente precisa estar no
 checkpoint para que a execução seja retomável sem reaplicar efeito colateral,
-e declarem o **teto em tokens de cada uma das cinco fontes** que disputam a
-janela — e o que é descartado primeiro quando o total estoura. Um sistema sem
-essa decisão a toma sozinha, e trunca no fim, que é onde está o mais recente.
+e declarem a **ordem de descarte** entre as fontes que disputam a janela: quando
+o contexto não cabe, o que sai primeiro e o que nunca sai. Um sistema sem essa
+decisão a toma sozinha, e trunca no fim, que é onde está o mais recente.
+
+> **A conta em tokens é da Parte 3.** Aqui o que se cobra é a **decisão** —
+> quem cede lugar a quem —, não a medida.
 
 Feito isso, a fronteira entre as três estruturas que guardam informação.
 Declarem, **no seu case**, a diferença entre elas. Elas se confundem porque as três guardam informação, e a confusão produz sistemas que serializam tudo e não lembram de nada:
@@ -293,7 +296,7 @@ Declarem, **no seu case**, a diferença entre elas. Elas se confundem porque as 
 | leitura | uma vez, no início | por relevância, a cada volta | por relevância, quando pedido |
 | quem escreve | o sistema | o sistema | ninguém — o corpus é curado |
 
-Serializar o estado de todas as execuções **não produz memória**: produz arquivo morto. Demonstrem com número — quantos tokens ocuparia o arquivo morto contra quantos ocupa a memória recuperada por relevância.
+Serializar o estado de todas as execuções **não produz memória**: produz arquivo morto. Digam, no seu case, o que a recuperação por relevância traz que a serialização integral não traria — e o que ela deixa para trás.
 
 ### 4.2 As três memórias
 
@@ -467,7 +470,7 @@ Reimplantem sobre o grafo, e **contem as linhas que isso custou**:
 
 - **o motivo de término** — o nó terminal diz que acabou, não diz por quê;
 - **o detector de laço** — `recursion_limit` limita o dano e não detecta; um agente preso na primeira volta gasta o teto inteiro e devolve o diagnóstico errado;
-- **os tetos** — verifiquem quais dos quatro da Aula 05 (passos, tokens, tempo, dinheiro) o framework cobre. Provavelmente só o de passos;
+- **os tetos** — dos quatro da Aula 05, verifiquem quais o framework cobre. Provavelmente só o de passos;
 - **erro recuperável × fatal** — a classificação continua sendo de vocês.
 
 Uma frente que o framework cobre inteira também conta, e com evidência: `arquivo:linha` mostrando que vocês **não** precisaram escrever aquilo.
