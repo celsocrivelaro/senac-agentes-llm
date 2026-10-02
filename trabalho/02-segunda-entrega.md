@@ -24,7 +24,7 @@ Os exercícios das Aulas 06 a 08 foram feitos **no repositório deste trabalho**
 | **07** — a resposta que cita e recusa *(complementar)* | pipeline completo · citação verificada em código · o portão com limiar medido · `recall` e fidelidade separados | a recuperação **integrada ao laço do agente**, e não um pipeline paralelo |
 | **08** — a memória do seu agente | os dois níveis de memória · as três memórias nas estruturas certas · o que **não** entra · as três causas de esquecimento, com a cobertura da remoção | a **implementação** do que o projeto decidiu, e as medições que o sustentam |
 | **08** — a memória do case *(complementar, de código)* | as três memórias nas estruturas certas · política de escrita · desempate por carimbo de tempo · esquecimento seletivo | a fronteira com o checkpoint **e com o RAG**, declarada no seu domínio |
-| **09** — o laboratório do framework | os padrões da Aula 05 como grafo · estado com reducer · checkpointer e `interrupt` rodando | **o seu** grafo: os padrões escolhidos e recusados, o estado do seu domínio, e o ponto de parada no seu caso |
+| **09** — o laboratório do framework | os padrões da Aula 05 como grafo · estado com reducer · checkpointer e `interrupt` rodando | **o seu** grafo: os padrões que o seu sistema usa, o estado do seu domínio, e o ponto de parada no seu caso |
 
 **Um grupo que fez os exercícios chega nesta entrega com a maior parte do trabalho pronta.** O que falta é o que nenhum exercício isolado cobra: a integração das peças em **um sistema só**, os dois documentos de projeto — o plano de prompt e a arquitetura —, e o complemento do case.
 
@@ -165,17 +165,13 @@ A tabela abaixo é um **cardápio, não uma lista de obrigações**. Ela existe 
 
 **1. A classificação.** Para cada uma das dez perguntas do §3.3, qual forma a responde. É esse exercício que revela de quais formas o seu case precisa — e não o contrário.
 
-**2. A escolha, com justificativa por linha.** De posse da classificação, digam **quais formas vocês implementaram e quais não implementaram**, uma linha por forma, em `docs/rag.md`:
+**2. A escolha, com justificativa.** De posse da classificação, digam **quais formas o sistema implementa**, uma linha por forma usada, em `docs/rag.md`:
 
-| Forma | Implementada? | Com o quê | Por quê |
-|---|---|---|---|
-| consulta estruturada | | *qual banco, qual tabela* | |
-| busca textual | | *qual índice, qual biblioteca* | |
-| busca vetorial | | *qual banco vetorial, qual modelo de embedding, quantas dimensões* | |
-| grafo | | | |
-| agregação / pré-cálculo | | | |
+| Forma usada | Com o quê | O que ela responde no seu case |
+|---|---|---|
+| *ex: busca vetorial* | *qual banco vetorial, qual modelo de embedding, quantas dimensões* | *as seis perguntas de assunto* |
 
-**Implementar uma só é resultado legítimo**, e é o mais comum. O que não é aceito é a linha em branco: **toda forma precisa de justificativa, inclusive a recusada** — e a recusa boa aponta para a classificação (*"nenhuma das dez perguntas pede relação"*) ou para o custo (*"duas pedem, e um `JOIN` resolve as duas"*).
+**Implementar uma só é resultado legítimo**, e é o mais comum.
 
 A pergunta *"o seu RAG é vetorial ou é banco de dados?"* precisa ter resposta direta, e **"os dois" é a resposta mais comum nos sistemas que funcionam**.
 
@@ -186,8 +182,6 @@ O tratamento completo das cinco formas — incluindo quando um banco de grafo se
 ### 3.2 O corpus, e o que entra nele
 
 Declarem: que documentos entram, de onde vêm, quem os mantém e **com que frequência eles mudam**. A última pergunta é a que decide se o índice pode ser construído uma vez ou precisa ser reconstruído.
-
-E declarem o que **não** entra, com a razão. Corpus grande demais é a causa mais comum de `recall` ruim que ninguém consegue diagnosticar.
 
 **O documento revogado.** Ponham no corpus, de propósito, um documento obsoleto que responda a uma das perguntas do conjunto, e reportem o que acontece. Se o sistema não tem como saber que aquele documento não vale mais, isso é um achado — e a solução não é técnica de recuperação, é **curadoria**.
 
@@ -437,9 +431,8 @@ A Aula 05 deu cinco padrões de workflow mais o agente, e a Aula 09 mostrou como
 | avaliador-otimizador | | | |
 | agente (laço) | | | |
 
-Duas exigências sobre essa tabela:
+Uma exigência sobre essa tabela:
 
-- **Pelo menos um padrão precisa ser recusado**, com a condição de não uso dele apontada no seu case. Um sistema que usa os seis indica que a tabela foi preenchida de trás para frente.
 - **O agente é o degrau mais caro.** Se o laço livre aparece na tabela, justifiquem por que o trabalho não cabia num workflow — e a Aula 05 é explícita: autonomia é recurso escasso, e o nível certo é o **mais baixo** que resolve.
 
 ### 5.3 Quem decide cada bifurcação
@@ -697,9 +690,9 @@ Em ordem de peso:
 
 | O que se avalia | O que se espera |
 |---|---|
-| **RAG que funciona e que recusa** | as dez perguntas classificadas · **as formas escolhidas e as recusadas, cada uma justificada** · corpus declarado e curado · três cortes medidos com `recall@k` · o corte e o `k` escolhidos **com número** · citação **verificada em código** · o limiar medido, com os dois erros reportados · `recall` e fidelidade separados |
+| **RAG que funciona e que recusa** | as dez perguntas classificadas · **as formas usadas, cada uma com o que ela responde no case** · corpus declarado e curado · três cortes medidos com `recall@k` · o corte e o `k` escolhidos **com número** · citação **verificada em código** · o limiar medido, com os dois erros reportados · `recall` e fidelidade separados |
 | **Memória, e o que ela não guarda** | a fronteira com checkpoint e RAG declarada no case · as três memórias nas estruturas certas · política de escrita com volume declarado · **a lista do que não entra** · a contradição resolvida em código · o esquecimento demonstrado |
-| **O grafo, desenhado e defendido** | o desenho em ASCII, com nós, arestas e términos · os padrões da Aula 05 nomeados, com **ao menos um recusado** · o degrau de decisão de cada bifurcação justificado · **as listas de nós e arestas extraídas do grafo que o `src/` executa**, batendo com o desenho · as peças que o framework **não** deu · a decisão que virou parâmetro |
+| **O grafo, desenhado e defendido** | o desenho em ASCII, com nós, arestas e términos · os padrões da Aula 05 **nomeados e justificados** · o degrau de decisão de cada bifurcação justificado · **as listas de nós e arestas extraídas do grafo que o `src/` executa**, batendo com o desenho · as peças que o framework **não** deu · a decisão que virou parâmetro |
 | **O estado, e os reducers** | a tabela de campos com quem escreve e quem lê · o reducer de cada campo acumulado, justificado · **a execução que demonstra o que acontece sem ele** · as duas listas do que não está no estado |
 | **Human-in-the-loop** | os pontos de parada marcados no diagrama, com critério · o que a pessoa vê, com a ação e a consequência · **aprovar editando** funcionando · o prazo e o que acontece quando vence · **a segunda aprovação que não duplica nada** |
 | **Entrada e saída** | **a entrada é texto livre** · contrato de saída validado, com fonte e suficiência · **os três exemplos documentados**, cada um com entrada exata, saída inteira e o que ler nela · cada exemplo amarrado a commit, data e log · as três entradas que não dão para atender |
@@ -756,8 +749,6 @@ Markdown, sempre — nada de `.docx` nem `.pdf`, para que o `git diff` funcione.
 - **Escrevam as dez perguntas do §3.3 antes de indexar qualquer coisa.** Quem indexa primeiro escreve perguntas que o índice já responde. Se as três estratégias derem o mesmo `recall`, o conjunto é fácil demais.
 
 - **Desenhem o grafo do §5.1 no papel antes de abrir o editor.** O desenho leva vinte minutos e revela os términos que vocês não tinham pensado. Depois confiram contra as listas que o `conferir_grafo.py` extrai do código: se diferirem, o desenho estava errado.
-
-- **Preencham a tabela de padrões do §5.2 com uma recusa primeiro.** Começar pelos que vocês usam faz a tabela virar justificativa do que já estava escrito.
 
 - **Quebrem o reducer de propósito, uma vez.** A execução do §6.2 — o campo sobrescrito, sem erro nenhum — é a única forma de o grupo inteiro entender por que ele existe.
 
