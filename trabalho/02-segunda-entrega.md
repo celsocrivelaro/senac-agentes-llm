@@ -8,8 +8,6 @@ Nesta entrega o agente vira um sistema completo: um **grafo** de nós e arestas,
 
 Cada frente acrescenta uma dessas peças, e cada peça vem acompanhada da decisão de projeto que a explica: por que esta forma de recuperar, por que este corte, por que o grafo tem esta topologia, onde o sistema para e espera alguém.
 
-> **MCP saiu desta entrega.** Publicar a integração como servidor passou para a **Parte 3**, junto com multiagente — é lá que ela encontra o problema que a justifica, que é mais de um agente consumindo a mesma ferramenta. A integração com software tradicional continua valendo aqui, como ferramenta do agente.
-
 ---
 
 ## Esta entrega não começa do zero
@@ -138,7 +136,7 @@ As quatro colunas depois do nome da etapa:
 
 **O contrato de saída, exato.** Formato, campos obrigatórios, valores válidos quando enumeráveis, e **o que é proibido aparecer**. Dizer apenas "JSON" deixa de fora tudo o que o consumidor precisa saber para tratar a resposta.
 
-**Como a etapa é testada.** A forma de saber que aquela etapa funciona — quantos casos, com que critério de acerto. Estes testes são o embrião do conjunto de avaliação que a Parte 3 retoma.
+**Como a etapa é testada.** A forma de saber que aquela etapa funciona — quantos casos, com que critério de acerto.
 
 ### 2.2 Os prompts em arquivo
 
@@ -176,7 +174,7 @@ O texto responde, sobre o sistema como ele está hoje:
 | **as ferramentas** | quais são, o que fazem, leitura ou escrita, reversível ou não |
 | **o laço** | o que acontece a cada volta, e o que faz a volta seguinte existir |
 | **o estado** | o que é um objeto explícito, e o que ficou na lista de mensagens |
-| **o orçamento** | os tetos de **passos** e de **tempo**: o que impede uma execução de não acabar. A conta em tokens e em dinheiro é da Parte 3 |
+| **o orçamento** | os tetos de **passos** e de **tempo**: o que impede uma execução de não acabar |
 | **o término** | a taxonomia completa dos motivos pelos quais uma execução acaba |
 | **o humano** | onde ele entra, **qual perfil de pessoa** é chamado, e o que acontece se ele não responder |
 
@@ -186,7 +184,7 @@ A última linha merece atenção: um sistema que suspende esperando aprovação 
 
 A regra da disciplina é **usar a menor autonomia que resolve**. Digam qual é o nível — workflow, roteador ou agente — e **por que o de baixo não servia**.
 
-A defesa é feita **com o sistema rodando**, e não em hipótese. Aponte, **no diagrama**, a decisão concreta que só o modelo consegue tomar em tempo de execução. Se não houver nenhuma, o sistema é um workflow — o que é um resultado legítimo, desde que declarado, e desde que vocês digam onde a decisão entra na Parte 3.
+A defesa é feita **com o sistema rodando**, e não em hipótese. Aponte, **no diagrama**, a decisão concreta que só o modelo consegue tomar em tempo de execução. Se não houver nenhuma, o sistema é um workflow — e isso é um resultado legítimo, desde que declarado.
 
 ---
 
@@ -236,13 +234,11 @@ Declarem: que documentos entram, de onde vêm, quem os mantém e **com que frequ
 
 **O conjunto de perguntas.** No mínimo **dez**, cada uma com o trecho do corpus que a responde identificado. Duas exigências de composição: ao menos duas perguntas cuja resposta depende de uma **exceção**, e ao menos uma cuja resposta **não está no corpus** — esta é a mais informativa das dez, e é ela que exercita a recusa do contrato de saída (§1.2).
 
-> Este conjunto é o primeiro *dataset* de avaliação do trabalho, e a Parte 3 o retoma sob esse nome. Escrevam-no como se fosse durar o semestre, porque vai.
+> Este conjunto é o primeiro *dataset* de avaliação do trabalho. Escrevam-no como se fosse durar o semestre, porque vai.
 
 **A estratégia de corte.** Por caracteres, com sobreposição, por estrutura do documento, ou outra. Declarem a escolhida e **por que ela serve ao seu corpus**: um regulamento com artigos numerados pede corte por estrutura; uma transcrição corrida, não.
 
 **O `k`.** Quantos trechos vão para o contexto. Declarem o valor e a razão: `k` alto esconde defeito de índice e enche a janela; `k` baixo perde a resposta.
-
-> **A medição fica para a Parte 3.** Aqui o que se cobra é a **decisão declarada** e o conjunto de perguntas escrito. Comparar estratégias de corte com `recall@k` é trabalho da suíte de avaliação, e é lá que ele tem onde se apoiar.
 
 ### 4.4 Onde a recuperação entra no laço
 
@@ -316,7 +312,7 @@ Três opções, e cada uma tem preço:
 | o **código** extrai por regra | perde o que a regra não previu |
 | o **humano** corrige | não escala |
 
-Escolham uma — ou uma combinação — e declarem o **volume de escrita por execução**: quantos registros, de que tamanho. O que esse volume custa em dinheiro e em armazenamento é assunto da Parte 3, e é bom que o número já exista.
+Escolham uma — ou uma combinação — e declarem o **volume de escrita por execução**: quantos registros, de que tamanho.
 
 **A escrita de memória é escrita.** Ela tem efeito no mundo, e portanto exige chave de idempotência **derivada do conteúdo**, com `ja_existia` no retorno. É a derivação que permite reconhecer a repetição: o mesmo conteúdo produz a mesma chave.
 
@@ -482,9 +478,9 @@ Duas listas curtas, e a segunda é a que vale nota:
 
 ### 7.4 O estado entre agentes
 
-Se o sistema já tem mais de um agente — e não precisa ter, isso é Parte 3 —, declarem **o que um passa ao outro**: o estado inteiro, um subconjunto, ou um objeto de contrato próprio.
+Se o sistema tiver mais de um agente — e ele não precisa ter —, declarem **o que um passa ao outro**: o estado inteiro, um subconjunto, ou um objeto de contrato próprio.
 
-Passar o estado inteiro é a escolha fácil e a que mais atrapalha depois: acopla os dois agentes a cada campo novo. Se foi essa a escolha, digam que é provisória e o que a Parte 3 vai ter de mudar.
+Passar o estado inteiro acopla os dois agentes a cada campo novo: qualquer alteração no estado alcança os dois. Se foi essa a escolha, digam se ela é definitiva ou provisória.
 
 ---
 
