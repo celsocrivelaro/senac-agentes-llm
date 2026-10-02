@@ -4,7 +4,7 @@
 
 ## Contexto
 
-Esta entrega avalia **a qualidade de uma construção**, e cada frente acrescenta uma peça ao sistema **e cobra uma evidência por ela**. O `recall` da estratégia de corte que vocês escolheram. A taxa de recusa indevida do portão. As linhas que vocês tiveram de escrever porque o framework não cobria. O log das duas aprovações provando que a segunda não criou nada.
+Esta entrega avalia **a qualidade de uma construção**, e cada frente acrescenta uma peça ao sistema **e cobra uma evidência por ela**. A decisão de corte, declarada com a razão. A taxa de recusa indevida do portão. As linhas que vocês tiveram de escrever porque o framework não cobria. O log das duas aprovações provando que a segunda não criou nada.
 
 > **A regra desta parte:** nenhuma decisão de projeto é aceita como preferência. Toda escolha vem com a medida que a sustenta — e, quando a medida contraria a escolha óbvia, **é a medida que vale**.
 
@@ -20,8 +20,8 @@ Os exercícios das Aulas 06 a 08 foram feitos **no repositório deste trabalho**
 
 | De onde vem | O que já está entregue | O que a Parte 2 acrescenta em cima |
 |---|---|---|
-| **06** — o buscador | conjunto de perguntas com resposta conhecida · três estratégias de corte medidas com `recall@k` · as quatro cegueiras no seu corpus | o corpus **do case**, curado e declarado · a decisão de corte defendida como decisão de projeto |
-| **07** — a resposta que cita e recusa *(complementar)* | pipeline completo · citação verificada em código · o portão com limiar medido · `recall` e fidelidade separados | a recuperação **integrada ao laço do agente**, e não um pipeline paralelo |
+| **06** — o buscador | conjunto de perguntas com resposta conhecida · as estratégias de corte comparadas · as quatro cegueiras no seu corpus | o corpus **do case**, curado e declarado · a decisão de corte defendida como decisão de projeto |
+| **07** — a resposta que cita e recusa *(complementar)* | pipeline completo · citação verificada em código · o portão com limiar escolhido | a recuperação **integrada ao laço do agente**, e não um pipeline paralelo |
 | **08** — a memória do seu agente | os dois níveis de memória · as três memórias nas estruturas certas · o que **não** entra · as três causas de esquecimento, com a cobertura da remoção | a **implementação** do que o projeto decidiu, e as medições que o sustentam |
 | **08** — a memória do case *(complementar, de código)* | as três memórias nas estruturas certas · política de escrita · desempate por carimbo de tempo · esquecimento seletivo | a fronteira com o checkpoint **e com o RAG**, declarada no seu domínio |
 | **09** — o laboratório do framework | os padrões da Aula 05 como grafo · estado com reducer · checkpointer e `interrupt` rodando | **o seu** grafo: os padrões que o seu sistema usa, o estado do seu domínio, e o ponto de parada no seu caso |
@@ -145,7 +145,7 @@ A defesa é feita **com o sistema rodando**, e não em hipótese. Aponte, **no d
 
 ## 3. RAG como memória consultável
 
-Não é um chatbot sobre PDFs. É **o conhecimento de domínio que os agentes precisam para decidir** — e a diferença aparece no §3.7.
+Não é um chatbot sobre PDFs. É **o conhecimento de domínio que os agentes precisam para decidir** — e a diferença aparece no §3.6.
 
 ### 3.1 As formas de recuperar, e as que o seu case usa
 
@@ -185,17 +185,17 @@ Declarem: que documentos entram, de onde vêm, quem os mantém e **com que frequ
 
 **O documento revogado.** Ponham no corpus, de propósito, um documento obsoleto que responda a uma das perguntas do conjunto, e reportem o que acontece. Se o sistema não tem como saber que aquele documento não vale mais, isso é um achado — e a solução não é técnica de recuperação, é **curadoria**.
 
-### 3.3 O corte, escolhido com número
+### 3.3 O corte, e as dez perguntas
 
-Três estratégias — por caracteres, com sobreposição, e por estrutura do documento — medidas com `recall@k` sobre o **mesmo** conjunto de perguntas, em **dois** valores de `k`.
-
-O conjunto de perguntas tem no mínimo **dez**, cada uma com o trecho que a responde identificado, e ele obedece a duas exigências de composição: ao menos duas perguntas cuja resposta depende de uma **exceção**, e ao menos uma cuja resposta **não está no corpus**.
-
-Esta última é a mais informativa das dez, e é ela que valida o portão do §3.5.
+**O conjunto de perguntas.** No mínimo **dez**, cada uma com o trecho do corpus que a responde identificado. Duas exigências de composição: ao menos duas perguntas cuja resposta depende de uma **exceção**, e ao menos uma cuja resposta **não está no corpus** — esta é a mais informativa das dez, e é ela que valida o portão do §3.5.
 
 > Este conjunto é o primeiro *dataset* de avaliação do trabalho, e a Parte 3 o retoma sob esse nome. Escrevam-no como se fosse durar o semestre, porque vai.
 
-Declarem a estratégia escolhida, o `k` escolhido e a razão de cada um. `k` alto esconde defeito de índice e enche a janela; `k` baixo perde a resposta.
+**A estratégia de corte.** Por caracteres, com sobreposição, por estrutura do documento, ou outra. Declarem a escolhida e **por que ela serve ao seu corpus**: um regulamento com artigos numerados pede corte por estrutura; uma transcrição corrida, não.
+
+**O `k`.** Quantos trechos vão para o contexto. Declarem o valor e a razão: `k` alto esconde defeito de índice e enche a janela; `k` baixo perde a resposta.
+
+> **A medição fica para a Parte 3.** Aqui o que se cobra é a **decisão declarada** e o conjunto de perguntas escrito. Comparar estratégias de corte com `recall@k` é trabalho da suíte de avaliação, e é lá que ele tem onde se apoiar.
 
 ### 3.4 A citação verificável
 
@@ -224,19 +224,7 @@ E os dois erros, medidos separadamente:
 
 Um limiar que zera o primeiro e dispara o segundo produz um sistema que ninguém usa. **Declarem a troca escolhida**, e liguem-na ao custo do erro do seu domínio — se errar para um lado é muito pior, o limiar reflete isso.
 
-### 3.6 As duas métricas, separadas
-
-`recall` mede a **busca**. Fidelidade mede a **geração**. Medi-las juntas impede o diagnóstico:
-
-| `recall` | fidelidade | Onde está o defeito |
-|---|---|---|
-| baixo | — | índice ou corte |
-| alto | baixa | prompt de resposta |
-| alto | alta, e a resposta está errada | **corpus** |
-
-A terceira linha é a que quase ninguém considera e a mais desconfortável: o sistema fez tudo certo sobre um documento desatualizado. É o §3.2 cobrando a conta.
-
-### 3.7 Onde a recuperação entra no laço
+### 3.6 Onde a recuperação entra no laço
 
 **Este item é o que separa RAG de "colar o documento no prompt", e ele é específico desta entrega.**
 
@@ -249,7 +237,7 @@ A segunda é o que a visão geral quer dizer com *memória consultável*: o conh
 
 Reportem o número de chamadas de recuperação por execução na forma escolhida. Se escolheram etapa fixa, digam quantas dessas buscas foram inúteis.
 
-### 3.8 A expansão de conhecimento, demonstrada
+### 3.7 A expansão de conhecimento, demonstrada
 
 O RAG só se justifica se o agente **passa a saber algo que não sabia**. Demonstrem isso com um par de execuções sobre a mesma pergunta:
 
@@ -634,8 +622,8 @@ Toda execução registra, no início, a combinação que a produziu. São **dez 
 | modelo | 03 | outro motor |
 | parâmetros | 03 | `temperature` e `top_p` mudam a distribuição |
 | arquitetura da etapa | 05 | trocar *workflow* por agente é mudança de versão |
-| estratégia de corte | 06 | trocar o corte invalida o `recall` anterior |
-| modelo de embedding | 06 | reindexar com outro modelo muda o `recall` **sem ninguém mudar o código** |
+| estratégia de corte | 06 | trocar o corte muda o que é recuperado, e a resposta com ele |
+| modelo de embedding | 06 | reindexar com outro modelo muda a recuperação **sem ninguém mudar o código** |
 | `k` | 07 | mais ou menos contexto, outra resposta |
 | versão do prompt de resposta | 07 | é um segundo prompt, com vida própria |
 | estado da memória | 08 | duas execuções com memórias diferentes **não são comparáveis** |
@@ -690,7 +678,7 @@ Em ordem de peso:
 
 | O que se avalia | O que se espera |
 |---|---|
-| **RAG que funciona e que recusa** | as dez perguntas classificadas · **as formas usadas, cada uma com o que ela responde no case** · corpus declarado e curado · três cortes medidos com `recall@k` · o corte e o `k` escolhidos **com número** · citação **verificada em código** · o limiar medido, com os dois erros reportados · `recall` e fidelidade separados |
+| **RAG que funciona e que recusa** | as dez perguntas escritas e classificadas · **as formas usadas, cada uma com o que ela responde no case** · corpus declarado e curado · **o corte e o `k` declarados, com a razão** · citação **verificada em código** · o portão implementado, com a troca entre os dois erros declarada · **a expansão demonstrada, com e sem corpus** |
 | **Memória, e o que ela não guarda** | a fronteira com checkpoint e RAG declarada no case · as três memórias nas estruturas certas · política de escrita com volume declarado · **a lista do que não entra** · a contradição resolvida em código · o esquecimento demonstrado |
 | **O grafo, desenhado e defendido** | o desenho em ASCII, com nós, arestas e términos · os padrões da Aula 05 **nomeados e justificados** · o degrau de decisão de cada bifurcação justificado · **as listas de nós e arestas extraídas do grafo que o `src/` executa**, batendo com o desenho · as peças que o framework **não** deu · a decisão que virou parâmetro |
 | **O estado, e os reducers** | a tabela de campos com quem escreve e quem lê · o reducer de cada campo acumulado, justificado · **a execução que demonstra o que acontece sem ele** · as duas listas do que não está no estado |
@@ -705,7 +693,7 @@ Em ordem de peso:
 
 E o que **não** conta: quantidade de código, número de ferramentas, número de documentos no corpus, sofisticação visual.
 
-**Resultados negativos bem medidos contam a favor**, e vale repetir porque os grupos não acreditam: "o corte por estrutura perdeu para o corte por caracteres, e aqui está o `recall`", "recusamos o padrão avaliador-otimizador, e aqui está por quê", e "o paralelismo do grafo não reduziu o tempo, porque o provedor serializa" são entregas boas. Medição que contraria a expectativa é o produto mais valioso de uma engenharia honesta.
+**Resultados negativos bem medidos contam a favor**, e vale repetir porque os grupos não acreditam: "o corte por estrutura não serviu ao nosso corpus, e aqui está por quê", "recusamos o padrão avaliador-otimizador, e aqui está por quê", e "o paralelismo do grafo não reduziu o tempo, porque o provedor serializa" são entregas boas. Medição que contraria a expectativa é o produto mais valioso de uma engenharia honesta.
 
 ---
 
@@ -723,7 +711,7 @@ docs/
   modelos.md         a análise de modelos
   prompts.md         o item 1
   arquitetura.md     o item 2
-  rag.md             perguntas, recall@k, limiar, os dois erros, o corpus revogado
+  rag.md             formas usadas, perguntas, corte, k, limiar, o corpus revogado
   memoria.md         a fronteira, a política, O QUE NÃO ENTRA, a contradição
   grafo.md           o desenho, os padrões, o estado, o que o framework não deu
   humano.md          os pontos de parada, o critério, o prazo, a idempotência
@@ -746,7 +734,7 @@ Markdown, sempre — nada de `.docx` nem `.pdf`, para que o `git diff` funcione.
 
 - **A lista do §4.4 — o que a memória não guarda — antes de escrever a memória.** É mais fácil decidir o que guardar depois de ter a lista de exclusão, e essa lista é o item de maior peso da frente.
 
-- **Escrevam as dez perguntas do §3.3 antes de indexar qualquer coisa.** Quem indexa primeiro escreve perguntas que o índice já responde. Se as três estratégias derem o mesmo `recall`, o conjunto é fácil demais.
+- **Escrevam as dez perguntas do §3.3 antes de indexar qualquer coisa.** Quem indexa primeiro escreve perguntas que o índice já responde. Se qualquer estratégia de corte responder a todas, o conjunto é fácil demais.
 
 - **Desenhem o grafo do §5.1 no papel antes de abrir o editor.** O desenho leva vinte minutos e revela os términos que vocês não tinham pensado. Depois confiram contra as listas que o `conferir_grafo.py` extrai do código: se diferirem, o desenho estava errado.
 
