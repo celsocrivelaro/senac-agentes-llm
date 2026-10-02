@@ -322,17 +322,27 @@ Escolham uma — ou uma combinação — e declarem o **volume de escrita por ex
 
 ### 5.4 Como o agente perde a memória
 
-São **três causas distintas**, e elas diferem no momento em que a decisão ocorre e no que acontece com o dado:
+Há **três causas distintas**, e elas diferem no momento em que a decisão ocorre e no que acontece com o dado:
 
 | Causa | O que aconteceu | O dado é apagado? | Quando decide |
 |---|---|---|---|
 | **contradição** | o fato mudou | não | na leitura, pelo carimbo de tempo |
 | **decaimento** | o fato envelheceu sem ser contradito | sim, ou é rebaixado | em rotina |
-| **remoção** | o titular solicitou | sim, obrigatoriamente | sob demanda |
+| **remoção** | o titular solicitou | sim | sob demanda |
 
-Especifiquem as três. Para o **decaimento**, o corte em dias e a justificativa dele no domínio — o valor adequado depende da taxa de mudança do que se guarda —, e se o efeito é remover ou apenas rebaixar na ordenação.
+**A tabela é um cardápio, como a do §4.1: escolham as causas que o seu case precisa** e implementem essas. Digam quais escolheram e o que cada uma faz no sistema de vocês.
 
-Para a **remoção**, o requisito é de **cobertura**: o dado precisa sair de todas as estruturas em que foi gravado, e não apenas das que vieram à lembrança. Listem essas estruturas. A lista tem mais itens que a taxonomia sugere, e três escapam com frequência:
+O que ajuda a escolher são as três razões pelas quais o esquecimento costuma existir:
+
+- **privacidade** — alguém pede a remoção do que é seu. Um sistema que guarda dado de pessoa precisa de uma resposta aqui;
+- **custo** — a memória cresce sem parar, e o crescimento é monotônico;
+- **recuperação de incidente** — sem o esquecimento, uma memória envenenada é permanente, e cada execução futura repete o comportamento injetado.
+
+Um case cujo domínio muda pouco e que guarda pouca coisa pode não precisar de nenhuma das três — e dizer isso, com a razão, é uma resposta.
+
+**Se implementarem o decaimento**, declarem o corte em dias e a justificativa dele no domínio — o valor adequado depende da taxa de mudança do que se guarda —, e se o efeito é remover ou apenas rebaixar na ordenação.
+
+**Se implementarem a remoção**, o requisito é de **cobertura**: o dado precisa sair de todas as estruturas em que foi gravado, e não apenas das que vieram à lembrança. Listem essas estruturas. A lista costuma ter mais itens que a taxonomia sugere, e três escapam com frequência:
 
 - o **checkpoint**, que não é uma das três memórias e guarda os argumentos de cada passo;
 - o **log**, se ele registra os argumentos das chamadas de ferramenta;
@@ -340,13 +350,7 @@ Para a **remoção**, o requisito é de **cobertura**: o dado precisa sair de to
 
 A verificação é independente da remoção: gravem, verifiquem que o comportamento mudou, removam, verifiquem que voltou — e então varram as estruturas procurando o identificador.
 
-As três razões para o esquecimento existir:
-
-- **privacidade** — o titular pede a remoção;
-- **custo** — o crescimento é monotônico;
-- **recuperação de incidente** — sem ele, uma memória envenenada é permanente, e cada execução futura repete o comportamento injetado.
-
-Se o esquecimento exige reconstruir o índice inteiro, declarem isso. Ele continua servindo às duas primeiras razões e deixa de servir à terceira: uma memória envenenada que só sai com reconstrução completa é permanente até a próxima janela de manutenção.
+E se o esquecimento escolhido exigir reconstruir o índice inteiro, vale declarar: ele continua servindo à privacidade e ao custo, e deixa de servir à recuperação de incidente, porque uma memória envenenada que só sai com reconstrução completa dura até a próxima janela de manutenção.
 
 ### 5.5 A conversa, e o que sobra dela
 
