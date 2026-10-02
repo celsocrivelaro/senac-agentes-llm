@@ -63,7 +63,7 @@ Quatro perguntas, e a segunda é a que mais importa:
 
 **O que mudou no tema, e por quê.** Escopo, ferramenta, usuário principal, arquitetura. Mudar é esperado e bem-visto; o que não vale é mudar sem registrar. O `git log` de `docs/` é a evidência.
 
-**A linha de base, agora que vocês a mediram de verdade.** A §2.5 da Parte 1 pediu dez casos cronometrados. Muitos grupos estimaram. Se o número real apareceu depois — e ele costuma aparecer quando alguém finalmente conta a fila —, corrijam a conta aqui, com o valor antigo ao lado do novo. **Corrigir uma promessa com o dado na mão é o comportamento que se espera de um engenheiro; defender a promessa antiga contra o dado não é.**
+**A linha de base ainda é a mesma?** A §2.5 da Parte 1 pediu o ganho esperado com a conta à vista, e toda conta se apoia num número de partida. Se esse número mudou depois — porque alguém conversou com quem faz o trabalho, ou porque o processo real não era o que se imaginava —, corrijam a conta aqui, com o valor antigo ao lado do novo. Não é preciso medir nada de novo para esta entrega: o que se cobra é **registrar a correção quando ela existir**. **Corrigir uma promessa com o dado na mão é o comportamento que se espera de um engenheiro; defender a promessa antiga contra o dado não é.**
 
 **O verificador sobreviveu ao contato com o código?** A §2.6 declarou como vocês saberiam que a saída está certa. Depois dos exercícios das Aulas 06 a 08 rodando sobre o case, aquele verificador ainda serve? Se ele se mostrou impossível de construir, **digam isso agora** — a Parte 3 inteira se apoia nele, e é barato trocar hoje.
 
