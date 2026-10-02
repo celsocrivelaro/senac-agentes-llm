@@ -4,17 +4,13 @@
 
 ## Contexto
 
-A Parte 1 avaliou **a qualidade de uma escolha**. Vocês escolheram um problema, provaram que ele tinha verificador, mediram uma linha de base, defenderam um modelo e puseram no ar um agente deliberadamente pequeno — o suficiente para saber se o caminho existia.
-
-Ele existe. Agora a pergunta muda.
-
-Esta entrega avalia **a qualidade de uma construção**, e o que ela cobra é diferente do que a Parte 1 cobrava: cada frente acrescenta uma peça ao sistema **e cobra uma evidência por ela**. O `recall` da estratégia de corte que vocês escolheram. A taxa de recusa indevida do portão. As linhas que vocês tiveram de escrever porque o framework não cobria. O log das duas aprovações provando que a segunda não criou nada.
+Esta entrega avalia **a qualidade de uma construção**, e cada frente acrescenta uma peça ao sistema **e cobra uma evidência por ela**. O `recall` da estratégia de corte que vocês escolheram. A taxa de recusa indevida do portão. As linhas que vocês tiveram de escrever porque o framework não cobria. O log das duas aprovações provando que a segunda não criou nada.
 
 > **A regra desta parte:** nenhuma decisão de projeto é aceita como preferência. Toda escolha vem com a medida que a sustenta — e, quando a medida contraria a escolha óbvia, **é a medida que vale**.
 
 O sistema que sai daqui é um agente completo: ele é um **grafo** de nós e arestas, com estado declarado, contrato de entrada e saída, pontos onde para e espera uma pessoa, conhecimento de domínio consultável e memória do que já aconteceu.
 
-> **MCP saiu desta entrega.** Publicar a integração como servidor passou para a **Parte 3**, junto com multiagente — é lá que ela encontra o problema que a justifica, que é mais de um agente consumindo a mesma ferramenta. A integração da Parte 1 continua valendo aqui, como ferramenta do agente.
+> **MCP saiu desta entrega.** Publicar a integração como servidor passou para a **Parte 3**, junto com multiagente — é lá que ela encontra o problema que a justifica, que é mais de um agente consumindo a mesma ferramenta. A integração com software tradicional continua valendo aqui, como ferramenta do agente.
 
 ---
 
@@ -57,23 +53,23 @@ Doze itens. Os do meio são as frentes que constroem o agente:
 
 ## 0. O complemento do case
 
-Em `docs/case.md`, junto do que já existe. Desde a Parte 1 vocês passaram semanas **dentro** do domínio — lendo os documentos, conversando com quem faz o trabalho, descobrindo os casos que não cabiam na descrição original. **Nada disso está escrito em lugar nenhum**, e é o que falta para alguém de fora entender o sistema.
+Em `docs/case.md`, junto do que já existe. Vocês passaram semanas **dentro** do domínio — lendo os documentos, conversando com quem faz o trabalho, descobrindo os casos que não cabiam na descrição original. **Nada disso costuma estar escrito**, e é o que falta para alguém de fora entender o sistema.
 
-Esta seção é onde isso entra. Não é um relatório de mudanças: é o **case completado** com o que vocês aprenderam depois de escolhê-lo.
+Esta seção é onde isso entra: o case **completado** com o que o domínio ensinou.
 
-> É também a **última janela** para ajustar o rumo. A visão geral permite refinar o tema até aqui, e a Parte 3 vai cobrar a conta do que foi prometido.
+**O que vocês sabem do domínio, e que não é óbvio.** O vocabulário que ninguém de fora entende. A regra que todo mundo da área conhece e nenhum documento registra. A exceção que aparece em um caso a cada vinte e que decide a arquitetura. O passo do processo que parecia um e são três.
 
-**O que vocês sabem agora sobre o domínio e não sabiam na Parte 1.** O vocabulário que ninguém de fora entende. A regra que todo mundo da área conhece e nenhum documento registra. A exceção que aparece em um caso a cada vinte e que decide a arquitetura. O passo do processo que vocês achavam que era um e são três.
+Escrevam para quem vai ler o repositório sem ter conversado com vocês. É o teste: se um colega de outro grupo não consegue dizer, depois de ler, **por que o sistema é assim**, falta domínio escrito.
 
-**O que mudou no tema, e por quê.** Escopo, ferramenta, usuário principal, arquitetura. Mudar é esperado e bem-visto; o que não vale é mudar sem registrar. O `git log` de `docs/` é a evidência.
+**O escopo, como ele está hoje.** Qual é o problema, quem é o usuário principal, o que entra e o que fica de fora. Ajustar o escopo é esperado e bem-visto; o que não vale é ajustar sem registrar. O `git log` de `docs/` é a evidência.
 
-**A linha de base ainda é a mesma?** A §2.5 da Parte 1 pediu o ganho esperado com a conta à vista, e toda conta se apoia num número de partida. Se esse número mudou depois — porque alguém conversou com quem faz o trabalho, ou porque o processo real não era o que se imaginava —, corrijam a conta aqui, com o valor antigo ao lado do novo. Não é preciso medir nada de novo para esta entrega: o que se cobra é **registrar a correção quando ela existir**. **Corrigir uma promessa com o dado na mão é o comportamento que se espera de um engenheiro; defender a promessa antiga contra o dado não é.**
+**O verificador, como ele funciona.** Como vocês sabem que uma saída está certa — com o sistema rodando, não em hipótese. Se ele se mostrou impossível de construir, **digam agora**: a Parte 3 inteira se apoia nele, e é barato trocar hoje.
 
-**O verificador sobreviveu ao contato com o código?** A §2.6 declarou como vocês saberiam que a saída está certa. Depois dos exercícios das Aulas 06 a 08 rodando sobre o case, aquele verificador ainda serve? Se ele se mostrou impossível de construir, **digam isso agora** — a Parte 3 inteira se apoia nele, e é barato trocar hoje.
+**A linha de base do ganho prometido.** O ganho que vocês anunciaram se apoia num número de partida — quanto a tarefa custa, demora ou erra sem o sistema. Declarem o número que vale hoje. Não é preciso medir nada de novo para esta entrega; se ele mudou, basta registrar o valor atual e por que ele é esse.
 
-**O que a §2.10 previu, e o que se confirmou.** Vocês marcaram quatro caixas: RAG, MCP, LangChain e multiagente. Duas são construídas aqui — RAG e LangChain —, e as outras duas ficaram para a Parte 3. Digam, para as duas desta entrega, se o que foi construído é o que estava previsto — e **o que aprenderam quando não era**.
-
-> Um complemento que diz "nada mudou" nas três últimas perguntas é aceitável, e às vezes é verdade. Mas a primeira **não** admite resposta vazia: um grupo que passou semanas no domínio e não tem nada a acrescentar sobre ele ou não entrou no domínio, ou não percebeu que entrou.
+> **Esta é também a última janela para ajustar o rumo.** A visão geral permite refinar o tema até aqui, e a Parte 3 vai cobrar a conta do que foi prometido.
+>
+> E a primeira pergunta **não** admite resposta vazia: um grupo que passou semanas no domínio e não tem nada a acrescentar sobre ele ou não entrou no domínio, ou não percebeu que entrou.
 
 ---
 
@@ -101,9 +97,7 @@ As quatro colunas depois do nome da etapa valem ponto separadamente, e a terceir
 
 Um arquivo por prompt, versionados. **Prompt embutido no meio do código não é aceito a partir desta entrega** — é a regra que a visão geral anuncia, e ela existe porque um prompt que só existe dentro de uma f-string não tem histórico, não tem versão e não pode ser comparado com a execução da semana passada.
 
-**Eles mudam de lugar nesta entrega.** Na Parte 1 ficavam em `prompts/`, na raiz. A partir daqui ficam em **`src/prompts/`**, junto do código, pela razão que os define: eles são **carregados em tempo de execução**. Um prompt é recurso do pacote, como um schema ou um arquivo de configuração — não é artefato de leitura, e não é documentação.
-
-Mover a pasta é um `git mv`, e o histórico dos arquivos vai junto.
+Eles ficam em **`src/prompts/`**, junto do código, pela razão que os define: são **carregados em tempo de execução**. Um prompt é recurso do pacote, como um schema ou um arquivo de configuração — não é artefato de leitura, e não é documentação. Se hoje estiverem em outro lugar, mover é um `git mv`, e o histórico vai junto.
 
 Cada execução registra, no início, a combinação em uso. É o item 7.
 
@@ -125,7 +119,6 @@ Um documento `docs/arquitetura.md`, com diagrama e texto.
 
 ASCII é preferido, e a razão é a mesma de sempre: ele vive no `git diff`, e vocês vão alterá-lo. Precisa mostrar a entrada, as etapas, onde o **modelo** decide, onde o **código** decide, as ferramentas, o índice, a memória, **os pontos onde o sistema para e espera uma pessoa** e as condições de parada.
 
-Se o diagrama da Parte 1 ainda serve sem alteração, algo não foi construído.
 
 ### 2.2 As seis perguntas
 
@@ -138,7 +131,7 @@ O texto responde, sobre o sistema como ele está hoje:
 | **o estado** | o que é um objeto explícito, e o que ficou na lista de mensagens |
 | **o orçamento** | os tetos de passos, de tokens, de tempo e — se houver custo — de dinheiro |
 | **o término** | a taxonomia completa dos motivos pelos quais uma execução acaba |
-| **o humano** | onde ele entra, qual perfil da §2.2 da Parte 1 é chamado, e o que acontece se ele não responder |
+| **o humano** | onde ele entra, **qual perfil de pessoa** é chamado, e o que acontece se ele não responder |
 
 A última linha é a que mais some das entregas. Um sistema que suspende esperando aprovação e não define o que fazer com o silêncio tem um estado sem saída.
 
@@ -146,11 +139,15 @@ A última linha é a que mais some das entregas. Um sistema que suspende esperan
 
 A regra da disciplina é **usar a menor autonomia que resolve**. Digam qual é o nível — workflow, roteador ou agente — e **por que o de baixo não servia**.
 
-Esta defesa é diferente da que vocês escreveram na Parte 1, e é por isso que ela é cobrada de novo: lá era uma hipótese; aqui vocês têm o sistema rodando. Aponte, **no diagrama**, a decisão concreta que só o modelo consegue tomar em tempo de execução. Se não houver nenhuma, o sistema é um workflow — o que é um resultado legítimo, desde que declarado, e desde que vocês digam onde a decisão entra na Parte 3.
+A defesa é feita **com o sistema rodando**, e não em hipótese. Aponte, **no diagrama**, a decisão concreta que só o modelo consegue tomar em tempo de execução. Se não houver nenhuma, o sistema é um workflow — o que é um resultado legítimo, desde que declarado, e desde que vocês digam onde a decisão entra na Parte 3.
 
-### 2.4 O que mudou desde a Parte 1
+### 2.4 As alternativas descartadas
 
-Uma tabela curta: o que a arquitetura ganhou, o que ela perdeu, e o que se manteve por decisão. Perder é comum e não é demérito — a ferramenta que se mostrou desnecessária, o passo que virou regra em código, a etapa de modelo que virou `if`. **Um sistema que só cresce entre a Parte 1 e a Parte 2 normalmente não foi revisado.**
+Para cada decisão de arquitetura que não era óbvia, uma linha: **o que foi escolhido, o que foi considerado no lugar, e o que decidiu**.
+
+Entram aqui as simplificações, e elas valem tanto quanto as adições: a ferramenta que se mostrou desnecessária, o passo que virou regra em código, a etapa de modelo que virou um `if`. **Tirar é decisão de arquitetura como qualquer outra**, e um sistema em que nada foi tirado normalmente não foi revisado.
+
+Uma arquitetura sem nenhuma alternativa descartada não foi projetada — foi aceita.
 
 ---
 
@@ -338,7 +335,7 @@ Escolham uma — ou uma combinação — e declarem o **volume de escrita por ex
 
 Listem explicitamente o que o sistema não guarda:
 
-- **dado sensível** — identificador pessoal, credencial, valor que não precisa persistir. É a §2.9 da Parte 1 cobrando a conta;
+- **dado sensível** — identificador pessoal, credencial, valor que não precisa persistir. e a decisão de não guardar precisa ser explícita;
 - **conteúdo que veio de fora sem verificação** — memória é durável, e **o que entra nela sai muitas vezes**;
 - **o que é derivável** — se pode ser recalculado, guardar é dívida.
 
@@ -404,7 +401,7 @@ Quatro decisões, em `docs/memoria.md`:
 
 ## 5. O grafo, desenhado e implementado
 
-A Parte 1 entregou **um** agente, com um laço. Esta entrega transforma o sistema num **grafo**: nós que fazem coisas, arestas que decidem o que vem depois, e um estado que atravessa tudo.
+O sistema é um **grafo**: nós que fazem coisas, arestas que decidem o que vem depois, e um estado que atravessa tudo.
 
 > **Qual framework.** A visão geral fala em *workflow com LangChain*; o que se usa é o **LangGraph**, do mesmo ecossistema, porque o modelo mental dele — grafo de estado — é literalmente o que a Aula 05 pediu que vocês desenhassem à mão. A Aula 09 ensina os dois.
 
@@ -529,7 +526,7 @@ Passar o estado inteiro é a escolha fácil e a que mais atrapalha depois: acopl
 
 ## 7. Entrada e saída
 
-O `README` da Parte 1 já pedia **como usar**. Aqui isso vira contrato.
+O `README` diz **como usar**. Aqui isso vira contrato, verificável em código.
 
 ### 7.1 A entrada é **texto**
 
@@ -589,7 +586,7 @@ Um sistema que responde confiantemente às três não está sendo robusto — es
 
 ## 8. Human-in-the-loop
 
-A Parte 1 perguntou **qual perfil** de humano o sistema chama. Aqui ele entra no grafo, como código que para e espera.
+O humano entra no grafo como **código que para e espera**.
 
 ### 8.1 Onde o grafo para, e por qual critério
 
@@ -652,36 +649,36 @@ Se algum campo não existir porque o case não usa aquela peça, **digam isso ex
 
 ## 10. Os casos demonstrados
 
-Os quatro casos da Parte 1 continuam valendo. As frentes novas acrescentam quatro. **Oito execuções, com log no repositório:**
+**Oito execuções, com log no repositório:**
 
-| # | O caso | O que ele prova | De onde vem |
+| # | O caso | O que ele prova | Onde isto é exigido |
 |---|---|---|---|
-| 1 | o caso simples | o caminho feliz existe | Parte 1 |
-| 2 | a **divergência** | o sistema diz uma coisa, o usuário diz outra | Parte 1 |
-| 3 | o **registro inexistente** | erro de ferramenta que o modelo contorna | Parte 1 |
-| 4 | o caso que **não** deve disparar a ação principal | o sistema sabe não agir | Parte 1 |
+| 1 | o caso simples | o caminho feliz existe | §7.3 |
+| 2 | a **divergência** | o sistema diz uma coisa, o usuário diz outra | §7.4 |
+| 3 | o **registro inexistente** | erro de ferramenta que o modelo contorna | §2.2 |
+| 4 | o caso que **não** deve disparar a ação principal | o sistema sabe não agir | §2.3 |
 | 5 | a pergunta **fora do corpus** | o portão recusa, e recusa dizendo algo útil | §3.5 |
 | 6 | a **contradição** entre dois fatos verdadeiros | o desempate por carimbo de tempo funciona | §4.5 |
 | 7 | a mesma entrada com **memórias diferentes** | a não reprodutibilidade, registrada | §4.7 |
 | 8 | a ação que **para e espera** | o grafo pausa, a pessoa aprova editando, e a segunda aprovação não duplica nada | §8.2, §8.5 |
 
-Os casos 5 a 8 são os que os grupos esquecem, e são os que provam as frentes novas. Um log de oito execuções em que as oito dão certo pelo caminho feliz não demonstra nada.
+Os casos 5 a 8 são os que os grupos esquecem, e são os que provam as frentes desta entrega. Um log de oito execuções em que as oito dão certo pelo caminho feliz não demonstra nada.
 
 ---
 
 ## 11. O projeto como entrega
 
-Continua valendo tudo da Parte 1, com uma exigência a mais em cada item.
+Cinco exigências, e nenhuma delas é sobre o código em si.
 
-**`README.md`** — as duas perguntas, e agora sobre um sistema maior: **como rodar** (do zero, por quem nunca viu o projeto, em menos de cinco minutos) e **como usar**, com o exemplo principal do §7.3 — **o texto que a pessoa digita** e a saída inteira que volta — e **o que acontece quando o grafo para e espera alguém**.
+**`README.md`** — duas perguntas, e a segunda é a que costuma faltar: **como rodar** (do zero, por quem nunca viu o projeto, em menos de cinco minutos) e **como usar**, com o exemplo principal do §7.3 — **o texto que a pessoa digita** e a saída inteira que volta — e **o que acontece quando o grafo para e espera alguém**.
 
 **`requirements.txt`** com todas as versões fixadas — inclusive a do framework, pela razão do §9.
 
 **`.env.example`** com os nomes das variáveis e nenhum valor. Chave de API **nunca** no repositório.
 
-**`docs/`** — toda a pesquisa e documentação, em Markdown, versionada. Ela cresce nesta entrega: o `case.md` **complementado**, `prompts.md`, `arquitetura.md` — que agora carrega o grafo, a tabela de padrões, a tabela de campos do estado e os pontos de parada — e os resultados de medição de cada frente. O histórico dessa pasta é o que mostra **quando o grupo mudou de ideia sobre o próprio case, e por quê**.
+**`docs/`** — toda a pesquisa e documentação, em Markdown, versionada. O `case.md` **complementado**, o `prompts.md`, o `arquitetura.md` — que carrega o grafo, a tabela de padrões, a tabela de campos do estado e os pontos de parada — e os resultados de medição de cada frente. O histórico dessa pasta é o que mostra **quando o grupo mudou de ideia sobre o próprio case, e por quê**.
 
-**`src/prompts/`** — os prompts em arquivo, versionados, agora junto do código que os carrega. A partir desta entrega, prompt embutido no código não é aceito.
+**`src/prompts/`** — os prompts em arquivo, versionados, junto do código que os carrega. Prompt embutido no código não é aceito.
 
 ---
 
@@ -698,8 +695,8 @@ Em ordem de peso:
 | **Human-in-the-loop** | os pontos de parada marcados no diagrama, com critério · o que a pessoa vê, com a ação e a consequência · **aprovar editando** funcionando · o prazo e o que acontece quando vence · **a segunda aprovação que não duplica nada** |
 | **Entrada e saída** | **a entrada é texto livre** · contrato de saída validado, com fonte e suficiência · **os três exemplos documentados**, cada um com entrada exata, saída inteira e o que ler nela · cada exemplo amarrado a commit, data e log · as três entradas que não dão para atender |
 | **O plano de prompt engineering** | uma linha por etapa, com técnica **nomeada e justificada** · contrato de saída exato · como cada etapa é testada, com denominador · prompts em arquivo, versionados · a regra da frase aplicada em ao menos um prompt |
-| **A arquitetura documentada** | diagrama com quem decide onde · as seis perguntas respondidas · **o nível de autonomia defendido contra o de baixo, apontando a decisão no diagrama** · o que mudou desde a Parte 1 |
-| **O complemento do case** | **o que o grupo aprendeu do domínio, escrito** — vocabulário, regra tácita, exceção que decide arquitetura · as outras três perguntas respondidas · a linha de base corrigida se o dado apareceu · **o verificador conferido contra a realidade** |
+| **A arquitetura documentada** | diagrama com quem decide onde · as seis perguntas respondidas · **o nível de autonomia defendido contra o de baixo, apontando a decisão no diagrama** · as alternativas descartadas, com o que decidiu |
+| **O complemento do case** | **o domínio escrito** — vocabulário, regra tácita, exceção que decide arquitetura · o escopo declarado como está hoje · **o verificador descrito com o sistema rodando** · a linha de base do ganho prometido |
 | **O carimbo** | dez campos registrados a cada execução · campos ausentes **declarados**, não omitidos |
 | **A entrega como projeto** | roda do zero em <5 min · o `README` diz **como usar**, com exemplo real · `docs/` completo e versionado · nenhuma chave no repositório |
 | **Os oito casos** | executados, com log · os casos 5 a 8 presentes e demonstrando o que devem |
@@ -712,7 +709,7 @@ E o que **não** conta: quantidade de código, número de ferramentas, número d
 
 ## Entrega
 
-No repositório do grupo — **o mesmo da Parte 1**:
+No repositório do grupo:
 
 ```
 README.md          como rodar e como usar, com exemplo real
@@ -721,7 +718,7 @@ requirements.txt   tudo fixado: framework, embeddings
 
 docs/
   case.md            COMPLEMENTADO — o item 0
-  modelos.md         da Parte 1
+  modelos.md         a análise de modelos
   prompts.md         o item 1
   arquitetura.md     o item 2
   rag.md             perguntas, recall@k, limiar, os dois erros, o corpus revogado
