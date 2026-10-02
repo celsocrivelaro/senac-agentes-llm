@@ -30,7 +30,7 @@ Os exercícios das Aulas 06 a 08 foram feitos **no repositório deste trabalho**
 | **08** — a memória do case *(complementar, de código)* | as três memórias nas estruturas certas · política de escrita · desempate por carimbo de tempo · esquecimento seletivo | a fronteira com o checkpoint **e com o RAG**, declarada no seu domínio |
 | **09** — o laboratório do framework | os padrões da Aula 05 como grafo · estado com reducer · checkpointer e `interrupt` rodando | **o seu** grafo: os padrões escolhidos e recusados, o estado do seu domínio, e o ponto de parada no seu caso |
 
-**Um grupo que fez os exercícios chega nesta entrega com a maior parte do trabalho pronta.** O que falta é o que nenhum exercício isolado cobra: a integração das peças em **um sistema só**, os dois documentos de projeto — o plano de prompt e a arquitetura —, e a revisão do case.
+**Um grupo que fez os exercícios chega nesta entrega com a maior parte do trabalho pronta.** O que falta é o que nenhum exercício isolado cobra: a integração das peças em **um sistema só**, os dois documentos de projeto — o plano de prompt e a arquitetura —, e o complemento do case.
 
 **Um grupo que não os fez** entrega o mesmo, e o enunciado abaixo é autossuficiente. Só vai levar cinco vezes mais tempo.
 
@@ -40,7 +40,7 @@ Os exercícios das Aulas 06 a 08 foram feitos **no repositório deste trabalho**
 
 Doze itens. Os do meio são as frentes que constroem o agente:
 
-0. **A revisão do case** — o que mudou desde a Parte 1, e se a promessa ainda se sustenta
+0. **O complemento do case** — o que vocês aprenderam do domínio e que falta para alguém entender o sistema
 1. **O plano de prompt engineering**, documentado e versionado
 2. **A arquitetura do agente**, documentada e defendida
 3. **RAG** como memória consultável — com as dez perguntas classificadas pela **forma de recuperar**
@@ -55,11 +55,15 @@ Doze itens. Os do meio são as frentes que constroem o agente:
 
 ---
 
-## 0. A revisão do case
+## 0. O complemento do case
 
-Meia página, em `docs/revisao-parte-2.md`. É a **última janela** para ajustar o rumo: a visão geral permite refinar o tema até aqui, e a Parte 3 vai cobrar a conta do que foi prometido.
+Em `docs/case.md`, junto do que já existe. Desde a Parte 1 vocês passaram semanas **dentro** do domínio — lendo os documentos, conversando com quem faz o trabalho, descobrindo os casos que não cabiam na descrição original. **Nada disso está escrito em lugar nenhum**, e é o que falta para alguém de fora entender o sistema.
 
-Quatro perguntas, e a segunda é a que mais importa:
+Esta seção é onde isso entra. Não é um relatório de mudanças: é o **case completado** com o que vocês aprenderam depois de escolhê-lo.
+
+> É também a **última janela** para ajustar o rumo. A visão geral permite refinar o tema até aqui, e a Parte 3 vai cobrar a conta do que foi prometido.
+
+**O que vocês sabem agora sobre o domínio e não sabiam na Parte 1.** O vocabulário que ninguém de fora entende. A regra que todo mundo da área conhece e nenhum documento registra. A exceção que aparece em um caso a cada vinte e que decide a arquitetura. O passo do processo que vocês achavam que era um e são três.
 
 **O que mudou no tema, e por quê.** Escopo, ferramenta, usuário principal, arquitetura. Mudar é esperado e bem-visto; o que não vale é mudar sem registrar. O `git log` de `docs/` é a evidência.
 
@@ -69,7 +73,7 @@ Quatro perguntas, e a segunda é a que mais importa:
 
 **O que a §2.10 previu, e o que se confirmou.** Vocês marcaram quatro caixas: RAG, MCP, LangChain e multiagente. Duas são construídas aqui — RAG e LangChain —, e as outras duas ficaram para a Parte 3. Digam, para as duas desta entrega, se o que foi construído é o que estava previsto — e **o que aprenderam quando não era**.
 
-> Uma revisão que diz "nada mudou" é aceitável, e às vezes é verdade. Mas ela precisa responder as quatro perguntas para dizer isso.
+> Um complemento que diz "nada mudou" nas três últimas perguntas é aceitável, e às vezes é verdade. Mas a primeira **não** admite resposta vazia: um grupo que passou semanas no domínio e não tem nada a acrescentar sobre ele ou não entrou no domínio, ou não percebeu que entrou.
 
 ---
 
@@ -671,7 +675,7 @@ Continua valendo tudo da Parte 1, com uma exigência a mais em cada item.
 
 **`.env.example`** com os nomes das variáveis e nenhum valor. Chave de API **nunca** no repositório.
 
-**`docs/`** — toda a pesquisa e documentação, em Markdown, versionada. Ela cresce nesta entrega: `revisao-parte-2.md`, `prompts.md`, `arquitetura.md` — que agora carrega o grafo, a tabela de padrões, a tabela de campos do estado e os pontos de parada — e os resultados de medição de cada frente. O histórico dessa pasta é o que mostra **quando o grupo mudou de ideia sobre o próprio case, e por quê**.
+**`docs/`** — toda a pesquisa e documentação, em Markdown, versionada. Ela cresce nesta entrega: o `case.md` **complementado**, `prompts.md`, `arquitetura.md` — que agora carrega o grafo, a tabela de padrões, a tabela de campos do estado e os pontos de parada — e os resultados de medição de cada frente. O histórico dessa pasta é o que mostra **quando o grupo mudou de ideia sobre o próprio case, e por quê**.
 
 **`prompts/`** — os prompts em arquivo, versionados. A partir desta entrega, prompt embutido no código não é aceito.
 
@@ -691,7 +695,7 @@ Em ordem de peso:
 | **Entrada e saída** | **a entrada é texto livre** · contrato de saída validado, com fonte e suficiência · **os três exemplos documentados**, cada um com entrada exata, saída inteira e o que ler nela · cada exemplo amarrado a commit, data e log · as três entradas que não dão para atender |
 | **O plano de prompt engineering** | uma linha por etapa, com técnica **nomeada e justificada** · contrato de saída exato · como cada etapa é testada, com denominador · prompts em arquivo, versionados · a regra da frase aplicada em ao menos um prompt |
 | **A arquitetura documentada** | diagrama com quem decide onde · as seis perguntas respondidas · **o nível de autonomia defendido contra o de baixo, apontando a decisão no diagrama** · o que mudou desde a Parte 1 |
-| **A revisão do case** | as quatro perguntas respondidas · a linha de base corrigida se o dado apareceu · **o verificador conferido contra a realidade** |
+| **O complemento do case** | **o que o grupo aprendeu do domínio, escrito** — vocabulário, regra tácita, exceção que decide arquitetura · as outras três perguntas respondidas · a linha de base corrigida se o dado apareceu · **o verificador conferido contra a realidade** |
 | **O carimbo** | dez campos registrados a cada execução · campos ausentes **declarados**, não omitidos |
 | **A entrega como projeto** | roda do zero em <5 min · o `README` diz **como usar**, com exemplo real · `docs/` completo e versionado · nenhuma chave no repositório |
 | **Os oito casos** | executados, com log · os casos 5 a 8 presentes e demonstrando o que devem |
@@ -712,9 +716,8 @@ requirements.txt   tudo fixado: framework, embeddings
 .env.example       os nomes das variáveis, sem nenhum valor
 
 docs/
-  case.md            atualizado, se o case mudou
+  case.md            COMPLEMENTADO — o item 0
   modelos.md         da Parte 1
-  revisao-parte-2.md o item 0
   prompts.md         o item 1
   arquitetura.md     o item 2
   rag.md             perguntas, recall@k, limiar, os dois erros, o corpus revogado
@@ -736,7 +739,7 @@ Markdown, sempre — nada de `.docx` nem `.pdf`, para que o `git diff` funcione.
 
 ## Dicas
 
-- **Comecem pela revisão do item 0.** Ela leva uma hora e pode poupar três semanas. Se o verificador não sobreviveu, é agora que se troca.
+- **Comecem pelo item 0.** Ele leva uma hora e pode poupar três semanas — e a primeira pergunta é a que mais rende: o que vocês aprenderam do domínio nas últimas semanas se perde se ninguém escrever. Se o verificador não sobreviveu, é agora que se troca.
 
 - **A lista do §4.4 — o que a memória não guarda — antes de escrever a memória.** É mais fácil decidir o que guardar depois de ter a lista de exclusão, e essa lista é o item de maior peso da frente.
 
