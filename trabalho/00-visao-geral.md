@@ -54,21 +54,23 @@ O objetivo desta parte não é impressionar. É **descobrir cedo** se o tema esc
 
 O enunciado completo está em **[02-segunda-entrega.md](02-segunda-entrega.md)**.
 
-Aqui o agente simples da Parte 1 se transforma em um agente completo. Sete frentes, e **cada uma acrescenta uma peça ao sistema e cobra uma evidência por ela**:
+O agente vira um sistema completo. Oito frentes, e **cada uma acrescenta uma peça e cobra uma evidência por ela**:
 
-**1. O plano de prompt engineering.** Um documento que declara, para cada etapa do sistema: qual técnica de prompting é usada, **por quê**, qual o contrato de saída, e como aquela etapa é testada. Os prompts vivem em arquivo, versionados, com a combinação `prompt × modelo × parâmetros` registrada — como a disciplina cobra desde a aula de prompt engineering.
+**1. Entrada e saída.** O contrato do sistema com quem o usa, e por isso vem primeiro. A entrada é **texto livre** — é ela que obriga o sistema a descobrir o que a pessoa quer. A saída é um **objeto validado**, com fonte e com suficiência: a recusa faz parte do contrato. E três exemplos documentados, copiados de execuções reais.
 
-**2. A arquitetura do agente, documentada.** Diagrama e texto explicando: quais são as ferramentas, qual é o laço, onde está o estado, qual é o orçamento, quais são as condições de término e onde entra o humano. Vocês precisam conseguir defender **por que este nível de autonomia e não o de baixo**.
+**2. O plano de prompt engineering.** Um documento que declara, para cada etapa do sistema: qual técnica de prompting é usada, **por quê**, qual o contrato de saída, e como aquela etapa é testada. Os prompts vivem em arquivo, versionados, com a combinação `prompt × modelo × parâmetros` registrada — como a disciplina cobra desde a aula de prompt engineering.
 
-**3. RAG como memória consultável.** Uma base de conhecimento que os agentes consultam — não um chatbot sobre PDFs, mas a **memória do sistema**: o conhecimento de domínio que os agentes precisam para decidir. Vocês definem o que entra, como é indexado e como a resposta cita a fonte.
+**3. A arquitetura do agente, documentada.** Diagrama e texto explicando: quais são as ferramentas, qual é o laço, onde está o estado, qual é o orçamento, quais são as condições de término e onde entra o humano. Vocês precisam conseguir defender **por que este nível de autonomia e não o de baixo**.
 
-**4. Memória entre execuções.** O RAG consulta documentos que alguém escreveu; a memória guarda o que **o próprio sistema** viveu. As duas se confundem porque ambas recuperam por relevância, e distingui-las no seu case é parte da entrega — junto com a decisão que mais vale nota: **o que o sistema deliberadamente não guarda**.
+**4. RAG como memória consultável.** Uma base de conhecimento que os agentes consultam — não um chatbot sobre PDFs, mas o **conhecimento de domínio que os agentes precisam para decidir**. Há cinco formas de recuperar, e quatro não usam embedding: vocês classificam as perguntas do case, **escolhem as formas que ele pede** e dizem com o que implementaram cada uma.
 
-**5. O grafo, desenhado e implementado em LangGraph.** A orquestração passa a usar **LangChain e LangGraph** — o modelo mental é grafo de estado, que é literalmente o que vocês desenharam à mão na aula de arquitetura. O que se cobra é o desenho antes do código, **os padrões daquela aula nomeados e justificados** — incluindo pelo menos um recusado —, e a contagem do que o framework **não** deu: motivo de término, detector de laço, os tetos que ele não cobre.
+**5. Memória entre execuções, e a conversa.** O RAG consulta documentos que alguém escreveu; a memória guarda o que **o próprio sistema** viveu. As duas se confundem porque ambas recuperam por relevância, e distingui-las no seu case é parte da entrega — assim como a gestão da conversa: o que identifica uma, onde o checkpoint grava, e o que sai do contexto quando a janela enche.
 
-**6. O estado, e a entrada e a saída.** O estado deixa de ser argumento e vira declaração de tipo: que campos existem, quem escreve cada um, qual reducer acumula o quê — e o que acontece quando não há reducer. E o sistema ganha contrato: um schema de entrada, uma saída validada com fonte e suficiência, e um exemplo real copiado de execução.
+**6. O grafo, desenhado e implementado em LangGraph.** A orquestração passa a usar **LangChain e LangGraph** — o modelo mental é grafo de estado, que é literalmente o que vocês desenharam à mão na aula de arquitetura. O que se cobra é o desenho antes do código, **os padrões daquela aula nomeados e justificados**, e a contagem do que o framework **não** deu: motivo de término, detector de laço, os tetos que ele não cobre.
 
-**7. Human-in-the-loop.** O humano que a Parte 1 nomeou entra no grafo como código que para e espera. Onde o sistema pausa e por qual critério, o que a pessoa vê, se ela pode **aprovar editando**, o que acontece se ninguém responder, e a prova de que aprovar duas vezes não faz a ação acontecer duas vezes.
+**7. O estado que atravessa o grafo.** Deixa de ser argumento e vira declaração de tipo: que campos existem, quem escreve cada um, qual reducer acumula o quê — e, demonstrado numa execução, o que acontece quando não há reducer.
+
+**8. Human-in-the-loop.** O humano entra no grafo como código que para e espera. Onde o sistema pausa e por qual critério, o que a pessoa vê, se ela pode **aprovar editando**, o que acontece se ninguém responder, e a prova de que aprovar duas vezes não faz a ação acontecer duas vezes.
 
 > **MCP saiu desta entrega.** Ele passou para a Parte 3, ao lado de multiagente — é lá que encontra o problema que o justifica: mais de um agente consumindo a mesma ferramenta.
 
@@ -82,7 +84,7 @@ O enunciado completo está em **[03-terceira-entrega.md](03-terceira-entrega.md)
 
 **2. MCP no lugar da integração manual.** A integração da Parte 1 é reescrita como **servidor MCP**. O ganho a demonstrar é o que a arquitetura multiagente acabou de criar: a ferramenta deixa de ser código acoplado a um agente e passa a ser um serviço que **os vários agentes do sistema** consomem — e que qualquer agente de fora consumiria.
 
-**3. Segurança.** Prompt injection direto e indireto, tool misuse, dado sensível no contexto, permissão por ferramenta. O que o seu sistema faria se a entrada fosse hostil. E a superfície que o MCP acabou de abrir: a descrição da ferramenta é um prompt escrito por outra pessoa, e nenhum cliente — nem o SDK, nem o adaptador do framework — a inspeciona.
+**3. Segurança.** Prompt injection direto e indireto, tool misuse, dado sensível no contexto, permissão por ferramenta, e **a lista do que a memória deliberadamente não guarda**. O que o seu sistema faria se a entrada fosse hostil. E a superfície que o MCP acabou de abrir: a descrição da ferramenta é um prompt escrito por outra pessoa, e nenhum cliente — nem o SDK, nem o adaptador do framework — a inspeciona.
 
 **4. MLOps e observabilidade.** O trace de cada execução, as métricas que vocês acompanham, o conjunto de avaliação, e como vocês sabem que uma mudança melhorou em vez de piorar.
 
