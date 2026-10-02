@@ -78,7 +78,7 @@ O agente vira um sistema completo. Oito frentes, e **cada uma acrescenta uma pe�
 
 ## Parte 3 — O sistema
 
-O enunciado completo está em **[03-terceira-entrega.md](03-terceira-entrega.md)**.
+O enunciado completo será publicado junto com a entrega da Parte 2.
 
 **1. Multiagente.** Mais de um agente, com arquitetura de coordenação **explícita e justificada**: quem chama quem, quem decide, como o resultado de um chega ao outro, e o que acontece quando um deles falha. Multiagente não é "vários prompts" — é uma decisão de arquitetura que precisa ser defendida contra a alternativa de um agente só.
 
