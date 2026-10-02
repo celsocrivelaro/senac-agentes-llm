@@ -79,7 +79,7 @@ Esta seção é onde isso entra. Não é um relatório de mudanças: é o **case
 
 ## 1. O plano de prompt engineering
 
-Um documento `docs/prompts.md`, e os prompts em arquivo.
+Um documento em `docs/prompts.md`, e os prompts em arquivo, em `src/prompts/`. São coisas diferentes e moram em lugares diferentes: o documento é **raciocínio sobre o projeto**, e os prompts são **fonte**.
 
 ### 1.1 O documento
 
@@ -99,7 +99,11 @@ As quatro colunas depois do nome da etapa valem ponto separadamente, e a terceir
 
 ### 1.2 Os prompts em arquivo
 
-Em `prompts/`, versionados, um arquivo por prompt. **Prompt embutido no meio do código não é aceito a partir desta entrega** — é a regra que a visão geral anuncia, e ela existe porque um prompt que só existe dentro de uma f-string não tem histórico, não tem versão e não pode ser comparado com a execução da semana passada.
+Um arquivo por prompt, versionados. **Prompt embutido no meio do código não é aceito a partir desta entrega** — é a regra que a visão geral anuncia, e ela existe porque um prompt que só existe dentro de uma f-string não tem histórico, não tem versão e não pode ser comparado com a execução da semana passada.
+
+**Eles mudam de lugar nesta entrega.** Na Parte 1 ficavam em `prompts/`, na raiz. A partir daqui ficam em **`src/prompts/`**, junto do código, pela razão que os define: eles são **carregados em tempo de execução**. Um prompt é recurso do pacote, como um schema ou um arquivo de configuração — não é artefato de leitura, e não é documentação.
+
+Mover a pasta é um `git mv`, e o histórico dos arquivos vai junto.
 
 Cada execução registra, no início, a combinação em uso. É o item 7.
 
@@ -677,7 +681,7 @@ Continua valendo tudo da Parte 1, com uma exigência a mais em cada item.
 
 **`docs/`** — toda a pesquisa e documentação, em Markdown, versionada. Ela cresce nesta entrega: o `case.md` **complementado**, `prompts.md`, `arquitetura.md` — que agora carrega o grafo, a tabela de padrões, a tabela de campos do estado e os pontos de parada — e os resultados de medição de cada frente. O histórico dessa pasta é o que mostra **quando o grupo mudou de ideia sobre o próprio case, e por quê**.
 
-**`prompts/`** — os prompts em arquivo, versionados. A partir desta entrega, prompt embutido no código não é aceito.
+**`src/prompts/`** — os prompts em arquivo, versionados, agora junto do código que os carrega. A partir desta entrega, prompt embutido no código não é aceito.
 
 ---
 
@@ -727,8 +731,8 @@ docs/
   io.md              os schemas e os três exemplos, com commit, data e log
   fontes.md          tudo que foi consultado, com link
 
-prompts/           os prompts, versionados
 src/               o sistema
+  prompts/         os prompts, versionados — junto do código que os carrega
 dados/             o corpus e os dados simulados
 logs/              as 8 execuções demonstradas
 ```
