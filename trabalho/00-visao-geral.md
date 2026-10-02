@@ -31,8 +31,8 @@ Ao fim das três partes, o grupo tem:
 | Parte | Tema central | O que entra |
 |---|---|---|
 | **1** | **Escolher e provar o terreno** | tema e contexto · **a justificativa de negócio** (por que agente, e que ganho) · análise de modelos · **um agente simples** com prompt engineering e arquitetura básica · integração simples com software tradicional (pode ser mock) |
-| **2** | **O agente de verdade** | plano de prompt engineering · arquitetura do agente documentada · **RAG** como memória consultável · **memória** entre execuções · **MCP** no lugar da integração manual · **workflow com LangGraph** |
-| **3** | **O sistema** | **multiagente** com arquitetura de coordenação · **segurança** · **MLOps** e observabilidade · **gestão de custos** · **apresentação em aula** |
+| **2** | **O agente de verdade** | plano de prompt engineering · arquitetura do agente documentada · **RAG** como memória consultável · **memória** entre execuções · **o grafo** em LangChain/LangGraph, com o estado declarado · **entrada e saída** com contrato · **human-in-the-loop** |
+| **3** | **O sistema** | **multiagente** com arquitetura de coordenação · **MCP** no lugar da integração manual · **segurança** · **MLOps** e observabilidade · **gestão de custos** · **apresentação em aula** |
 
 Cada parte é avaliada **na entrega dela**. Uma Parte 1 fraca não é compensada por uma Parte 3 boa — mas uma Parte 1 bem escolhida torna as outras duas muito mais fáceis.
 
@@ -52,7 +52,9 @@ O objetivo desta parte não é impressionar. É **descobrir cedo** se o tema esc
 
 ## Parte 2 — O agente de verdade
 
-Aqui o agente simples da Parte 1 se transforma em um agente completo. Seis frentes, e **cada uma acrescenta uma peça ao sistema e cobra um número por ela**:
+O enunciado completo está em **[02-segunda-entrega.md](02-segunda-entrega.md)**.
+
+Aqui o agente simples da Parte 1 se transforma em um agente completo. Sete frentes, e **cada uma acrescenta uma peça ao sistema e cobra uma evidência por ela**:
 
 **1. O plano de prompt engineering.** Um documento que declara, para cada etapa do sistema: qual técnica de prompting é usada, **por quê**, qual o contrato de saída, e como aquela etapa é testada. Os prompts vivem em arquivo, versionados, com a combinação `prompt × modelo × parâmetros` registrada — como a disciplina cobra desde a aula de prompt engineering.
 
@@ -62,25 +64,33 @@ Aqui o agente simples da Parte 1 se transforma em um agente completo. Seis frent
 
 **4. Memória entre execuções.** O RAG consulta documentos que alguém escreveu; a memória guarda o que **o próprio sistema** viveu. As duas se confundem porque ambas recuperam por relevância, e distingui-las no seu case é parte da entrega — junto com a decisão que mais vale nota: **o que o sistema deliberadamente não guarda**.
 
-**5. MCP no lugar da integração manual.** A integração simples da Parte 1 é reescrita como **servidor MCP**. O ganho a demonstrar: a ferramenta deixa de ser código acoplado ao seu agente e passa a ser um serviço que qualquer agente consome.
+**5. O grafo, desenhado e implementado em LangGraph.** A orquestração passa a usar **LangChain e LangGraph** — o modelo mental é grafo de estado, que é literalmente o que vocês desenharam à mão na aula de arquitetura. O que se cobra é o desenho antes do código, **os padrões daquela aula nomeados e justificados** — incluindo pelo menos um recusado —, e a contagem do que o framework **não** deu: motivo de término, detector de laço, os tetos que ele não cobre.
 
-**6. Workflow com LangGraph.** A orquestração passa a usar **LangGraph**, do ecossistema LangChain — o modelo mental dele é grafo de estado, que é literalmente o que vocês construíram à mão na aula de arquitetura, e é o que torna a comparação possível. E, junto com ela, a pergunta que a disciplina insiste desde aquela aula: **o que o framework te deu, e o que ele te tirou?** Comparar a versão na mão com a versão em framework é parte da entrega — e concluir que não compensa portar, **com a contagem à vista**, é resultado válido.
+**6. O estado, e a entrada e a saída.** O estado deixa de ser argumento e vira declaração de tipo: que campos existem, quem escreve cada um, qual reducer acumula o quê — e o que acontece quando não há reducer. E o sistema ganha contrato: um schema de entrada, uma saída validada com fonte e suficiência, e um exemplo real copiado de execução.
+
+**7. Human-in-the-loop.** O humano que a Parte 1 nomeou entra no grafo como código que para e espera. Onde o sistema pausa e por qual critério, o que a pessoa vê, se ela pode **aprovar editando**, o que acontece se ninguém responder, e a prova de que aprovar duas vezes não faz a ação acontecer duas vezes.
+
+> **MCP saiu desta entrega.** Ele passou para a Parte 3, ao lado de multiagente — é lá que encontra o problema que o justifica: mais de um agente consumindo a mesma ferramenta.
 
 ---
 
 ## Parte 3 — O sistema
 
+O enunciado completo está em **[03-terceira-entrega.md](03-terceira-entrega.md)**.
+
 **1. Multiagente.** Mais de um agente, com arquitetura de coordenação **explícita e justificada**: quem chama quem, quem decide, como o resultado de um chega ao outro, e o que acontece quando um deles falha. Multiagente não é "vários prompts" — é uma decisão de arquitetura que precisa ser defendida contra a alternativa de um agente só.
 
-**2. Segurança.** Prompt injection direto e indireto, tool misuse, dado sensível no contexto, permissão por ferramenta. O que o seu sistema faria se a entrada fosse hostil.
+**2. MCP no lugar da integração manual.** A integração da Parte 1 é reescrita como **servidor MCP**. O ganho a demonstrar é o que a arquitetura multiagente acabou de criar: a ferramenta deixa de ser código acoplado a um agente e passa a ser um serviço que **os vários agentes do sistema** consomem — e que qualquer agente de fora consumiria.
 
-**3. MLOps e observabilidade.** O trace de cada execução, as métricas que vocês acompanham, o conjunto de avaliação, e como vocês sabem que uma mudança melhorou em vez de piorar.
+**3. Segurança.** Prompt injection direto e indireto, tool misuse, dado sensível no contexto, permissão por ferramenta. O que o seu sistema faria se a entrada fosse hostil. E a superfície que o MCP acabou de abrir: a descrição da ferramenta é um prompt escrito por outra pessoa, e nenhum cliente — nem o SDK, nem o adaptador do framework — a inspeciona.
 
-**4. Gestão de custos — e a conferência da promessa.** Quanto custa uma execução, onde o custo mora, e as alavancas que vocês usaram para reduzi-lo. Com números medidos, não estimados.
+**4. MLOps e observabilidade.** O trace de cada execução, as métricas que vocês acompanham, o conjunto de avaliação, e como vocês sabem que uma mudança melhorou em vez de piorar.
+
+**5. Gestão de custos — e a conferência da promessa.** Quanto custa uma execução, onde o custo mora, e as alavancas que vocês usaram para reduzi-lo. Com números medidos, não estimados.
 
 E o fecho do arco do trabalho: **o ganho prometido na Parte 1, conferido.** Vocês voltam à venda que fizeram, colocam ao lado o número que o sistema realmente entregou e explicam a diferença. Prometer 80% e entregar 30%, com a conta à vista, é um resultado aceitável e honesto — e é o que acontece na maioria dos projetos reais. Prometer "mais eficiência" e não ter como conferir, não é.
 
-**5. A apresentação.** Demonstração ao vivo, **agente por agente**. Cada integrante do grupo deve conseguir explicar qualquer parte do sistema — não apenas a que escreveu.
+**6. A apresentação.** Demonstração ao vivo, **agente por agente**. Cada integrante do grupo deve conseguir explicar qualquer parte do sistema — não apenas a que escreveu.
 
 ---
 
@@ -161,8 +171,8 @@ A partir da escolha do tema, cada aula nova termina com a mesma pergunta: **o qu
 | Casos de uso de agentes | **a escolha do tema** e a ficha de case |
 | Embeddings e RAG | a base de conhecimento consultável da Parte 2 |
 | Memória | o que o sistema lembra entre execuções, na Parte 2 |
-| MCP | a reescrita da integração na Parte 2 |
-| Frameworks e orquestração | o workflow em LangGraph da Parte 2 |
+| MCP | a reescrita da integração na Parte 3 |
+| Frameworks e orquestração | o grafo, o estado e o human-in-the-loop da Parte 2 |
 | Multiagente | a arquitetura de coordenação da Parte 3 |
 | Observabilidade e evals | o MLOps da Parte 3 |
 | Segurança e custos | as duas últimas frentes da Parte 3 |
