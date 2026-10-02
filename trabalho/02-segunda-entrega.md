@@ -60,12 +60,6 @@ Esta seção é onde isso entra: o case **completado** com o que o domínio ensi
 
 **O que vocês sabem do domínio, e que não é óbvio.** O vocabulário que ninguém de fora entende. A regra que todo mundo da área conhece e nenhum documento registra. A exceção que aparece em um caso a cada vinte e que decide a arquitetura. O passo do processo que parecia um e são três.
 
-Escrevam para quem vai ler o repositório sem ter conversado com vocês. É o teste: se um colega de outro grupo não consegue dizer, depois de ler, **por que o sistema é assim**, falta domínio escrito.
-
-**O escopo, como ele está hoje.** Qual é o problema, quem é o usuário principal, o que entra e o que fica de fora. Ajustar o escopo é esperado e bem-visto; o que não vale é ajustar sem registrar. O `git log` de `docs/` é a evidência.
-
-**O verificador, como ele funciona.** Como vocês sabem que uma saída está certa — com o sistema rodando, não em hipótese. Se ele se mostrou impossível de construir, **digam agora**: a Parte 3 inteira se apoia nele, e é barato trocar hoje.
-
 **A linha de base do ganho prometido.** O ganho que vocês anunciaram se apoia num número de partida — quanto a tarefa custa, demora ou erra sem o sistema. Declarem o número que vale hoje. Não é preciso medir nada de novo para esta entrega; se ele mudou, basta registrar o valor atual e por que ele é esse.
 
 > **Esta é também a última janela para ajustar o rumo.** A visão geral permite refinar o tema até aqui, e a Parte 3 vai cobrar a conta do que foi prometido.
