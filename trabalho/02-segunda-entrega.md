@@ -141,14 +141,6 @@ A regra da disciplina é **usar a menor autonomia que resolve**. Digam qual é o
 
 A defesa é feita **com o sistema rodando**, e não em hipótese. Aponte, **no diagrama**, a decisão concreta que só o modelo consegue tomar em tempo de execução. Se não houver nenhuma, o sistema é um workflow — o que é um resultado legítimo, desde que declarado, e desde que vocês digam onde a decisão entra na Parte 3.
 
-### 2.4 As alternativas descartadas
-
-Para cada decisão de arquitetura que não era óbvia, uma linha: **o que foi escolhido, o que foi considerado no lugar, e o que decidiu**.
-
-Entram aqui as simplificações, e elas valem tanto quanto as adições: a ferramenta que se mostrou desnecessária, o passo que virou regra em código, a etapa de modelo que virou um `if`. **Tirar é decisão de arquitetura como qualquer outra**, e um sistema em que nada foi tirado normalmente não foi revisado.
-
-Uma arquitetura sem nenhuma alternativa descartada não foi projetada — foi aceita.
-
 ---
 
 ## 3. RAG como memória consultável
@@ -695,7 +687,7 @@ Em ordem de peso:
 | **Human-in-the-loop** | os pontos de parada marcados no diagrama, com critério · o que a pessoa vê, com a ação e a consequência · **aprovar editando** funcionando · o prazo e o que acontece quando vence · **a segunda aprovação que não duplica nada** |
 | **Entrada e saída** | **a entrada é texto livre** · contrato de saída validado, com fonte e suficiência · **os três exemplos documentados**, cada um com entrada exata, saída inteira e o que ler nela · cada exemplo amarrado a commit, data e log · as três entradas que não dão para atender |
 | **O plano de prompt engineering** | uma linha por etapa, com técnica **nomeada e justificada** · contrato de saída exato · como cada etapa é testada, com denominador · prompts em arquivo, versionados · a regra da frase aplicada em ao menos um prompt |
-| **A arquitetura documentada** | diagrama com quem decide onde · as seis perguntas respondidas · **o nível de autonomia defendido contra o de baixo, apontando a decisão no diagrama** · as alternativas descartadas, com o que decidiu |
+| **A arquitetura documentada** | diagrama com quem decide onde · as seis perguntas respondidas · **o nível de autonomia defendido contra o de baixo, apontando a decisão no diagrama** |
 | **O complemento do case** | **o domínio escrito** — vocabulário, regra tácita, exceção que decide arquitetura · o escopo declarado como está hoje · **o verificador descrito com o sistema rodando** · a linha de base do ganho prometido |
 | **O carimbo** | dez campos registrados a cada execução · campos ausentes **declarados**, não omitidos |
 | **A entrega como projeto** | roda do zero em <5 min · o `README` diz **como usar**, com exemplo real · `docs/` completo e versionado · nenhuma chave no repositório |
