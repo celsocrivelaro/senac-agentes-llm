@@ -516,7 +516,7 @@ As respostas aceitas precisam incluir, no mínimo, **aprovar** e **rejeitar**. *
 
 ### 8.3 A implementação, e por que ela depende do checkpoint
 
-A pausa é um `interrupt` dentro do nó; a retomada é uma nova invocação com `Command(resume=...)`, e o valor devolvido vira o retorno do `interrupt` — a função continua da linha seguinte.
+A pausa é um `interrupt` dentro do nó; a retomada é uma nova invocação com `Command(resume=...)`, e o valor devolvido vira o retorno do `interrupt`. A retomada **não** continua da linha seguinte: o nó roda de novo, desde o começo, e tudo o que estiver antes do `interrupt` executa duas vezes — por isso nada com efeito colateral vai antes dele.
 
 Isso **só funciona porque existe um checkpointer**: a pausa é um checkpoint gravado, endereçado por `thread_id`. Digam qual checkpointer usaram e onde ele grava — e se for em memória, o sistema perde a aprovação pendente quando o processo morre, o que precisa estar declarado como limitação.
 

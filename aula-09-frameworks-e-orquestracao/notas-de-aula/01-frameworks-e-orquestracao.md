@@ -127,7 +127,9 @@ E uma consequência prática que decide implementação: **um checkpointer em me
 
 Até aqui a execução é uma linha reta: começa, roda, termina. `interrupt()` quebra isso: ele **suspende a execução dentro de um nó**, devolve um valor a quem chamou, e espera.
 
-A retomada é uma nova invocação com `Command(resume=...)`, e o valor passado vira o retorno do `interrupt()` lá dentro — a função continua da linha seguinte, como se nunca tivesse parado.
+A retomada é uma nova invocação com `Command(resume=...)`, e o valor passado vira o retorno do `interrupt()` lá dentro.
+
+Mas a retomada **não** continua da linha seguinte. O nó roda **de novo, desde o começo**; na segunda passada, o `interrupt()` não para — devolve direto o valor do `resume`. Consequência: tudo o que está **antes** do `interrupt()` no nó executa duas vezes. Por isso nada com efeito colateral vai antes dele — no laboratório, o e-mail só é enviado depois.
 
 **Isso só funciona porque existe o checkpointer.** A pausa é um checkpoint gravado, endereçado pelo `thread_id`. É o encaixe mais bonito da aula: duas peças independentes que, combinadas, produzem uma terceira capacidade.
 
