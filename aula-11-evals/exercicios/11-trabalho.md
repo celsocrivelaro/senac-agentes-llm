@@ -24,33 +24,9 @@ ruído. No papel, antes da primeira linha de código.
 
 ## O que responder
 
-Cinco perguntas. Responda na ordem — cada uma depende da anterior.
+Quatro perguntas. Responda na ordem — cada uma depende da anterior.
 
-### 1. O que significa "acertar" no seu case
-
-Liste as **propriedades** que precisam estar certas para que uma execução do
-seu agente sirva a quem a pediu. Não "a resposta é boa": coisas que se
-conferem uma a uma.
-
-| Tipo de propriedade | Exemplo |
-|---|---|
-| **o resultado** | o veredito, a classificação, o valor calculado, o registro criado |
-| **a fidelidade** | o que foi afirmado está no documento recuperado |
-| **o formato** | a saída respeita o contrato que outro sistema consome |
-| **o caminho** | consultou a fonte certa, não repetiu ferramenta, não pulou a confirmação |
-| **a recusa** | disse "não sei" ou "não posso" quando devia |
-| **o tom e a forma** | o que sobra, e só o que sobra, quando nada acima cobre |
-
-Para cada propriedade, escreva **o que é falhar** com um exemplo concreto do
-seu domínio. Se você não consegue descrever a falha, a propriedade ainda não
-está definida — e nenhum avaliador vai defini-la por você.
-
-> **Comece pelo que custa caro errar.** Um agente que aprova o reembolso
-> errado e um agente que responde num tom frio não falham da mesma forma. Diga
-> quais propriedades são as que, se falharem, alguém perde dinheiro, tempo ou
-> confiança.
-
-### 2. Os casos — o *golden dataset* v1
+### 1. Os casos — o *golden dataset* v1
 
 Monte uma tabela com **quinze a vinte casos** do seu agente. Para cada um:
 
@@ -81,29 +57,62 @@ deles entram.
 > diga isso — e diga de onde virão os reais quando o serviço estiver no ar, na
 > Aula 12.
 
-### 3. O nível de cada propriedade
+### 2. As propriedades esperadas, nível a nível
 
-Para cada propriedade da pergunta (1), escolha **o nível mais barato que a
-responde** — determinístico, trajetória, resultado ou juiz LLM — e justifique.
+Para cada um dos quatro níveis de avaliação, liste as **propriedades** que o
+seu agente precisa cumprir e a **avaliação esperada** de cada uma: como ela se
+confere, e o que é falhar, com um exemplo concreto do seu domínio. Não "a
+resposta é boa": coisas que se conferem uma a uma.
 
-| Propriedade | Nível | Como se confere | Por que não um nível mais barato |
+Os exemplos abaixo são do auditor de despesas usado nas notas da aula.
+
+**Determinístico** — confere sem modelo: igualdade, expressão regular,
+validação de *schema*, pertinência a um conjunto.
+
+| Propriedade esperada | Avaliação esperada | O que é falhar |
+|---|---|---|
+| o veredito é o esperado | `veredito == caso["esperado"]` | uma despesa acima do teto sai como "aprovado" |
+
+**Trajetória** — confere o caminho, lido no *trace*: que ferramentas foram
+chamadas, em que ordem, quantas vezes.
+
+| Propriedade esperada | Avaliação esperada | O que é falhar |
+|---|---|---|
+| consultou a política antes de decidir | no *trace*, `consultar_politica` aparece antes da resposta final | o veredito sai certo sem a política ter sido consultada — acerto por acaso |
+
+**Resultado** — confere o estado do mundo depois da execução, e não o texto
+da resposta.
+
+| Propriedade esperada | Avaliação esperada | O que é falhar |
+|---|---|---|
+| o parecer foi registrado uma única vez | depois da execução, existe exatamente um registro para a despesa | uma nova tentativa grava o mesmo parecer duas vezes |
+
+**Juiz LLM** — a propriedade que não tem gabarito, julgada por um modelo com
+rubrica.
+
+| Propriedade esperada | Avaliação esperada | O que é falhar |
+|---|---|---|
+| a justificativa sustenta o veredito | rubrica binária aplicada por um juiz validado (pergunta 3) | o veredito está certo, e a justificativa cita um artigo que não trata do caso |
+
+Monte a mesma tabela para o seu agente, com as quatro faixas:
+
+| Nível | Propriedade esperada | Avaliação esperada | O que é falhar no seu domínio |
 |---|---|---|---|
 | … | … | … | … |
 
-A última coluna é a que vale. Veredito enumerado se confere com `==`; formato,
-com *schema*; citação, conferindo se o artigo foi de fato recuperado; registro
-criado, olhando o estado do mundo depois da execução. **Toda propriedade que
-for para o juiz precisa dizer por que nada disso resolveria** — o juiz é o
-nível mais caro e o único que também precisa ser avaliado.
+Nem todo agente usa os quatro níveis. Um nível vazio é resposta legítima,
+desde que declarado: um agente que só responde texto talvez não precise de
+avaliação de resultado; um agente que age sobre o mundo e acerta pelo caminho
+errado vai errar quando o caminho mudar, e precisa de trajetória.
 
-Diga também se o seu agente precisa de avaliação de **trajetória**. Um agente
-que age sobre o mundo e acerta pelo caminho errado vai errar quando o caminho
-mudar; se o seu agente só responde texto, talvez o resultado baste — diga qual
-é o caso.
+> **Comece pelo que custa caro errar.** Um agente que aprova o reembolso
+> errado e um agente que responde num tom frio não falham da mesma forma. Diga
+> quais propriedades são as que, se falharem, alguém perde dinheiro, tempo ou
+> confiança.
 
-### 4. O juiz, e como ele vai ser validado
+### 3. O juiz, e como ele vai ser validado
 
-Escolha **uma** propriedade sem gabarito, das que ficaram com o juiz, e
+Escolha **uma** propriedade do nível do juiz, na pergunta (2), e
 escreva:
 
 - a **rubrica**: o que conta como sim e o que conta como não, em critério
@@ -121,7 +130,7 @@ escreva:
 Liste também, para este juiz, **qual dos vieses documentados mais o ameaça**
 — posição, verbosidade ou auto-preferência — e o que a rubrica faz contra ele.
 
-### 5. O ruído, e a regra que separa melhora de acaso
+### 4. O ruído, e a regra que separa melhora de acaso
 
 - **De onde vem o não determinismo do seu agente?** Parâmetros de amostragem,
   ferramentas externas que mudam, memória que cresce entre execuções. Para
@@ -144,8 +153,8 @@ Liste também, para este juiz, **qual dos vieses documentados mais o ameaça**
 
 Um documento em `exercicios/aula-11-avaliacao.md`, no repositório do trabalho.
 
-Texto corrido, com as cinco perguntas como seções e a tabela de casos da
-pergunta (2) inteira. Tabelas onde couberem. **Três a cinco páginas** — se
+Texto corrido, com as quatro perguntas como seções e a tabela de casos da
+pergunta (1) inteira. Tabelas onde couberem. **Três a cinco páginas** — se
 passar muito disso, provavelmente há descrição de técnica onde deveria haver
 decisão sobre o seu agente.
 
@@ -160,25 +169,13 @@ Vale versionar este documento em vez de sobrescrevê-lo.
 
 ---
 
-## Critérios
-
-| | |
-|---|---|
-| **Definiu o acerto** | cada propriedade tem a falha descrita com um exemplo do domínio |
-| **Declarou a origem** | todo caso tem origem e classe, e há casos de recusa e de borda |
-| **Escolheu o nível mais barato** | toda propriedade no juiz justifica por que os níveis abaixo não bastam |
-| **Planejou validar o juiz** | rubrica binária, exemplos dos dois lados, e o limiar de adoção decidido antes |
-| **Escreveu a regra antes** | a regra de promoção tem número, considera as fatias e está datada |
-
----
-
 ## Dicas
 
 - **Comece pelas falhas que você já viu.** Toda vez que o seu agente errou
   durante o desenvolvimento e você corrigiu, aquele erro é um caso — e é o
   mais valioso que você tem, porque não depende de imaginação.
 - **Um caso que todas as versões acertam não ensina nada.** Se a tabela da
-  pergunta (2) só tem casos fáceis, a suíte vai aprovar qualquer mudança.
+  pergunta (1) só tem casos fáceis, a suíte vai aprovar qualquer mudança.
 - **Desconfie da propriedade "a resposta é boa".** Quase sempre ela se
   desmonta em duas ou três propriedades que se conferem sem juiz.
 - **Escreva a rubrica como se fosse para uma pessoa nova na equipe.** Se uma
