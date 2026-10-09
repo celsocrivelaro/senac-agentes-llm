@@ -129,7 +129,7 @@ Reportar "65%" para esse sistema é verdade e é enganoso. O número que o usuá
 
 ```python
 {
-  "id": "C-014",
+  "id": "C-005",
   "origem": "producao",           # producao | desenvolvimento | sintetico
   "incidente": "2026-08-14, ticket #331",
   "entrada": "A despesa D-4613 está dentro da política? Foi em Lisboa.",
@@ -141,7 +141,95 @@ Reportar "65%" para esse sistema é verdade e é enganoso. O número que o usuá
 
 O campo `por_que_existe` não é documentação: é o que permite decidir, meses depois, se o caso ainda faz sentido quando a política mudar.
 
-### Exemplo 3 — A média que esconde
+### Exemplo 3 — Um *golden dataset* pequeno, inteiro
+
+Seis casos do agente de despesas, um de cada tipo que a composição exige. A versão do conjunto vai no topo, porque é ela que torna duas execuções comparáveis.
+
+```python
+VERSAO_DATASET = "1.2.0"
+
+CASOS = [
+    # simples — a referência: se este falhar, nada mais importa
+    {"id": "C-001", "origem": "desenvolvimento", "classe": "simples",
+     "entrada": "A despesa D-4612 está dentro da política?",        # refeição, R$ 138
+     "esperado": {"veredito": "reprovado", "cita": "art-7"},
+     "por_que_existe": "acima do teto, sem exceção"},
+
+    # exceção — veio de um incidente, e por isso tem data e ticket
+    {"id": "C-006", "origem": "producao", "classe": "excecao_internacional",
+     "incidente": "2026-08-22, ticket #349",
+     "entrada": "Uma refeição de R$ 180 em viagem internacional é reembolsável?",
+     "esperado": {"veredito": "aprovado", "cita": "art-19"},
+     "por_que_existe": "120 x 1,6 = 192; o agente reprovou por comparar com 120"},
+
+    # exceção negativa — sintético, e por isso tem revisor
+    {"id": "C-008", "origem": "sintetico", "classe": "excecao_internacional",
+     "revisor": "professor",
+     "entrada": "Hospedagem de R$ 900 em capital e em viagem internacional. Os acréscimos somam?",
+     "esperado": {"veredito": "reprovado", "cita": "art-19"},
+     "por_que_existe": "o art. 19 veda a cumulação"},
+
+    # recusa — fora do corpus: a resposta certa é não responder
+    {"id": "C-009", "origem": "producao", "classe": "recusa",
+     "incidente": "2026-07-30, ticket #302",
+     "entrada": "Qual é o procedimento para solicitar férias coletivas?",
+     "esperado": {"veredito": "recusa", "cita": None},
+     "por_que_existe": "o agente inventou um procedimento"},
+
+    # recusa — o erro da ferramenta precisa virar recusa, não palpite
+    {"id": "C-010", "origem": "desenvolvimento", "classe": "recusa",
+     "entrada": "A despesa D-9999 está dentro da política?",
+     "esperado": {"veredito": "recusa", "cita": None},
+     "por_que_existe": "id inexistente"},
+
+    # escrita — o esperado inclui o estado do mundo depois
+    {"id": "C-013", "origem": "producao", "classe": "escrita",
+     "incidente": "2026-08-05, ticket #318",
+     "entrada": "Registre o parecer da despesa D-4612.",
+     "esperado": {"veredito": "reprovado", "cita": "art-7", "pareceres_criados": 1},
+     "por_que_existe": "dois pareceres para a mesma despesa após um retry"},
+]
+```
+
+Seis casos não medem taxa nenhuma com precisão, e não é para isso que servem aqui: cada um ocupa um lugar que nenhum outro cobre. Retirar C-009 deixa o conjunto sem recusa; retirar C-013 deixa a escrita sem verificação de estado. O conjunto completo do laboratório tem 14 casos em `casos.py`, com a mesma estrutura.
+
+### Exemplo 4 — As quatro formas do "esperado"
+
+A definição da seção 4 admite quatro formas de referência. O agente de despesas usa a primeira; outros sistemas pedem as outras.
+
+```python
+# 1. SAÍDA ESPERADA — extração de nota fiscal. Comparação campo a campo.
+{"id": "NF-021", "origem": "producao",
+ "entrada": "nota_fiscal_0457.pdf",
+ "esperado": {"cnpj": "12.345.678/0001-90", "valor": 138.00, "data": "2026-08-14"},
+ "por_que_existe": "valor lido como 1.380,00: o ponto de milhar foi tomado por decimal"}
+
+# 2. RÓTULO — triagem de chamados. Uma classe entre poucas; mede-se a matriz de confusão.
+{"id": "TR-108", "origem": "desenvolvimento",
+ "entrada": "Fui cobrado duas vezes pela mesma assinatura este mês.",
+ "esperado": {"rotulo": "financeiro"},
+ "por_que_existe": "a palavra 'assinatura' puxava a classificação para 'conta'"}
+
+# 3. RUBRICA — resposta de atendimento. Não há texto certo; há critérios, cada um sim ou não.
+{"id": "AT-004", "origem": "sintetico", "revisor": "coordenacao_atendimento",
+ "entrada": "O produto chegou quebrado e eu quero meu dinheiro de volta hoje.",
+ "esperado": {"rubrica": [
+     "informa o reembolso em até 10 dias úteis após a devolução",
+     "não promete o dinheiro de volta no mesmo dia",
+     "diz qual é o próximo passo do cliente"]},
+ "por_que_existe": "pressão de prazo induz a prometer o que a loja não cumpre"}
+
+# 4. CONTEXTO DE REFERÊNCIA — RAG sobre o regulamento. O gabarito é o trecho que
+#    sustenta a resposta: avalia-se a busca (recall) e a fidelidade a ele.
+{"id": "RG-033", "origem": "producao",
+ "entrada": "Posso juntar o acréscimo de capital com o de viagem internacional?",
+ "esperado": {"contexto": ["art-19"], "afirmacao_central": "vedada a cumulação"},
+ "por_que_existe": "a resposta citou o art. 12 e afirmou que os acréscimos somam"}
+```
+
+A forma do "esperado" decide o nível de avaliação. Saída esperada e rótulo se comparam por código. Contexto de referência se mede por código na busca e por juiz na fidelidade. Rubrica vai ao juiz, e é a nota 03 que trata de como validá-lo. Em todos os casos, `origem` e `por_que_existe` continuam lá: o formato da referência muda, mas a exigência de saber de onde veio o caso não muda.
+
+### Exemplo 5 — A média que esconde
 
 ```
                           casos   acertos    taxa
