@@ -91,7 +91,7 @@ O procedimento:
 
 Nove falsos positivos num juiz de fidelidade significa que **nove respostas com afirmação não sustentada passariam**. Se o custo desse erro for alto, 89% não basta, por mais que o número pareça bom.
 
-### 4. Onde o aluno já viu isto
+### 4. O mesmo mecanismo, em outro papel
 
 O padrão **avaliador-otimizador** da Aula 04 é um juiz LLM **dentro** do sistema: um modelo critica a saída de outro, em produção, para melhorá-la. O juiz desta aula está **fora**, na bancada, e serve para decidir se o sistema pode mudar.
 

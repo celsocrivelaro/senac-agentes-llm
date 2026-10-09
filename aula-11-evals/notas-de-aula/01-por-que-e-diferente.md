@@ -20,7 +20,7 @@ Ao final desta nota, o aluno deve ser capaz de:
 
 ## Desenvolvimento teórico
 
-### 1. O contraste com o teste que o aluno já sabe fazer
+### 1. O contraste com o teste de software convencional
 
 Em software determinístico, a mesma entrada produz a mesma saída, e o teste é uma igualdade: `assert soma(2, 3) == 5`. Quando falha, falhou; quando passa, passou. A suíte é um conjunto de proposições verdadeiras ou falsas.
 
@@ -32,9 +32,9 @@ Disso decorre a primeira consequência prática, e ela é desconfortável: **rod
 
 Confundi-las leva a decisões erradas, porque cada uma se combate de um jeito.
 
-**Parâmetro de amostragem** (Aula 02). `temperature`, `top_p` e afins introduzem variação deliberada. O aluno controla, e pode zerar. É a fonte mais fácil, e é a única que a maioria das pessoas lembra.
+**Parâmetro de amostragem** (Aula 02). `temperature`, `top_p` e afins introduzem variação deliberada. É configurável, e pode ser zerada. É a fonte mais fácil, e é a única que a maioria das pessoas lembra.
 
-**O provedor.** Mesmo com `temperature=0`, não há garantia de reprodutibilidade. Ordem de operações em ponto flutuante, distribuição de carga entre réplicas, e a própria versão do modelo servida podem variar. O aluno **não** controla, e não adianta configurar.
+**O provedor.** Mesmo com `temperature=0`, não há garantia de reprodutibilidade. Ordem de operações em ponto flutuante, distribuição de carga entre réplicas, e a própria versão do modelo servida podem variar. Esta fonte **não** é configurável: nenhum parâmetro a elimina.
 
 **A memória** (Aula 08). Esta é a pior das três, e é a mais interessante, porque não é acidente: é **consequência de projeto**. A nota 03 daquela aula estabeleceu que memória torna o agente não reprodutível — a mesma entrada, no mesmo modelo, com os mesmos parâmetros, produz saída diferente amanhã, porque a memória mudou entre as duas execuções.
 
@@ -71,7 +71,7 @@ As três palavras em destaque fazem trabalho. *Revisado* exclui casos gerados e 
 
 ### 5. Os três embriões que já existem
 
-O aluno construiu este objeto três vezes, sem o nome:
+Este objeto já foi construído três vezes no curso, sem o nome:
 
 | Aula | O que construiu | O que faltava |
 |---|---|---|
@@ -101,25 +101,6 @@ Duas exigências de composição valem mais que o tamanho:
 
 - **cobrir as classes que importam**, e não apenas as frequentes. Um conjunto com noventa casos fáceis e dez difíceis produz uma média que se move quando os fáceis mudam;
 - **incluir os casos de recusa**. Um sistema que deveria dizer "não sei" e diz outra coisa falha de um jeito que nenhum caso positivo detecta. A Aula 07 já havia construído esse tipo de caso.
-
-### 8. O dataset é código
-
-Versionado, com histórico, revisado como qualquer artefato. E **mudá-lo invalida a comparação com as execuções anteriores** — o que significa que ele entra no carimbo.
-
-O carimbo do curso cresce assim:
-
-| Aula | Campos acrescentados |
-|---|---|
-| 03 | prompt · modelo · parâmetros |
-| 05 | arquitetura |
-| 06 | estratégia de *chunking* |
-| 07 | `k` · prompt de resposta |
-| 08 | estado da memória |
-| 09 | versão do framework |
-| 10 | revisão da especificação · versão do servidor |
-| **11** | **versão do *dataset* · versão da rubrica do juiz** |
-
-Treze campos. Vale exibir a tabela inteira em aula, porque ela é a medida de quanta coisa precisa estar fixa para que duas execuções sejam comparáveis — e porque cada linha dela foi descoberta por uma dor, não por teoria.
 
 ---
 
