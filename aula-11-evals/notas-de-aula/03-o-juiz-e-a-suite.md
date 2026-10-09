@@ -99,7 +99,7 @@ Mesmo mecanismo, papéis opostos — e uma consequência: **o juiz de fora preci
 
 ### 5. A suíte de regressão
 
-A suíte é o teste de regressão da Aula 03, crescido de uma dimensão para treze — porque são treze os campos do carimbo que precisam estar fixos.
+A suíte é o teste de regressão da Aula 03, crescido de uma dimensão para todas as que decidem o comportamento do sistema: prompt, modelo, parâmetros, índice, memória, framework, servidor, conjunto de casos e rubrica do juiz.
 
 **Quando roda:** antes de toda mudança de prompt, modelo, parâmetro, índice, memória, framework ou versão de servidor. Ou seja: a cada alteração de qualquer campo do carimbo.
 
