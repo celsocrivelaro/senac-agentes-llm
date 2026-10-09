@@ -1,15 +1,5 @@
 # IA Aplicada com LLMs — Aula 11: Evals — O juiz, e a suíte
 
-## Introdução
-
-A nota anterior isolou o que sobra para o juiz automático: fidelidade, completude, tom, qualidade da justificativa — propriedades que genuinamente não têm gabarito. Esta nota trata de como construí-lo, e de uma etapa que quase nenhum material cobre e que é a tese do encontro:
-
-> **O juiz também precisa ser avaliado.**
-
-Um juiz não validado produz uma série temporal que sobe enquanto o sistema piora, e a equipe descobre pela reclamação do usuário. É o defeito mais caro desta aula, porque ele não parece defeito: parece progresso.
-
-A segunda metade da nota monta a suíte de regressão e responde à pergunta que a improvisação da Aula 09 deixou aberta — **a diferença observada é real, ou é ruído?**
-
 > **Pré-requisitos:** notas 01 e 02 desta aula · Aula 02, [nota 03](../../aula-02-escolha-e-configuracao-de-modelos/notas-de-aula/03-controle-da-saida.md) — saída estruturada · Aula 04, [nota 01](../../aula-04-casos-de-uso-e-escolha-do-projeto/notas-de-aula/01-o-que-e-um-agente.md) — o padrão avaliador-otimizador.
 >
 > **Código:** [`aula11-evals/`](https://github.com/celsocrivelaro/senac-llm-code/tree/main/aula11-evals) — os scripts `05-human-review.py`, `06-llm-as-judge.py`, `07-rubric-scoring.py`, `08-regression-suite.py` e `09-agentevals-openevals.py` correspondem a esta nota.

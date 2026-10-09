@@ -1,13 +1,5 @@
 # IA Aplicada com LLMs — Aula 11: Evals — Por que avaliar isto é diferente
 
-## Introdução
-
-Onze encontros construíram um sistema que raciocina, recupera, lembra e se conecta. Cada decisão tomada nesse percurso — este *chunking* e não aquele, este prompt e não aquele, esta arquitetura e não aquela — foi defendida com um número pontual ou com argumento. **Não há suíte.**
-
-A exceção é a Aula 09, que comparou duas versões do mesmo sistema sobre dez tarefas fixas e chamou aquilo, no fecho, de suíte de regressão improvisada. Esta aula parte dali. O que a turma montou em trinta minutos ganha método, origem declarada por caso, e uma resposta para a pergunta que a improvisação não respondia: **a diferença observada é real ou é ruído?**
-
-Antes do método, porém, é preciso estabelecer por que o problema é diferente do teste de software que o aluno já sabe fazer. A resposta não é "porque o modelo erra às vezes". É mais estrutural do que isso.
-
 > **Pré-requisitos:** Aula 02, [nota 01](../../aula-02-escolha-e-configuracao-de-modelos/notas-de-aula/01-escolha-de-modelos.md) e [nota 04](../../aula-02-escolha-e-configuracao-de-modelos/notas-de-aula/04-custo-latencia-e-decisao.md) · Aula 03, [nota 03](../../aula-03-prompt-engineering/notas-de-aula/03-prompt-como-codigo.md) · Aula 06, [nota 02](../../aula-06-embeddings-e-rag/notas-de-aula/02-chunking-e-a-medida-da-busca.md) · Aula 08, [nota 04](../../aula-08-memoria/notas-de-aula/04-esquecer-e-proteger.md).
 >
 > **Código:** [`aula11-evals/`](https://github.com/celsocrivelaro/senac-llm-code/tree/main/aula11-evals) — os scripts `02-golden-set.py` e `03-pass-k.py` correspondem a esta nota.

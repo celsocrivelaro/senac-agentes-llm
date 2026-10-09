@@ -1,13 +1,5 @@
 # IA Aplicada com LLMs — Aula 11: Evals — Os quatro níveis de avaliação
 
-## Introdução
-
-A nota anterior estabeleceu que a métrica é uma distribuição e que o conjunto de casos precisa ser construído antes de qualquer medida. Falta decidir **como** cada caso é julgado.
-
-A tentação é usar um modelo para julgar tudo, porque um modelo julga qualquer coisa. É a decisão mais cara possível, e frequentemente a menos confiável — pelas razões que a nota seguinte trata. Esta nota organiza a alternativa: **quatro níveis de avaliação, com custos que diferem em ordens de grandeza**, e uma regra para escolher entre eles.
-
-A regra não é nova. É a tabela de decisão da Aula 05 — *dá para resolver sem modelo?* — aplicada à avaliação em vez de à arquitetura.
-
 > **Pré-requisitos:** nota 01 desta aula · Aula 05, [nota 02](../../aula-05-arquitetura-de-agentes/notas-de-aula/02-confiabilidade.md) — o *trace* · Aula 06, [nota 02](../../aula-06-embeddings-e-rag/notas-de-aula/02-chunking-e-a-medida-da-busca.md) — `recall@k` · Aula 07, [nota 03](../../aula-07-rag-e-documentos/notas-de-aula/03-medir-o-rag-e-a-recuperacao-como-ferramenta.md) — `recall` × fidelidade.
 >
 > **Código:** [`aula11-evals/`](https://github.com/celsocrivelaro/senac-llm-code/tree/main/aula11-evals) — os scripts `01-tool-unit-tests.py` e `04-trajectory-eval.py` correspondem a esta nota.
