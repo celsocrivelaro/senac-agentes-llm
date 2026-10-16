@@ -1,4 +1,4 @@
-# IA Aplicada com LLMs — Aula 12: MLOps e empacotamento — DevOps
+# IA Aplicada com LLMs — Aula 13: MLOps e empacotamento — DevOps
 
 ---
 
