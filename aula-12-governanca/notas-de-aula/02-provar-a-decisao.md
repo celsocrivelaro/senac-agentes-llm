@@ -227,7 +227,7 @@ INFOCOMM MEDIA DEVELOPMENT AUTHORITY (IMDA). **Model AI Governance Framework for
 
 KOLT, N. Governing AI agents. **Notre Dame Law Review**, 2025. Disponível em: https://arxiv.org/abs/2501.07913.
 
-MITCHELL, M. et al. Model cards for model reporting. In: CONFERENCE ON FAIRNESS, ACCOUNTABILITY, AND TRANSPARENCY (FAT*), 2019. **Proceedings** [...]. ACM, 2019.
+MITCHELL, M. et al. Model cards for model reporting. In: CONFERENCE ON FAIRNESS, ACCOUNTABILITY, AND TRANSPARENCY (FAT*), 2019, Atlanta. **Proceedings** [...]. New York: ACM, 2019. DOI: 10.1145/3287560.3287596. Disponível em: https://arxiv.org/abs/1810.03993.
 
 OPENTELEMETRY. **Semantic conventions for generative AI systems**. Disponível em: https://opentelemetry.io/docs/specs/semconv/gen-ai/.
 

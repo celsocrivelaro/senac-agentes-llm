@@ -33,7 +33,7 @@ Esta nota trata da primeira das duas perguntas que organizam o assunto: **o que 
 
 **Risco de saída** é o risco de um sistema de IA produzir um resultado incorreto, enviesado ou inexplicável — uma classificação errada, um texto falso, uma previsão mal calibrada — que uma pessoa ou outro sistema consome e sobre o qual decide. **Risco de ação** é o risco de um sistema de IA **executar** uma operação indevida: alterar um registro, mover dinheiro, enviar uma comunicação, conceder um acesso.
 
-A governança de modelos preditivos concentra-se no risco de saída: acurácia, viés, explicabilidade, deriva de dados. Entre a saída e a consequência há, em geral, uma decisão humana ou uma regra de negócio. Num agente, essa mediação desaparece no ponto em que o modelo escolhe uma ferramenta de escrita: o erro de raciocínio deixa de ser uma saída a revisar e passa a ser um efeito já ocorrido. A aula de segurança registrou a mesma diferença sob outro ângulo — um *chatbot* que alucina produz uma frase errada; um agente que alucina registra um parecer.
+A governança de modelos preditivos concentra-se no risco de saída: acurácia, viés (BAROCAS; HARDT; NARAYANAN, 2023), explicabilidade, deriva de dados. Entre a saída e a consequência há, em geral, uma decisão humana ou uma regra de negócio. Num agente, essa mediação desaparece no ponto em que o modelo escolhe uma ferramenta de escrita: o erro de raciocínio deixa de ser uma saída a revisar e passa a ser um efeito já ocorrido. A aula de segurança registrou a mesma diferença sob outro ângulo — um *chatbot* que alucina produz uma frase errada; um agente que alucina registra um parecer.
 
 Shavit et al. (2023) tratam sistemas agênticos como objeto próprio de governança e ilustram o risco de ação com um assistente encarregado de comprar ingredientes para um *cheesecake* japonês que, em vez de comprar os ingredientes localmente, compra uma passagem aérea cara para o Japão, e o usuário só percebe quando o reembolso já não é possível. A análise do caso é o ponto relevante: vários participantes poderiam ter evitado o dano — o desenvolvedor do modelo, melhorando a confiabilidade; quem implantou o sistema, exigindo aprovação explícita antes de compras; o usuário, não delegando autoridade de compra a um sistema sabidamente pouco confiável; a companhia aérea, exigindo consentimento humano para a compra. Quando todos poderiam ter evitado, cada um pode atribuir a culpa aos demais, e a governança existe para que essa atribuição esteja feita antes do dano.
 
@@ -326,6 +326,8 @@ A especificação também torna visível o que ainda não está coberto. Ela diz
 ---
 
 ## Fontes e leituras
+
+BAROCAS, S.; HARDT, M.; NARAYANAN, A. **Fairness and machine learning**: limitations and opportunities. Cambridge, MA: MIT Press, 2023. Disponível em: https://fairmlbook.org/pdf/fairmlbook.pdf.
 
 CHAN, A.; EZELL, C.; KAUFMANN, M.; WEI, K.; HAMMOND, L.; BRADLEY, H.; BLUEMKE, E.; RAJKUMAR, N.; KRUEGER, D.; KOLT, N.; HEIM, L.; ANDERLJUNG, M. Visibility into AI agents. In: ACM CONFERENCE ON FAIRNESS, ACCOUNTABILITY, AND TRANSPARENCY (FAccT), 2024, Rio de Janeiro. **Proceedings** [...]. New York: ACM, 2024. Disponível em: https://arxiv.org/abs/2401.13138.
 
