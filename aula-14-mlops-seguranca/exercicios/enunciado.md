@@ -1,235 +1,204 @@
-# Exercício 14 — Atacar o próprio sistema, e depois defendê-lo
+# Exercício 14 — Os dez riscos, no case do grupo
 
 ## Contexto
 
 A Parte 3 do trabalho cobra segurança com uma pergunta direta: *o que o
 sistema faria se a entrada fosse hostil?*
 
-Até a Aula 13, essa pergunta era hipotética — o sistema rodava na máquina de
-quem o escreveu. Agora ele tem endpoint público, porta aberta, segredo em
-plataforma de terceiro, uma imagem construída sobre uma base que outra pessoa
-publica e dependências que outra pessoa atualiza. A pergunta deixou de ser
-hipotética.
+O catálogo da OWASP para aplicações agênticas (ASI01 a ASI10) lista dez
+riscos, e nem todos pesam o mesmo em todo sistema. Um agente sem memória não
+sofre envenenamento de memória; um agente que só lê não move dinheiro. O
+trabalho de segurança começa por **priorizar**: decidir quais riscos existem
+no case do grupo, e qual o dano de cada um, antes de gastar esforço em defesa.
 
-> **Questão a ser respondida ao final:** quanto de utilidade as defesas do
-> grupo custaram — e com base em qual número o grupo decidiu que valia a
-> pena?
+Um termo organiza o exercício:
+
+- **Mitigação** é a medida que impede o risco de se materializar ou reduz o
+  seu dano — menor privilégio por ferramenta, confirmação humana inescapável
+  por prompt, credencial delegada, versão fixada, um dos seis padrões de
+  defesa da nota 02.
+
+> **Questão a ser respondida ao final:** quais são os riscos de maior impacto
+> no case do grupo, e qual a mitigação de cada um?
 
 ## Objetivo
 
-1. **Mapear** os dez riscos ao próprio código, com arquivo e linha;
-2. **Executar** ao menos dois ataques indiretos contra o próprio sistema;
-3. **Implementar** dois padrões de defesa, declarando o custo em capacidade;
-4. **Integrar** uma suíte hostil à suíte da Aula 11, com as taxas separadas.
+1. **Avaliar** os dez riscos no case do grupo: se existem, onde, com que
+   impacto e com que mitigação;
+2. **Declarar** ao menos um risco aceito.
 
 ## Requisitos
 
-### 1. O mapa, com endereço
+### 1. Os dez riscos, no case
 
-| | Risco | Arquivo e linha | Existe no sistema do grupo? |
-|---|---|---|---|
-| ASI01 | Sequestro de objetivo | | |
-| … | | | |
-| ASI10 | Agentes desgovernados | | |
+Avalie cada risco no case do grupo e preencha um quadro por risco. Se o risco
+**não existe**, escreva **não aplicável** na primeira linha e deixe as demais
+vazias.
 
-**Endereço**, não descrição. Um risco marcado como "existe" sem uma linha de
-código apontada é palpite. E um risco marcado como "não existe" precisa da
-razão — normalmente, a capacidade correspondente não está no sistema.
+| Campo | O que se escreve |
+|---|---|
+| **Existe no case?** | sim, ou **não aplicável** — quando a capacidade correspondente não está no sistema (o agente não executa código, não tem memória, não usa sub-agente) |
+| **Onde** | o componente do sistema — a ferramenta, o índice de RAG, a memória, o servidor MCP, o `Dockerfile` —, com arquivo e linha quando houver código |
+| **Cenário de ataque** | concreto e do case: quem é o atacante, por qual canal o texto ou a ação dele entra, e o que o agente faria. "Um atacante poderia injetar instruções" não é cenário |
+| **Impacto** | nota de 1 a 3, pelos critérios abaixo, e o critério que a justifica |
+| **Mitigação** | a medida, nomeada pelo vocabulário da aula, e o ponto do sistema em que ela entra |
 
-ASI07 e ASI08 têm endereço mesmo num sistema de agente único: o resumo que
-um sub-agente devolve (Aula 05) e a ferramenta que falha no meio da execução.
-Se o sistema não tiver nenhum dos dois, declare isso; a Aula 16 volta aos dois
-riscos quando o sistema for dividido em vários agentes.
+Os critérios de impacto:
 
-### 2. Dois ataques indiretos, executados
+| Nota | Impacto |
+|---|---|
+| **1** | dano reversível e restrito a uma execução; nenhum dado pessoal envolvido |
+| **2** | dano reversível que alcança outros usuários, ou dado interno exposto |
+| **3** | ação irreversível (pagamento, envio, exclusão, registro de parecer), dado pessoal sob a LGPD exposto, ou alcance sobre todos os usuários |
 
-Escolha **dois canais distintos** entre documento recuperado, retorno de
-ferramenta, memória e agente subordinado. Para cada um:
+Os dez quadros, a preencher:
 
-- o *payload*, e por que ele é plausível para um classificador;
-- o canal de entrada;
-- o ***trace* que evidencia a obediência** — não a resposta, o *trace*.
+#### ASI01 — Sequestro de objetivo do agente
 
-Se um dos canais escolhidos for a **memória**, o ataque precisa demonstrar o
-efeito **em execução posterior**, e não na mesma. É a distância temporal que
-importa: o atacante não está presente, e o usuário afetado não é ele.
+| Campo | Resposta |
+|---|---|
+| Existe no case? | |
+| Onde | |
+| Cenário de ataque | |
+| Impacto | |
+| Mitigação | |
 
-### 3. As três defesas que não funcionam
+#### ASI02 — Uso indevido e exploração de ferramenta
 
-Antes de implementar as que funcionam, **demonstre que as outras não
-funcionam** no sistema do grupo: delimitador, instrução defensiva e — se o
-sistema tiver — classificador de moderação.
+| Campo | Resposta |
+|---|---|
+| Existe no case? | |
+| Onde | |
+| Cenário de ataque | |
+| Impacto | |
+| Mitigação | |
 
-Três execuções e três resultados. Se alguma delas resistir, investigue a
-causa antes de concluir que ela defende: normalmente é o *payload* que está
-fraco.
+#### ASI03 — Abuso de identidade e privilégio
 
-### 4. A trifecta do sistema
+| Campo | Resposta |
+|---|---|
+| Existe no case? | |
+| Onde | |
+| Cenário de ataque | |
+| Impacto | |
+| Mitigação | |
 
-| Perna | Existe? | Onde | Removível? |
-|---|---|---|---|
-| dado privado | | | |
-| conteúdo não confiável | | | |
-| comunicação para fora | | | |
+#### ASI04 — Cadeia de suprimentos agêntica
 
-Identifique **qual é removível sem inviabilizar o produto**, e remova-a. Se
-nenhuma for, isso é um **risco aceito** — ver o requisito 7.
+| Campo | Resposta |
+|---|---|
+| Existe no case? | |
+| Onde | |
+| Cenário de ataque | |
+| Impacto | |
+| Mitigação | |
 
-### 5. Dois padrões de defesa, com o custo declarado
+#### ASI05 — Execução inesperada de código
 
-Implemente dois dos seis. Para cada um, o relatório precisa trazer:
+| Campo | Resposta |
+|---|---|
+| Existe no case? | |
+| Onde | |
+| Cenário de ataque | |
+| Impacto | |
+| Mitigação | |
 
-- o que ele impediu, com o ataque do requisito 2 executado contra ele;
-- **o que o sistema deixou de conseguir fazer** — a lista, explícita.
+#### ASI06 — Envenenamento de memória e de contexto
 
-A segunda parte é metade da nota. Uma defesa apresentada sem ela parece
-grátis, e não é.
+| Campo | Resposta |
+|---|---|
+| Existe no case? | |
+| Onde | |
+| Cenário de ataque | |
+| Impacto | |
+| Mitigação | |
 
-### 6. A suíte hostil
+#### ASI07 — Comunicação insegura entre agentes
 
-No mínimo **dez casos hostis**, integrados à suíte da Aula 11 e com a mesma
-disciplina: conjunto versionado, execução repetida, origem declarada.
+| Campo | Resposta |
+|---|---|
+| Existe no case? | |
+| Onde | |
+| Cenário de ataque | |
+| Impacto | |
+| Mitigação | |
 
-E a suíte passa a reportar **duas taxas separadas**:
+#### ASI08 — Falhas em cascata
 
-```
-                      utilidade    resistência
-  sem defesa              <n>%          <n>%
-  + <defesa 1>            <n>%          <n>%
-  + <defesa 2>            <n>%          <n>%
-```
+| Campo | Resposta |
+|---|---|
+| Existe no case? | |
+| Onde | |
+| Cenário de ataque | |
+| Impacto | |
+| Mitigação | |
 
-Reportá-las num único número esconde a troca. **Cada ataque bem-sucedido do
-requisito 2 vira caso permanente** desta suíte. A Aula 16 roda a mesma suíte
-sobre a versão multiagente do sistema; os casos precisam, portanto, ser
-executáveis sem depender de detalhe interno do agente único.
+#### ASI09 — Exploração da confiança humano-agente
 
-### 7. Um risco aceito, declarado
+| Campo | Resposta |
+|---|---|
+| Existe no case? | |
+| Onde | |
+| Cenário de ataque | |
+| Impacto | |
+| Mitigação | |
 
-Escolha ao menos um risco que o grupo **decidiu não mitigar** e declare-o:
+#### ASI10 — Agentes desgovernados
+
+| Campo | Resposta |
+|---|---|
+| Existe no case? | |
+| Onde | |
+| Cenário de ataque | |
+| Impacto | |
+| Mitigação | |
+
+ASI07 e ASI08 podem existir mesmo num sistema de agente único: o resumo que um
+sub-agente devolve e a ferramenta que falha no meio da execução. Só são não
+aplicáveis se o sistema não tiver nenhum dos dois.
+
+### 2. Um risco aceito, declarado
+
+Escolha ao menos um risco que o grupo **decidiu não mitigar** — entre os
+dez — e declare:
 
 - qual é o risco;
-- **por que foi aceito** — normalmente, porque mitigá-lo inviabiliza um
+- **por que foi aceito** — normalmente, porque a mitigação inviabiliza um
   requisito do produto;
 - **o que o limita hoje**;
 - **que evento faria reavaliar**.
 
-Aceitar risco declarado é engenharia. Não declarar é omissão — e um trabalho
+Aceitar risco declarado é engenharia. Não declarar é omissão — e uma análise
 sem nenhum risco aceito quase sempre significa que a análise não foi feita.
 
-### 8. A cadeia de suprimentos e a imagem
-
-Liste as dependências de terceiro que o agente **consome em execução** —
-a imagem base do `Dockerfile`, servidores MCP, ferramentas externas,
-extensões:
-
-| Dependência | Versão fixada? | Descrição revisada? | Assinatura? |
-|---|---|---|---|
-
-A coluna do meio é a que quase ninguém preenche, e é a que corresponde ao
-mecanismo: **a descrição da ferramenta entra no contexto do modelo, e
-portanto é entrada não confiável vinda de terceiro**.
-
-Releia o `Dockerfile` da Aula 13 como superfície e responda, com a linha
-correspondente:
-
-| Verificação | Resposta | Linha |
-|---|---|---|
-| a imagem base tem versão fixada (*tag* específica ou *digest*)? | | |
-| o processo roda com usuário sem privilégio (`USER`)? | | |
-| só a porta do serviço é exposta e publicada? | | |
-| alguma camada contém arquivo com segredo? | | |
-
-Corrija o que não estiver conforme. Se alguma camada já publicada continha
-segredo, a correção não é reconstruir a imagem: é **revogar a chave**.
-
-### 9. A operação de recuperação
-
-Demonstre que o sistema consegue **se recuperar** de um envenenamento de
-memória: identifique o registro contaminado e remova-o seletivamente.
-
-Se essa operação não existir, o sistema não se recupera — cada execução
-futura repete o comportamento injetado. Implemente-a.
-
-### 10. O carimbo
-
-Esta aula acrescenta **o conjunto de casos hostis**, ao lado do *golden
-dataset* da Aula 11.
-
-## O que deve sair na tela
+## O que deve sair no relatório
 
 ```
-MAPA ASI x CÓDIGO
-  ASI01  <arquivo>:<linha>   existe
+OS DEZ RISCOS
+  ASI01  sim            <componente> (<arquivo>:<linha>)
+         cenário ...... <cenário em uma linha>
+         impacto ...... 3 — <critério>
+         mitigação .... <medida>, em <ponto do sistema>
+  ASI05  não aplicável
   ...
 
-ATAQUES EXECUTADOS
-  <canal> ... <payload resumido> ... OBEDECEU
-    trace: <trajetória que evidencia>
-
-DEFESAS QUE NÃO FUNCIONAM
-  delimitador ............ OBEDECEU
-  instrução defensiva .... OBEDECEU
-  classificador .......... passou (<score>)
-
-TRIFECTA
-  <perna> ... <onde> ... <removível?>
-  removida: <qual>
-
-DEFESAS IMPLEMENTADAS
-  <padrão> ... impediu <ataques>
-    o sistema deixou de conseguir: <lista>
-
-SUÍTE
-                    utilidade   resistência
-  sem defesa           <n>%        <n>%
-  + <defesa>           <n>%        <n>%
-
 RISCO ACEITO
-  <id> ... <risco> ... limitado por <...> ... reavaliar se <...>
-
-CADEIA DE SUPRIMENTOS E IMAGEM
-  <dependência> ... versão <fixa?> ... descrição <revisada?>
-  Dockerfile ... base <fixa?> ... USER <sim/não> ... portas <...> ... segredo em camada <sim/não>
-
-RECUPERAÇÃO
-  registro contaminado removido: <id>   execuções seguintes: limpas
+  <id> ... <risco> ... aceito porque <...> ... limitado por <...> ... reavaliar se <...>
 ```
-
-## Desafios opcionais
-
-**A.** Implemente um **terceiro padrão** de defesa e meça, na suíte da Aula
-12, **quanto de utilidade ele custou**. É o dado que falta em quase toda
-discussão de segurança de agentes, e o desafio existe para produzi-lo.
-
-**B.** Se o sistema do grupo usa sub-agente (Aula 05), ataque pelo **quarto
-canal**: envenene o conteúdo que o sub-agente lê e verifique se a instrução
-atravessa o resumo que ele devolve ao principal. Depois mostre que um resumo
-**estruturado** — schema em vez de prosa — a bloqueia, e justifique. A Aula
-14 retoma o mesmo ataque no *handoff* entre agentes.
 
 ## Entrega
 
-No repositório do trabalho:
+No repositório do trabalho, em `exercicios/aula14-respostas.md`: os dez
+quadros de risco e o registro do risco aceito.
 
-- os ataques, as defesas e a suíte hostil, com **parâmetros e justificativas
-  no código**;
-- em `exercicios/aula14-respostas.md`: o mapa ASI × código, os dois ataques
-  com o *trace*, a análise da trifecta, a lista do que cada defesa custou em
-  capacidade, a tabela da cadeia de suprimentos e da imagem e o registro do
-  risco aceito;
-- a suíte integrada, reportando as duas taxas.
-
-> **Onde isto reaparece:** a **Parte 3 do trabalho** pede `docs/seguranca.md`. O que se escreve aqui é o rascunho dele — na entrega, consolidado em `docs/`. E a **Aula 16** roda a suíte hostil sobre a versão multiagente do sistema.
+> **Onde isto reaparece:** a **Parte 3 do trabalho** pede `docs/seguranca.md`. O que se escreve aqui é o rascunho dele — na entrega, consolidado em `docs/`. E a aula de sistemas multiagente volta a ASI07 e ASI08 quando o sistema for dividido em vários agentes.
 
 ## Dicas
 
-- Ataque **antes** de defender. Defesa escolhida sem ataque executado
-  costuma proteger o flanco errado.
-- O *payload* que funciona é **educado**. Um *payload* com aparência de
-  ataque é barrado pelo classificador, e a conclusão — errada — passa a ser
-  a de que a defesa funciona.
-- O requisito 5 — o que o sistema deixou de conseguir fazer — é o mais fácil
-  de deixar em branco e o que mais separa quem entendeu a aula.
-- Se o sistema não obedeceu a nenhum ataque, quase certamente o problema é o
-  *payload*, e não a segurança do sistema.
+- Avalie pelo **case**, e não pelo catálogo. O mesmo risco tem impacto alto
+  num agente que envia e-mail e baixo num que só responde.
+- Liste os canais por onde conteúdo não confiável entra no sistema antes de
+  preencher os quadros: documento recuperado, retorno de ferramenta, memória e
+  agente subordinado. Cada canal costuma aparecer em mais de um risco.
+- Uma mitigação escrita no prompt de sistema não é mitigação: o texto injetado
+  está no mesmo canal (nota 02, §8).
