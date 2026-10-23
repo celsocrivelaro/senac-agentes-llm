@@ -151,7 +151,7 @@ Reportá-las juntas esconde a troca que a nota 02 estabeleceu: uma defesa que so
 
 E o desafio que fecha o exercício desta aula é justamente esse: **medir quanto de utilidade uma defesa custou**. É o dado que falta em quase toda discussão de segurança de agentes.
 
-A suíte hostil não é descartada ao fim desta aula. Ela entra no **carimbo** — o registro, definido na aula de *evals*, dos campos que identificam uma configuração do sistema (prompt, modelo, parâmetros, índice, memória, versão de servidor) e das suítes que a validam — ao lado do *golden dataset*, e a aula de sistemas multiagente a executa também sobre a versão multiagente do sistema.
+A suíte hostil não é descartada ao fim desta aula. Ela entra no **carimbo** — o registro, definido na aula de *evals*, dos campos que identificam uma configuração do sistema (prompt, modelo, parâmetros, índice, memória, versão de servidor) e das suítes que a validam — ao lado do *golden dataset*.
 
 ### 7. O que registrar, e o que fazer
 
@@ -193,7 +193,7 @@ A lista de pendências da [nota sobre *tool calling*](../../aula-03-prompt-engin
 - **ASI07, comunicação insegura entre agentes.** Hoje o endereço é um só: o resumo que o sub-agente de arquitetura de agentes devolve ao principal. Com vários agentes, cada *handoff* é uma fronteira em que o que atravessa é entrada não confiável para quem a recebe, e o *Agent Card* do A2A é a declaração que precisa ser verificada do lado do protocolo.
 - **ASI08, falhas em cascata.** Hoje o endereço é a ferramenta que falha no meio da execução (arquitetura de agentes). Com vários agentes, o erro de um vira entrada do próximo, e a confiabilidade compõe multiplicativamente.
 
-Dividir o agente em vários abre fronteiras novas, e aquela aula as trata como contrato e como superfície, com os padrões de defesa da nota 02 — o mapear-reduzir é a mesma topologia de um sistema multiagente, usada como parede. A suíte hostil construída na §6 passa a rodar sobre as duas versões do sistema, agente único e multiagente, e a resistência entra no veredito ao lado do acerto e do custo.
+Dividir o agente em vários abre fronteiras novas, e aquela aula as trata como contrato e como superfície, com os padrões de defesa da nota 02 — o mapear-reduzir é a mesma topologia de um sistema multiagente, usada como parede.
 
 ---
 
