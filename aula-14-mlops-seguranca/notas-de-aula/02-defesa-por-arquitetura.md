@@ -71,7 +71,7 @@ A consequência prática é o critério de escolha: não se pergunta "qual é o 
 
 Quatro medidas que o curso já tinha, com o nome correto.
 
-**Menor privilégio por ferramenta.** A ferramenta de leitura não precisa do alcance da de escrita. O agente que recupera documentos não precisa da credencial que registra pareceres. É ASI02 e ASI03, e é a defesa mais barata que existe.
+**Menor privilégio por ferramenta.** A ferramenta de leitura não precisa do alcance da de escrita. O agente que recupera documentos não precisa da credencial que registra pareceres. É ASI02 e ASI03, e é a defesa mais barata que existe. O menor privilégio também vale para o **argumento**: uma ferramenta de escrita legítima, chamada pelo agente com permissão, ainda pode ser usada fora do escopo do pedido. O `01.ASI02-uso-indevido-de-ferramenta.py` mostra a ferramenta de registro aplicada a despesas que ninguém pediu, e a mesma ferramenta validando em código o escopo (só a despesa do pedido) e a consistência (o veredito decorre do valor e do teto).
 
 **Confirmação humana antes de ação irreversível.** A aula de arquitetura de agentes a introduziu ([nota sobre confiabilidade](../../aula-05-arquitetura-de-agentes/notas-de-aula/02-confiabilidade.md), §2) como salvaguarda de confiabilidade; aqui ela é **controle de segurança**, e a diferença importa: como controle, ela precisa ser **inescapável por prompt**. Se o modelo puder decidir que a confirmação é dispensável, ela não é um controle.
 
@@ -179,6 +179,8 @@ if ferramenta.irreversivel:
 ```
 
 A diferença é de mecanismo, não de rigor da redação: no primeiro caso a regra está no mesmo canal que o atacante pode escrever.
+
+O mesmo vale para **o que o aprovador lê**. Uma confirmação inescapável cuja tela é escrita pelo modelo transfere a decisão ao texto do modelo: se o agente foi instruído a descrever a operação como rotina, o humano aprova a rotina que leu. É ASI09, a exploração da confiança humano-agente, e o `01.ASI09-confianca-humano-agente.py` a demonstra: há confirmação antes do pagamento, e mesmo assim o pagamento vai para a conta do atacante. A tela que resiste é montada pelo código, com os argumentos reais da chamada e a conferência contra o cadastro.
 
 ### Exemplo 4 — A saída do modelo, consumida como entrada
 
