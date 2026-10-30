@@ -60,9 +60,29 @@ que a resposta muda.
 ### 2. O *trace* de uma conversa
 
 Uma conversa com o agente é **uma execução**, e cada execução é um *trace*.
-Desenhe a árvore de *spans* de uma conversa típica, nas convenções GenAI:
-`invoke_agent` na raiz, um `chat` por chamada ao modelo, um `execute_tool`
-por ferramenta.
+
+As **convenções semânticas GenAI** do OpenTelemetry padronizam o nome dos
+*spans* e dos atributos de sistemas com LLM, para que qualquer plataforma de
+observabilidade os entenda sem documentação própria (nota sobre
+observabilidade, §2). São três tipos de *span*:
+
+| *Span* | Quando é aberto | Atributos principais |
+|---|---|---|
+| `invoke_agent <agente>` | uma vez por execução: é a **raiz** do *trace* | `gen_ai.agent.name`, `gen_ai.provider.name` |
+| `chat <modelo>` | a cada chamada ao modelo | `gen_ai.request.model`, `gen_ai.usage.input_tokens`, `gen_ai.usage.output_tokens`, `gen_ai.response.finish_reasons` |
+| `execute_tool <ferramenta>` | a cada ferramenta executada | `gen_ai.tool.name`, `gen_ai.tool.call.id` |
+
+> *Exemplo (auditor), uma execução com duas voltas:*
+>
+> ```text
+> invoke_agent auditor-de-despesas
+> ├── chat mistral-small-latest           (o modelo pede uma ferramenta)
+> ├── execute_tool consultar_despesa
+> └── chat mistral-small-latest           (o modelo responde)
+> ```
+
+Desenhe a árvore de *spans* de uma conversa típica do agente de trocas,
+nessas convenções.
 
 Depois, liste **de dois a três atributos** que a aplicação precisa gravar na
 raiz — informações que nem a convenção nem a plataforma fornecem, porque
