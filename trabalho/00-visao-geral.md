@@ -6,8 +6,6 @@ Durante o semestre vocês vão construir **um sistema de agentes de IA para um p
 
 Não são três trabalhos. É **um sistema**, construído em camadas: cada parte acrescenta o que a disciplina acabou de ensinar, sobre o mesmo tema, no mesmo repositório. O que vocês escolherem na Parte 1 é o que vocês vão entregar na Parte 3 — muito maior, e muito mais bem feito.
 
-A entrega final é condicionada a uma **apresentação em aula**, em que o grupo demonstra cada agente do sistema funcionando.
-
 > **Importante:** este trabalho **é** o projeto final da disciplina. Não existe outro. A escolha do tema acontece na aula sobre casos de uso de agentes, e a ficha de case preenchida naquela aula é o núcleo da Parte 1.
 
 ---
@@ -16,13 +14,14 @@ A entrega final é condicionada a uma **apresentação em aula**, em que o grupo
 
 Ao fim das três partes, o grupo tem:
 
-- um sistema **multiagente** resolvendo um problema real, com mais de um agente e uma arquitetura de coordenação declarada;
-- os agentes **conversando com software tradicional** — API, banco de dados, serviço interno —, via ferramentas próprias e via **MCP**;
+- um sistema de agentes resolvendo um problema real, **conversando com software tradicional** — API, banco de dados, serviço interno — via ferramentas;
 - uma **base de memória consultável** pelos agentes (RAG);
 - **memória entre execuções** — o que o sistema lembra de ontem, e o que ele deliberadamente não guarda;
 - um **workflow orquestrado com LangGraph**;
 - um **plano de prompt engineering** documentado e versionado;
-- e as três preocupações que separam protótipo de sistema: **segurança**, **MLOps/observabilidade** e **gestão de custos**.
+- e as quatro preocupações que separam protótipo de sistema: **avaliação**, **governança**, **segurança** e **observabilidade**.
+
+Multiagente, MCP e multimídia são opcionais: entram quando o case pede.
 
 ---
 
@@ -32,7 +31,7 @@ Ao fim das três partes, o grupo tem:
 |---|---|---|
 | **1** | **Escolher e provar o terreno** | tema e contexto · **a justificativa de negócio** (por que agente, e que ganho) · análise de modelos · **um agente simples** com prompt engineering e arquitetura básica · integração simples com software tradicional (pode ser mock) |
 | **2** | **O agente de verdade** | plano de prompt engineering · arquitetura do agente documentada · **RAG** como memória consultável · **memória** entre execuções · **o grafo** em LangChain/LangGraph, com o estado declarado · **entrada e saída** com contrato · **human-in-the-loop** |
-| **3** | **O sistema** | **multiagente** com arquitetura de coordenação · **MCP** no lugar da integração manual · **segurança** · **MLOps** e observabilidade · **gestão de custos** · **apresentação em aula** |
+| **3** | **O sistema sob controle** | **avaliação** · **governança** · **segurança** · **observabilidade** · opcionais: multiagente, MCP, multimídia |
 
 Cada parte é avaliada **na entrega dela**. Uma Parte 1 fraca não é compensada por uma Parte 3 boa — mas uma Parte 1 bem escolhida torna as outras duas muito mais fáceis.
 
@@ -72,27 +71,25 @@ O agente vira um sistema completo. Oito frentes, e **cada uma acrescenta uma pe�
 
 **8. Human-in-the-loop.** O humano entra no grafo como código que para e espera. Onde o sistema pausa e por qual critério, o que a pessoa vê, se ela pode **aprovar editando**, o que acontece se ninguém responder, e a prova de que aprovar duas vezes não faz a ação acontecer duas vezes.
 
-> **MCP saiu desta entrega.** Ele passou para a Parte 3, ao lado de multiagente — é lá que encontra o problema que o justifica: mais de um agente consumindo a mesma ferramenta.
+> **MCP saiu desta entrega.** Ele passou para a Parte 3, como frente opcional ao lado de multiagente — é com mais de um agente consumindo a mesma ferramenta que ele encontra o problema que o justifica.
 
 ---
 
-## Parte 3 — O sistema
+## Parte 3 — O sistema sob controle
 
-O enunciado completo será publicado junto com a entrega da Parte 2.
+O enunciado completo está em **[03-terceira-entrega.md](03-terceira-entrega.md)**.
 
-**1. Multiagente.** Mais de um agente, com arquitetura de coordenação **explícita e justificada**: quem chama quem, quem decide, como o resultado de um chega ao outro, e o que acontece quando um deles falha. Multiagente não é "vários prompts" — é uma decisão de arquitetura que precisa ser defendida contra a alternativa de um agente só.
+O foco é **implementação e documentação**: cada frente pede código que roda e um documento que explica o que o código faz.
 
-**2. MCP no lugar da integração manual.** A integração da Parte 1 é reescrita como **servidor MCP**. O ganho a demonstrar é o que a arquitetura multiagente acabou de criar: a ferramenta deixa de ser código acoplado a um agente e passa a ser um serviço que **os vários agentes do sistema** consomem — e que qualquer agente de fora consumiria.
+**1. Avaliação.** Um *golden dataset*, os níveis de avaliação escolhidos com justificativa, um juiz validado contra rótulo humano — e a suíte rodando sobre o sistema entregue, comparando duas versões. É ela que responde *como vocês sabem que uma mudança melhorou em vez de piorar*.
 
-**3. Segurança.** Prompt injection direto e indireto, tool misuse, dado sensível no contexto, permissão por ferramenta, e **a lista do que a memória deliberadamente não guarda**. O que o seu sistema faria se a entrada fosse hostil. E a superfície que o MCP acabou de abrir: a descrição da ferramenta é um prompt escrito por outra pessoa, e nenhum cliente — nem o SDK, nem o adaptador do framework — a inspeciona.
+**2. Governança.** O *model card* do agente, com evidência nos campos que viram código; a autoridade do agente e onde cada limite é aplicado; e uma decisão passada reconstruída a partir do *trace*.
 
-**4. MLOps e observabilidade.** O trace de cada execução, as métricas que vocês acompanham, o conjunto de avaliação, e como vocês sabem que uma mudança melhorou em vez de piorar.
+**3. Segurança.** Os riscos agênticos que existem no sistema, mapeados ao código, três controles implementados fora do prompt e testados, o que cada um custou em capacidade, e os dados pessoais e o que a memória não guarda. O que o seu sistema faria se a entrada fosse hostil.
 
-**5. Gestão de custos — e a conferência da promessa.** Quanto custa uma execução, onde o custo mora, e as alavancas que vocês usaram para reduzi-lo. Com números medidos, não estimados.
+**4. Observabilidade.** O plano de observabilidade do case, o *trace* nas convenções GenAI do OpenTelemetry, as métricas sobre execuções reais e um objetivo de serviço (SLO) de qualidade.
 
-E o fecho do arco do trabalho: **o ganho prometido na Parte 1, conferido.** Vocês voltam à venda que fizeram, colocam ao lado o número que o sistema realmente entregou e explicam a diferença. Prometer 80% e entregar 30%, com a conta à vista, é um resultado aceitável e honesto — e é o que acontece na maioria dos projetos reais. Prometer "mais eficiência" e não ter como conferir, não é.
-
-**6. A apresentação.** Demonstração ao vivo, **agente por agente**. Cada integrante do grupo deve conseguir explicar qualquer parte do sistema — não apenas a que escreveu.
+**5. Opcionais.** Multiagente, MCP e multimídia. Quem usar documenta a construção: a arquitetura de coordenação, como os servidores são usados, como a mídia entra e sai.
 
 ---
 
@@ -173,10 +170,12 @@ A partir da escolha do tema, cada aula nova termina com a mesma pergunta: **o qu
 | Casos de uso de agentes | **a escolha do tema** e a ficha de case |
 | Embeddings e RAG | a base de conhecimento consultável da Parte 2 |
 | Memória | o que o sistema lembra entre execuções, na Parte 2 |
-| MCP | a reescrita da integração na Parte 3 |
 | Frameworks e orquestração | o grafo, o estado e o human-in-the-loop da Parte 2 |
-| Multiagente | a arquitetura de coordenação da Parte 3 |
-| Observabilidade e evals | o MLOps da Parte 3 |
-| Segurança e custos | as duas últimas frentes da Parte 3 |
+| MCP | a integração servida por MCP, opcional na Parte 3 |
+| Evals | a avaliação da Parte 3 |
+| Governança | o *model card*, a autoridade e a decisão reconstruída da Parte 3 |
+| Segurança | os riscos e os controles da Parte 3 |
+| Observabilidade | o plano e a instrumentação da Parte 3 |
+| Multiagente | a arquitetura de coordenação, opcional na Parte 3 |
 
 Ou seja: **vocês não precisam saber tudo hoje para escolher hoje.** Precisam escolher um tema que tenha espaço para tudo isso.
